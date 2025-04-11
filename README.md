@@ -1,1 +1,12 @@
 AgileWebDev Group82
+
+-- MEMBERS --
+
+- Andoni
+- Eli
+- Emily
+- Luke
+
+-- STRUCTURE --
+
+
