@@ -3,9 +3,130 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PINK_SLIPPERS</title>
-  </head>
-  <body>
-    
-  </body>
+   <title>Seperate Tabs Single Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f4f4f4;
+    }
+
+    .tabs {
+      display: flex;
+      flex-direction: column;
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    /* Hide radio buttons used when selecting our tabs */
+    input[type="radio"] {
+      display: none;
+    }
+
+    .tab-labels {
+      display: flex;
+    }
+
+    /* labels will now act as tab buttons */
+    .tab-labels label {
+      padding: 15px;
+      color: #ccc;
+      text-align: center;
+      background: #2c3e50;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* This will underline which tab you are currently on */
+    input:checked + label {
+      background: #fff;
+      color: #2c3e50;
+      font-weight: bold;
+      border-bottom: 2px solid #3498db;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 20px;
+    }
+
+    #tabEntry:checked ~ .content #plantData,
+    #feed:checked ~ .content #activity,
+    #settings:checked ~ .content #userSettings {
+      display: block;
+    }
+
+    h2{
+        color: #3498db;
+    }
+  </style>
+</head>
+<body>
+
+<div class="tabs">
+  <!-- Focus of this document will be to implement seperate tabs on a single page -->
+   <!-- No javascript will be used in this demo file but this may be used and edited as a template-->
+  
+    <!-- Radio buttons are used here to track tab state -->
+  <input type="radio" name="tabs" id="tabEntry" checked>
+  <label for="tabEntry">Entry Form</label>
+
+  <input type="radio" name="tabs" id="feed">
+  <label for="feed">Activity Feed</label>
+
+  <input type="radio" name="tabs" id="settings">
+  <label for="settings">Account Settings</label>
+
+  <!-- Tab Content -->
+   <!-- Placeholder on user data entry, once submitted gardening tips generated -->
+    <!-- Note: currently no generated tips on our current build -->
+  <div class="content">
+    <div class="tab-content" id="plantData">
+      <h2>What Are Your Garden's Specs?</h2>
+      <form>
+        <label>Location:<br><input type="text" name="name"></label><br><br>
+        <label>Space:<br><input type="text" name="email"></label><br><br>
+        <label>Climate:<br><input type="text" name="climate"></label><br><br>
+        <button type="Calculate My Growth Guide">Submit</button>
+      </form>
+    </div>
+
+    <div class="tab-content" id="activity">
+      <h2>Activity Feed</h2>
+      <!-- Placeholder on activity feed -->
+       <!-- Implementation will contain better layout and user interface -->
+      <ul>
+        <li>Clarie posted a comment.</li>
+        <li>Leon uploaded a photo.</li>
+        <li>Sherry liked your post.</li>
+        <li><b>Feed updated 14/04/2025</b></li>
+      </ul>
+    </div>
+
+    <div class="tab-content" id="userSettings">
+      <h2>Account Settings</h2>
+      <!-- Placeholder display on User account management -->
+       <!-- We will need to make a login page in the future -->
+      <form>
+        <label>Change Username:<br><input type="text" value="John Halo"></label><br><br>
+        <label>Change Password:<br><input type="password"></label><br><br>
+        <label>Confirm New Password:<br><input type="password"></label><br><br>
+        <label>Notification Settings:<br>
+          <select>
+            <option>All</option>
+            <option>Only Email</option>
+            <option>None at all</option>
+          </select>
+        </label><br><br>
+        <button type="submit">Save Settings</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+</body>
 </html>
