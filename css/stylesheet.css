@@ -1,0 +1,67 @@
+body{
+  background-color: #e0e6de;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  margin: auto;
+}
+
+
+/* editing the tab pills  */
+.nav-pills .nav-link {
+  color: #5c7457;
+  background-color: transparent;
+}
+
+.nav-pills .nav-link.active {
+  background-color: #b9d8b5;
+  color: #2f3d2f;
+}
+
+h1 {
+  text-align: center; 
+  text-shadow: 0 5px 9px rgba(71, 88, 69, 0.435);
+  color: #94af74;
+  font-size: 85px;
+}
+
+.container {
+  min-height: 80vh;
+  border-radius: 10px;
+  flex-direction: column;
+  background-color: #f3fff0;
+  box-shadow: 0 5px 9px rgba(0, 0, 0, 0.2);
+  padding: 50px;
+}
+
+.home {
+  padding-top: 30px;
+  text-align: center;
+}
+
+
+.signupForm {
+  margin: auto;
+  max-width: 500px;
+
+}
+
+.form-label {
+  margin-top: 20px;
+  font-size: 30px;
+}
+
+.form-control {
+  max-width: 300px;
+}
+
+.button {
+  display: inline-block;
+  margin: 20px auto;
+  padding: 15px 35px;
+  border-radius: 10px;
+  border: 1px solid #1c2814;
+}
+
+button:hover {
+  box-shadow: 0 15px 19px 0 rgba(0, 0, 0, 0.463);
+  border: 2px solid rgb(59, 46, 78);
+}
