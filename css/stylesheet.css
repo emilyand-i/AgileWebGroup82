@@ -5,24 +5,6 @@ body{
 }
 
 
-h1 {
-  text-align: center; 
-  text-shadow: 0 5px 9px rgba(71, 88, 69, 0.435);
-  color: #94af74;
-  font-size: 85px;
-}
-
-.container {
-  min-height: 80vh;
-  border-radius: 10px;
-  flex-direction: column;
-  background-color: #f3fff0;
-  box-shadow: 0 5px 9px rgba(0, 0, 0, 0.2);
-  padding: 50px;
-}
-
-
-
 .button {
   display: inline-block;
   margin: 20px auto;
