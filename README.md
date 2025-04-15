@@ -4,7 +4,7 @@ AgileWebDev Group82
 
 - Andoni (student_id)
 - Eli (student_id)
-- Emily (student_id)
+- Emily (23723242)
 - Luke (23814635)
 
 -- STRUCTURE --
