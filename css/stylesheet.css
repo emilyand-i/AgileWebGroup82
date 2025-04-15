@@ -5,17 +5,6 @@ body{
 }
 
 
-/* editing the tab pills  */
-.nav-pills .nav-link {
-  color: #5c7457;
-  background-color: transparent;
-}
-
-.nav-pills .nav-link.active {
-  background-color: #b9d8b5;
-  color: #2f3d2f;
-}
-
 h1 {
   text-align: center; 
   text-shadow: 0 5px 9px rgba(71, 88, 69, 0.435);
@@ -32,26 +21,7 @@ h1 {
   padding: 50px;
 }
 
-.home {
-  padding-top: 30px;
-  text-align: center;
-}
 
-
-.signupForm {
-  margin: auto;
-  max-width: 500px;
-
-}
-
-.form-label {
-  margin-top: 20px;
-  font-size: 30px;
-}
-
-.form-control {
-  max-width: 300px;
-}
 
 .button {
   display: inline-block;
