@@ -18,7 +18,7 @@
       <div class="container">
         <a class="navbar-brand" href="#">P L A N T L Y</a>
         <div class="ms-auto">
-          <a href="userSignup" class="btn">Signup</a>
+          <button class="btn success" data-bs-toggle="modal" data-bs-target="#signupModal">Signup</button>
         </div>
       </div>
     </nav>
@@ -27,24 +27,36 @@
     <div class="container mt-5" id="home">
       <div class="text-center">
         <h1 class="display-4">Welcome to PLANTLY</h1>
-        <p class="lead">Your plants life 🌿</p>
+        <p class="lead">🌱 A plants life 🌱</p>
       </div>
     </div>
 
-    <!--Signup Page-->
-    <div id="userSignup" class="container mt-5">
-      <form class="signupForm mt-4">
-        <h2 class="text-center">Register Here</h2>
-        <div class="mt-3">
-          <label for="username" class="form-label">Username:</label>
-          <input type="text" id="username" name="username" class="form-control" placeholder="Enter Username" />
+    <!--Signup-->
+    <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="signupModalLabel">Sign up</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="mb-3">
+                <label for="username" class="form-label">Username:</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Enter Username" required>
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Password:</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter Password" required>
+              </div>
+              <button type="submit" class="btn btn-success w-100">Submit</button>
+            </form>
+          </div>
         </div>
-        <div>
-          <label for="password" class="form-label">Password:</label>
-          <input type="password" id="password" name="password" class="form-control" placeholder="Enter Password" />
-        </div>
-        <button type="submit" class="button" >SUBMIT</button>
-      </form>
+      </div>
     </div>
+
+    <!--Signin-->
+
   </body>
   </html>

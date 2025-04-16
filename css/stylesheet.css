@@ -1,19 +1,59 @@
 body{
   background-color: #e0e6de;
   font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-  margin: auto;
-}
+  body {
+    background-color: #eaf7e5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
 
+  .navbar {
+    background-color: #cdeac0 !important;
+  }
 
-.button {
-  display: inline-block;
-  margin: 20px auto;
-  padding: 15px 35px;
-  border-radius: 10px;
-  border: 1px solid #1c2814;
-}
+  .navbar-brand {
+    font-weight: bold;
+    color: #3b663b !important;
+  }
 
-button:hover {
-  box-shadow: 0 15px 19px 0 rgba(0, 0, 0, 0.463);
-  border: 2px solid rgb(59, 46, 78);
-}
+  .btn-success {
+    background-color: #7fc97f;
+    border-color: #6dbb6d;
+  }
+
+  .btn-success:hover {
+    background-color: #6dbb6d;
+  }
+
+  h1.display-4 {
+    color: #3b663b;
+    font-weight: 700;
+  }
+
+  .lead {
+    color: #4d774e;
+    font-size: 1.2rem;
+  }
+
+  .modal-content {
+    border-radius: 1rem;
+    border: 2px solid #cdeac0;
+  }
+
+  .modal-header {
+    background-color: #e4f5dc;
+    border-bottom: none;
+  }
+
+  .modal-title {
+    color: #3b663b;
+    font-weight: bold;
+  }
+
+  .form-label {
+    color: #4d774e;
+  }
+
+  .form-control {
+    border-radius: 0.5rem;
+    border-color: #cce5cc;
+  }
