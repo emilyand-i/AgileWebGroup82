@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/stylesheet.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/script.js"></script>
 
     <title>P L A N T L Y</title>
   </head>
@@ -18,7 +19,7 @@
       <div class="container">
         <a class="navbar-brand" href="#">P L A N T L Y</a>
         <div class="ms-auto">
-          <button class="btn success" data-bs-toggle="modal" data-bs-target="#signupModal">Signup</button>
+          <button onclick="showLogin()" class="btn">Signup</button>
         </div>
       </div>
     </nav>
@@ -31,29 +32,23 @@
       </div>
     </div>
 
-    <!--Signup-->
-    <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="signupModalLabel">Sign up</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form>
-              <div class="mb-3">
-                <label for="username" class="form-label">Username:</label>
-                <input type="text" class="form-control" id="username" name="username" placeholder="Enter Username" required>
-              </div>
-              <div class="mb-3">
-                <label for="password" class="form-label">Password:</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Enter Password" required>
-              </div>
-              <button type="submit" class="btn btn-success w-100">Submit</button>
-            </form>
-          </div>
+    <!--Register-->
+    <div class="form-container" id="auth-form">
+      <div class="container-wrapper">
+        <button onclick="exitLogin()" type="button" class="btn close-btn">&times;</button>
+        <div class="main-form front">
+          <form>
+            <h2>Sign Up</h2>
+            
+            <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+            
+            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+          
+            <button role="submit" type="submit" class="btn subbutton">Submit</button>
+          </form>
         </div>
       </div>
+      
     </div>
 
     <!--Signin-->
