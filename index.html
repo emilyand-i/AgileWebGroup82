@@ -26,7 +26,7 @@
     </nav>
 
 
-    <div class="container main">
+    <div class="container main" id="main">
     <!--Welcome Page-->
       <div class="container mt-5 p-4">
         <div class="text-center">
@@ -54,21 +54,23 @@
     </div>
 
     <!--Register-->
-    <div class="form-container" id="auth-form">
-      <div class="container-wrapper">
-        <button onclick="exitLogin()" type="button" class="btn close-btn">&times;</button>
-        <div class="main-form front">
-          <form>
-            <h2>Sign Up</h2>
-            
-            <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
-            
-            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+    <div class="container">
+      <div class="form-container" id="auth-form">
+        <div class="container-wrapper">
+          <button onclick="exitLogin()" type="button" class="btn close-btn">&times;</button>
+          <div class="main-form front">
+            <form>
+              <h2>Sign Up</h2>
+              
+              <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+              
+              <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
 
-            <input type="password" class="form-control" id="confirm-password" name="confirm-password" placeholder="Confirm Password" required>
-          
-            <button role="submit" type="submit" class="btn submit-btn">Submit</button>
-          </form>
+              <input type="password" class="form-control" id="confirm-password" name="confirm-password" placeholder="Confirm Password" required>
+            
+              <button role="submit" type="submit" class="btn submit-btn">Submit</button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
