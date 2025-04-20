@@ -5,78 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
-
-
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/stylesheet.css">
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/script.js"></script>
 
+
     <title>P L A N T L Y</title>
   </head>
-
   <body>
+    <!--Outer Section-->
+    <div class="container-fluid bckgrnd">
+      <div class="cursor-events" id="torch-effect">
+        <!--Content Container-->
+        <div class="container-fluid px-4 py-5 py-lg-0">
+          <div class="container-lg content">
+            <header class="container about-info">
+              <div>
+                <h1 class="display-2">P L A N T L Y</h1>
+                <h2 class="mt-4">🌱 A plants life 🌱</h2>
+              </div>
+              <div class="">
+                <ul class="nav flex-column">
+                  <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#about">About Us</a>
+                  </li>
+                </ul>
+              </div>
+            </header>
+            <main class="container main-info">
+              <section id="welcome">
+                <p class="par">Welcome!</p>
+                <p class="par">About us section</p>
+              </section>
+              <section>
+                <div class="form-wrapper" id="form-wrapper">
+                  
+                  <div class="form-card front" id="front">
+                    <form class="mt-5">
+                      <h2 class="mt-2">Sign In</h2>
+                      
+                      <input type="text" class="form-control " id="username" name="username" placeholder="Username" required>
+                      
+                      <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
 
-    <!--Navbar-->
-    <nav class="navbar navbar-expand-sm navbar-light bg-light">
-      <div class="container">
-        <a class="navbar-brand" href="#">P L A N T L Y</a>
-        <button onclick="showLogin()" class="btn signup-btn">Signup</button>
-      </div>
-    </nav>
+                      <button role="submit" type="submit" class="btn submit-btn mb-5 mt-1">Submit</button>
 
+                      <p class="mt-3">Dont have an account?</p>
+                      <button type="button" onclick="flipForm()" class="btn signup-btn">Create Account</button>
+                    </form>
+                  </div>
+                  <div class="form-card back" id="back">
+                    <form>
+                      <h2 class="mt-3">Sign Up</h2>
+                      
+                      <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
+                      
+                      <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+        
+                      <input type="password" class="form-control" id="confirm-password" name="confirm-password" placeholder="Confirm Password" required>
 
-    <div class="container main" id="main">
-    <!--Welcome Page-->
-      <div class="container mt-5 p-4">
-        <div class="text-center">
-          <h1 class="display-2 mt-4">Welcome to PLANTLY</h1>
-          <h2 class="mt-5">🌱 A plants life 🌱</h2>
+                      <button role="submit" type="submit" class="btn submit-btn mb-2">Submit</button>
+
+                      <p class="mt-4">Already have an account?</p>
+                      <button class="btn signin-btn">Sign in</button>
+                    </form>
+                  </div>
+                  
+                </div>
+              </section>
+            </main>
+          </div>
         </div>
-        <div class="info-row mt-5 text-center fade-in">
-          <div class="info-block">
-            <h3>HELLO</h3>
-          </div>
-          <div class="info-block">
-            <h3></h3>
-          </div>
-          <div class="info-block">
-            <h3></h3>
-          </div>
-          <div class="info-block">
-            <h3></h3>
-          </div>
-          <div class="info-block">
-            <h3></h3>
-          </div>
-        </div>
+
       </div>
     </div>
-
-    <!--Register-->
-    <div class="container">
-      <div class="form-container" id="auth-form">
-        <div class="container-wrapper">
-          <button onclick="exitLogin()" type="button" class="btn close-btn">&times;</button>
-          <div class="main-form front">
-            <form>
-              <h2>Sign Up</h2>
-              
-              <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
-              
-              <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
-
-              <input type="password" class="form-control" id="confirm-password" name="confirm-password" placeholder="Confirm Password" required>
-            
-              <button role="submit" type="submit" class="btn submit-btn">Submit</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-
-    <!--Signin-->
 
   </body>
-  </html>

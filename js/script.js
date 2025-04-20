@@ -1,13 +1,7 @@
-
-
-function showLogin() {
-  document.getElementById("auth-form").style.display = 'flex';
-  document.getElementById("main").style.display = 'none';
+function flipForm() {
+  document.getElementById("form-wrapper").classList.toggle("flip");
 }
 
-function exitLogin() {
-  document.getElementById("auth-form").style.display = 'none';
-  document.getElementById("main").style.display = 'initial';
-}
-
-
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelector('.signin-btn').addEventListener('click', flipForm);
+});
