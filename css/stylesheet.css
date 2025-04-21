@@ -27,10 +27,24 @@
 
 .about-info{
   position: sticky;
-  background-color: #e6dee43b;
   padding-top: 6rem;
   width: 48%;
   color:aliceblue;
+}
+
+.flower-img {
+  height: 320px;
+  width: 320px;
+  border-radius: 50%;
+  border: 5px solid #88c574;
+  background-color:rgb(134, 213, 187);
+}
+
+.flower-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .nav-link {
@@ -40,7 +54,6 @@
 
 .main-info {
   padding-top: 6rem;
-  background-color: #e0dee628;
   width: 52%;
   color:aliceblue;
 }
@@ -51,7 +64,7 @@
 /*Form Cards*/
 
 .form-wrapper {
-  margin: auto;
+  margin: auto 0;
   position: relative;
   perspective: 1000px;
   margin-top: 50px;
@@ -63,7 +76,7 @@
 .form-card {
   position: absolute;
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+
   width: 100%;
   height: 100%;
   padding: 20px 12px;
@@ -73,10 +86,10 @@
 }
 
 
-
 .form-card:hover {
   box-shadow: 1px 0px 14px 7px rgba(124, 175, 124, 0.63);
   cursor: pointer;
+  font-size: 20px;
 
 }
 
