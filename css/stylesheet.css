@@ -7,29 +7,32 @@
  html, body {
 	height: 100%;
 	width: 100%;
-  background-color: #4a5c44;
+  background-color: #3d5136c9;
   font-family: 'Quicksand', sans-serif;
 }
 
 .container-screen {
   margin: auto 0;
+  display: flex;
   min-height: 100vh;
   
 }
 
 .content {
-  justify-content: space-between;
+  gap: 40px;
   display: flex;
   gap: 40px;
-  height: 100vh;
+  width: 100%;
+  align-items: flex-start;
 
 }
 
 .about-info{
   position: sticky;
-  padding-top: 6rem;
+  top: 6rem;
   width: 48%;
   color:aliceblue;
+  height: fit-content;
 }
 
 .flower-img {
@@ -37,8 +40,8 @@
   height: 320px;
   width: 320px;
   border-radius: 50%;
-  border: 5px solid #88c574;
-  background-color:rgb(134, 213, 187);
+  border: 5px solid #729566;
+  background-color:rgb(69, 97, 71);
 }
 
 .flower-img img {
@@ -58,9 +61,15 @@
 }
 
 .main-info {
+  display: flex;
+  flex-direction: column;
   padding-top: 6rem;
   width: 52%;
   color:aliceblue;
+  overflow-y: auto;
+  max-height: 100vh;
+  padding-bottom: 50px;
+  scrollbar-width: none;
 }
 
 .welc {
@@ -71,6 +80,7 @@
 }
 
 /*Form Cards*/
+/* On create acc and sign in button press, the card will flip around to the appropriate side. */
 
 .form-wrapper {
   margin: auto 0;
