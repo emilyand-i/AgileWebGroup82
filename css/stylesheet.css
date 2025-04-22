@@ -107,11 +107,33 @@ body {
   scrollbar-width: none;
   background-color: rgb(84, 111, 91);
   border-radius: 3rem;
+  height: 85vh;
 }
+
 
 main.main-info {
     margin-bottom: 0;
     padding-bottom: 0;
+}
+
+/* Target the scrollable div */
+.main-info {
+  scrollbar-width: thin;         /* For Firefox */
+  scrollbar-color: #6db075 transparent;  /* For Firefox (thumb, track) */
+}
+
+/* WebKit browsers */
+.main-info::-webkit-scrollbar {
+  width: 6px;  /* slim scrollbar */
+}
+
+.main-info::-webkit-scrollbar-track {
+  background: transparent; /* optional */
+}
+
+.main-info::-webkit-scrollbar-thumb {
+  background-color: #6db075;  /* green color */
+  border-radius: 10px;
 }
 
 .welc {
