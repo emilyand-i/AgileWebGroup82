@@ -1,0 +1,158 @@
+*{
+	margin:0;
+	padding:0;
+	box-sizing: border-box;
+}
+
+ html, body {
+	height: 100%;
+	width: 100%;
+  background-color: #3d5136c9;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.container-screen {
+  margin: auto 0;
+  display: flex;
+  min-height: 100vh;
+  
+}
+
+.content {
+  gap: 40px;
+  display: flex;
+  gap: 40px;
+  width: 100%;
+  align-items: flex-start;
+
+}
+
+.about-info{
+  position: sticky;
+  top: 6rem;
+  width: 48%;
+  color:aliceblue;
+  height: fit-content;
+}
+
+.flower-img {
+  margin-top: 80px;
+  height: 320px;
+  width: 320px;
+  border-radius: 50%;
+  border: 5px solid #729566;
+  background-color:rgb(69, 97, 71);
+}
+
+.flower-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.nav-info {
+  margin-top: 100px;
+}
+
+.nav-link {
+  color:aliceblue;
+  font-size: 20px;
+}
+
+.main-info {
+  display: flex;
+  flex-direction: column;
+  padding-top: 6rem;
+  width: 52%;
+  color:aliceblue;
+  overflow-y: auto;
+  max-height: 100vh;
+  padding-bottom: 50px;
+  scrollbar-width: none;
+}
+
+.welc {
+  font-size: 40px;
+}
+.par {
+  font-size: 25px;
+}
+
+/*Form Cards*/
+/* On create acc and sign in button press, the card will flip around to the appropriate side. */
+
+.form-wrapper {
+  margin: auto 0;
+  position: relative;
+  perspective: 1000px;
+  margin-top: 50px;
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 3 / 4;
+}
+
+.form-card {
+  position: absolute;
+  border-radius: 10px;
+
+  width: 100%;
+  height: 100%;
+  padding: 20px 12px;
+  backface-visibility: hidden;
+  transition: transform 0.6s ease;
+  
+}
+
+
+.form-card:hover {
+  box-shadow: 1px 0px 14px 7px rgba(124, 175, 124, 0.63);
+  cursor: pointer;
+  font-size: 20px;
+
+}
+
+.front {
+  transform: rotateY(0deg);
+  z-index: 2;
+   
+}
+.back {
+  transform: rotateY(180deg);
+  z-index: 1;
+}
+
+.form-wrapper.flip .front{
+  transform: rotateY(-180deg);
+  z-index: 1;
+}
+.form-wrapper.flip .back{
+  transform: rotateY(0deg);
+  z-index: 2;
+}
+
+
+.form-control {
+  margin: 30px 0;
+  height: 40px;
+  border-radius: 0.5rem;
+}
+
+
+.btn {
+  border-radius: 10px;
+  color:aliceblue;
+
+}
+.btn:hover {
+  color: white;
+  background-color: rgba(124, 175, 124, 0.63);
+}
+
+
+
+
+
+
+
+
