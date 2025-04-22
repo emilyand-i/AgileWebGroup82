@@ -11,6 +11,13 @@
   font-family: 'Quicksand', sans-serif;
 }
 
+body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
 .container-screen {
   margin: auto 0;
   display: flex;
@@ -18,8 +25,14 @@
   
 }
 
+.container-fluid.bckgrnd {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
 .display-2 {
-  margin-top: 3rem;
+  margin-top: -1rem;
 }
 
 
@@ -33,6 +46,11 @@
 
 }
 
+.container-lg.content {
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
 .about-info{
   position: sticky;
   top: 6rem;
@@ -42,7 +60,7 @@
 }
 
 .flower-img {
-  margin-top: 80px;
+  margin-top: 2rem;
   height: 320px;
   width: 320px;
   border-radius: 50%;
@@ -58,12 +76,21 @@
 }
 
 .nav-info {
-  margin-top: 100px;
+  margin-top: 3rem;
+  display: flex;
+  gap: 1rem;
+  
 }
+
 
 .nav-link {
   color:aliceblue;
   font-size: 20px;
+  border-radius: 1rem;
+  padding: 0.5rem;
+  width: 10rem;
+  text-align: center;
+  background-color: #546f4b;
 }
 
 .main-info {
@@ -80,6 +107,11 @@
   scrollbar-width: none;
   background-color: rgb(84, 111, 91);
   border-radius: 3rem;
+}
+
+main.main-info {
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
 
 .welc {
