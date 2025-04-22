@@ -116,25 +116,22 @@ main.main-info {
     padding-bottom: 0;
 }
 
-/* Target the scrollable div */
-.main-info {
-  scrollbar-width: thin;         /* For Firefox */
-  scrollbar-color: #6db075 transparent;  /* For Firefox (thumb, track) */
+/* below classes used for scroll wheel */
+.main-info { 
+  scrollbar-width: thin;      
+  scrollbar-color: #6db075 transparent;  
 }
-
-/* WebKit browsers */
 .main-info::-webkit-scrollbar {
-  width: 6px;  /* slim scrollbar */
+  width: 6px;  
 }
-
 .main-info::-webkit-scrollbar-track {
-  background: transparent; /* optional */
+  background: transparent; 
 }
-
 .main-info::-webkit-scrollbar-thumb {
-  background-color: #6db075;  /* green color */
+  background-color: #6db075;  
   border-radius: 10px;
 }
+
 
 .welc {
   font-size: 40px;
