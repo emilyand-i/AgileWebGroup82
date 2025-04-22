@@ -18,6 +18,12 @@
   
 }
 
+.display-2 {
+  margin-top: 3rem;
+}
+
+
+
 .content {
   gap: 40px;
   display: flex;
@@ -61,15 +67,19 @@
 }
 
 .main-info {
+  margin-top: 3rem;
+  margin-bottom: 3rem;
   display: flex;
   flex-direction: column;
-  padding-top: 6rem;
+  padding: 2rem;
   width: 52%;
   color:aliceblue;
   overflow-y: auto;
   max-height: 100vh;
   padding-bottom: 50px;
   scrollbar-width: none;
+  background-color: rgb(84, 111, 91);
+  border-radius: 3rem;
 }
 
 .welc {
