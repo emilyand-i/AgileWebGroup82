@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Plant Growth Photo Display</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
@@ -15,19 +13,25 @@
       height: auto;
     }
 
+    body {
+      background-color:rgb(69, 97, 71);
+    }
+
   </style>
 </head>
-<body class="bg-success text-white"> 
+<body class="text-white"> 
 
   <!-- Button to toggle the div on and off -->
   <div class="container py-5">
-    <button id="toggleMainBtn" class="btn btn-light">See Photo Display Tab</button>
+    <button id="toggleDisplayBtn" class="btn btn-light">See Photo Display Tab</button>
   </div>
 
   <!-- display defaults to blank page -->
   <div id="mainContent" style="display: none;">
     <div class="container my-5">
       <h1 class="mb-4">Upload Plant Growth Photo</h1>
+
+      <p class="mb-4"><b>Share your plant growth journey with us!</b><br>Upload a photo of your plant and share your thoughts too</p>
 
       <!-- The photo is a required input field here -->
       <form id="photoForm" class="mb-5">
@@ -50,13 +54,16 @@
   <script>
     //JavaScript to get the button working
     //ie) to show and hide like a tab (crude skeleton display but implementation is there)
-    const toggleMainBtn = document.getElementById('toggleMainBtn');
+    const toggleDisplayBtn = document.getElementById('toggleDisplayBtn');
     const mainContent = document.getElementById('mainContent');
 
-    toggleMainBtn.addEventListener('click', () => {
+    toggleDisplayBtn.addEventListener('click', () => {
       const isHidden = mainContent.style.display === 'none';
       mainContent.style.display = isHidden ? 'block' : 'none';
-      toggleMainBtn.textContent = isHidden ? 'Hide Content' : 'See Photo Display Tab';
+      toggleDisplayBtn.textContent = isHidden ? 'Hide Content' : 'See Photo Display Tab';
+
+      //REMOVE WHEN IMPLEMENTING INTO OTHER FILES/FUNCTIONS
+      console.log('Display toggled');
     }); 
     
     
@@ -67,27 +74,35 @@
     const display = document.getElementById('display');
 
     form.addEventListener('submit', function (e) {
-      e.preventDefault();
+      e.preventDefault(); //USE THIS TO STOP PAGE REFRESHING ON SUBMITS!
 
       const file = input.files[0];
-      if (!file) return;
+      if (!file) return; //Get the file uploaded by the user
 
       const plantName = document.getElementById('plantName').value
       const comments = document.getElementById('comments').value
 
 
-      const reader = new FileReader();
+      const reader = new FileReader(); // convert image so our site can use it
       reader.onload = function (event) {
         const imgSrc = event.target.result;
-        const date = new Date().toLocaleString();
+        const date = new Date().toLocaleString(undefined, {
+          hour: 'numeric',
+          minute: 'numeric',
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        }); //Neater display without seconds
 
+        // Create a new card element for the photo
+        // all photos will be displayed seperately and uniformly
         const card = document.createElement('div');
         card.className = 'card photo-card';
 
         cardHTML = `
           <img src="${imgSrc}" class="card-img-top photo-img" alt="Uploaded photo">
           <div class="card-body">
-            <p class="card-text"><strong>Submitted:</strong> ${date}</p>
+            <p class="card-text"><strong>Uploaded on:</strong> ${date}</p>
         `;
          // Only add Plant Name if user wrote it
         if (plantName) {
@@ -104,6 +119,12 @@
         card.innerHTML = cardHTML;
 
         display.prepend(card); // Newest first
+        //to make it start with the oldests first we just need to append it
+        //Not sure if we would like to consider option of switch photos apparance later
+        // ie) By newest, By oldest toggle for the user to press
+
+        //REMOVE WHEN IMPLEMENTING INTO OTHER FILES/FUNCTIONS
+        console.log('image added to diary');
         form.reset();
       };
 
@@ -113,3 +134,4 @@
 
 </body>
 </html>
+
