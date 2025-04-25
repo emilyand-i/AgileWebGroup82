@@ -11,12 +11,31 @@
   font-family: 'Quicksand', sans-serif;
 }
 
+body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
 .container-screen {
   margin: auto 0;
   display: flex;
   min-height: 100vh;
   
 }
+
+.container-fluid.bckgrnd {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.display-2 {
+  margin-top: -1rem;
+}
+
+
 
 .content {
   gap: 40px;
@@ -25,6 +44,11 @@
   width: 100%;
   align-items: flex-start;
 
+}
+
+.container-lg.content {
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
 
 .about-info{
@@ -36,7 +60,7 @@
 }
 
 .flower-img {
-  margin-top: 80px;
+  margin-top: 2rem;
   height: 320px;
   width: 320px;
   border-radius: 50%;
@@ -52,25 +76,62 @@
 }
 
 .nav-info {
-  margin-top: 100px;
+  margin-top: 3rem;
+  display: flex;
+  gap: 1rem;
+  
 }
+
 
 .nav-link {
   color:aliceblue;
   font-size: 20px;
+  border-radius: 1rem;
+  padding: 0.5rem;
+  width: 10rem;
+  text-align: center;
+  background-color: #546f4b;
 }
 
 .main-info {
+  margin-top: 3rem;
+  margin-bottom: 3rem;
   display: flex;
   flex-direction: column;
-  padding-top: 6rem;
+  padding: 2rem;
   width: 52%;
   color:aliceblue;
   overflow-y: auto;
   max-height: 100vh;
   padding-bottom: 50px;
   scrollbar-width: none;
+  background-color: rgb(84, 111, 91);
+  border-radius: 3rem;
+  height: 85vh;
 }
+
+
+main.main-info {
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+/* below classes used for scroll wheel */
+.main-info { 
+  scrollbar-width: thin;      
+  scrollbar-color: #6db075 transparent;  
+}
+.main-info::-webkit-scrollbar {
+  width: 6px;  
+}
+.main-info::-webkit-scrollbar-track {
+  background: transparent; 
+}
+.main-info::-webkit-scrollbar-thumb {
+  background-color: #6db075;  
+  border-radius: 10px;
+}
+
 
 .welc {
   font-size: 40px;
