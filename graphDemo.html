@@ -4,13 +4,26 @@
   <meta charset="UTF-8">
   <title>Plant Growth Tracker (By Plant)</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    #graphCanvas {
+      border: 3px solid orangered;
+      background: #f9f9f9;
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+
+    body {
+      background-color:rgb(69, 97, 71);
+      color: white;
+    }
+  </style>
 </head>
 <body class="container py-5">
   <h1 class="mb-4">Plant Growth Tracker</h1>
 
   <form id="growthForm" class="row g-3">
     <div class="col-md-3">
-      <input type="text" id="plantName" class="form-control" placeholder="Plant Name" required>
+      <input type="text" id="plantName" class="form-control" placeholder="Plant Name (8 letters)" required maxlength="8">
     </div>
     <div class="col-md-3">
       <input type="date" id="plantDate" class="form-control" required>
@@ -30,9 +43,9 @@
     </select>
   </div>
 
- <canvas id="graphCanvas" width="800" height="400"></canvas>
+  <canvas id="graphCanvas" width="1200" height="500"></canvas>
 
-    <script>
+  <script>
     const form = document.getElementById('growthForm');
     const canvas = document.getElementById('graphCanvas');
     const ctx = canvas.getContext('2d');
@@ -56,9 +69,10 @@
       }
     });
 
-      const plantData = {}; 
+    const plantData = {}; 
     // Store plant data in an object; Keys are plant names, values are arrays of dates & growth 
-      
+    // Example: { Plant42: [{date: ..., height: ...}], Bulbasaur: [...] }
+
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
@@ -88,6 +102,81 @@
       }
     });
 
-  <script>
-<html>
+    
+    function drawGraph(plantName) {
+      const data = plantData[plantName];
 
+      // we can only draw the graph if we have at least 2 data points
+      if (!data || data.length < 2) return;
+
+      // Clear current canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const padding = 70;
+      const graphWidth = canvas.width - padding * 2;
+      const graphHeight = canvas.height - padding * 2;
+
+      const dates = data.map(d => new Date(d.date));
+      const heights = data.map(d => d.height);
+
+
+      // scale our graph based on the min and max values of our data
+      const minDate = Math.min(...dates.map(d => d.getTime()));
+      const maxDate = Math.max(...dates.map(d => d.getTime()));
+      const minHeight = Math.min(...heights);
+      const maxHeight = Math.max(...heights);
+
+      function getX(date) {
+        return padding + ((date.getTime() - minDate) / (maxDate - minDate)) * graphWidth;
+      }
+
+      function getY(height) {
+        return canvas.height - padding - ((height - minHeight) / (maxHeight - minHeight)) * graphHeight;
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(padding, padding);
+      ctx.lineTo(padding, canvas.height - padding); //draw y-axis
+      ctx.lineTo(canvas.width - padding, canvas.height - padding); //draw x-axis
+      ctx.stroke(); //apply these lines to canvas
+
+      // Plot points and connect them
+      ctx.beginPath();
+      ctx.strokeStyle = '#28a745';
+      ctx.lineWidth = 4;
+      data.forEach((point, index) => {
+        const x = getX(new Date(point.date));
+        const y = getY(point.height);
+
+        if (index === 0){
+          ctx.moveTo(x, y);
+        }
+        else {
+          ctx.lineTo(x, y);
+        }
+
+        ctx.arc(x, y, 5, 0, 2 * Math.PI); // Draw point
+      });
+      ctx.stroke();
+
+      // Y-Axis label
+      ctx.save(); // Save current state
+      ctx.translate(20, canvas.height / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.textAlign = "center";
+      ctx.font = "14px sans-serif";
+      ctx.fillText("Height Grown", 0, 0);
+      ctx.restore(); // Restore back to normal
+
+      // X-Axis label
+      ctx.font = "14px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Time Spent Growing", canvas.width / 2, canvas.height - 10);
+
+      // Write Title linked to the plant name
+      ctx.font = "bold 18px sans-serif";
+      ctx.fillText(`${plantName}'s Growth Journey`, canvas.width / 2, padding - 15);
+    }
+  </script>
+</body>
+</html>
