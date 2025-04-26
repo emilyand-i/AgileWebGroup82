@@ -55,6 +55,19 @@ body {
 
 .about-info{
   position: relative;
+  top: 5rem;
+  width: 48%;
+  color:aliceblue;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.about-info-dash{
+  position: relative;
   top: 0;  
   width: 48%;
   color:aliceblue;
@@ -122,13 +135,13 @@ body {
   display: flex;
   flex-direction: column;
   padding: 2rem;
-  width: 52%;
+  width: 45%;
   color:aliceblue;
   overflow-y: auto;
   max-height: 100vh;
   padding-bottom: 50px;
   scrollbar-width: none;
-  background-color: rgb(84, 111, 91);
+  background-color: rgb(82, 137, 97);
   border-radius: 3rem;
   height: 85vh;
 }
