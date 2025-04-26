@@ -54,7 +54,7 @@ body {
 }
 
 .about-info{
-  position: sticky;
+  position: relative;
   top: 6rem;
   width: 48%;
   color:aliceblue;
@@ -90,11 +90,10 @@ body {
   
 }
 
-#middle-column {
+.mid-column {
+  background-color: aqua;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
 
 .nav-info {
@@ -241,5 +240,26 @@ main.main-info {
 }
 
 
+
+
+.nav-tabs {
+  background-color: transparent;
+  border-bottom: none;
+}
+
+.nav-link {
+  color:aliceblue;
+  font-size: 20px;
+  border-radius: 1rem;
+  padding: 0.5rem;
+  width: 10rem;
+  text-align: center;
+  background-color: #546f4b;
+  border: none;
+}
+
+.nav-link.active {
+  background-color: #4a7c59;
+}
 
 
