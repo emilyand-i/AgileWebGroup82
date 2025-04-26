@@ -55,7 +55,7 @@ body {
 
 .about-info{
   position: relative;
-  top: 6rem;
+  top: 0;  /* Changed from 6rem to 0 */
   width: 48%;
   color:aliceblue;
   height: fit-content;
