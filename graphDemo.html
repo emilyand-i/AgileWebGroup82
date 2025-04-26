@@ -56,3 +56,38 @@
       }
     });
 
+      const plantData = {}; 
+    // Store plant data in an object; Keys are plant names, values are arrays of dates & growth 
+      
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('plantName').value.trim();
+      const date = document.getElementById('plantDate').value;
+      const height = parseFloat(document.getElementById('plantHeight').value);
+
+      //Don't add data if any field is empty or invalid
+      if (!name || !date || isNaN(height)) return;
+      
+      // Create a new entry for the plant if it doesn't exist
+      if (!plantData[name]) {
+        plantData[name] = [];
+        addToDropdown(name);
+      }
+
+      // Add the new info to plant's data array
+      plantData[name].push({ date, height });
+
+      // Sort the data by date
+      // Therefore if older data is added, graph will still be correct
+      plantData[name].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      form.reset();
+      if (plantSelector.value === name) {
+        drawGraph(name); // Redraw if it's currently selected by our user
+      }
+    });
+
+  <script>
+<html>
+
