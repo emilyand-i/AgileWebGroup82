@@ -55,7 +55,7 @@ body {
 
 .about-info{
   position: relative;
-  top: 0;  /* Changed from 6rem to 0 */
+  top: 0;  
   width: 48%;
   color:aliceblue;
   height: fit-content;
@@ -106,13 +106,14 @@ body {
 
 
 .nav-link {
-  color:aliceblue;
-  font-size: 20px;
+  color: aliceblue;
+  font-size: 16px;  
   border-radius: 1rem;
   padding: 0.5rem;
-  width: 10rem;
+  width: 8rem;    
   text-align: center;
   background-color: #546f4b;
+  border: none;
 }
 
 .main-info {
@@ -240,22 +241,40 @@ main.main-info {
 }
 
 
-
+.daily-streak {
+  margin-top: 1rem;
+  font-weight: bold;
+  font-size: 20px;
+  color: #ffffff;
+}
 
 .nav-tabs {
   background-color: transparent;
   border-bottom: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;  
+  justify-content: center;
+  width: 100%;    
 }
 
 .nav-link {
-  color:aliceblue;
-  font-size: 20px;
-  border-radius: 1rem;
-  padding: 0.5rem;
-  width: 10rem;
+  color: aliceblue;
+  font-size: 1rem;    
+  border-radius: 0.5rem; 
+  padding: 0.25rem 0.5rem; 
+  width: 8rem;         
   text-align: center;
   background-color: #546f4b;
   border: none;
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis; 
+}
+
+.plant-tabs {
+  width: 100%;    
+  padding: 0 1rem; 
 }
 
 .nav-link.active {
