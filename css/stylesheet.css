@@ -84,8 +84,10 @@ body {
   display: block;
 }
 
-#flower-avatar {
-  max-width: 20rem;
+#flower-avatar-container img {
+  width: 20rem;
+  margin-top: 3rem;
+  
 }
 
 #middle-column {
@@ -233,7 +235,10 @@ main.main-info {
 
 
 
-
+.column-title {
+  margin-top: 1rem;
+  font-weight: bold;
+}
 
 
 

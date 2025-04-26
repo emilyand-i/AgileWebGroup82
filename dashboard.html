@@ -21,28 +21,38 @@
       <div class="row vh-100">
         <!-- Left Column -->
         <div class="col-3 bckgrnd border-end border-success">
-          <header class="container about-info">
-              <h1 class="display-2"></h1>
-          </header>
+          <div class="container-fluid px-4">
+            <header class="container about-info">
+                <h1 class="display-2 column-title">Stats</h1>
+            </header>
+          </div>
         </div>
 
         <!-- Middle Column -->
         <div class="col-6 bckgrnd">
           <div class="container-fluid px-4">
-            <header class="container about-info mb-5 pb-5">
-                <h1 class="display-2">P L A N T L Y</h1>
+            <header class="container about-info">
+                <h1 class="display-2 column-title">P L A N T L Y</h1>
             </header>
-            <div id="flower-avatar-container" class="text-center">
-                <img src="https://cdn3.vectorstock.com/i/1000x1000/64/72/funny-flowers-with-different-emotions-012-vector-3866472.jpg" class="img-fluid" id="flower-avatar">
-            </div>
           </div>
+          <div id="flower-avatar-container" class="text-center">
+            <img src="https://cdn3.vectorstock.com/i/1000x1000/64/72/funny-flowers-with-different-emotions-012-vector-3866472.jpg" class="img-fluid text-center" id="flower-avatar">
+            </div>
+            <!-- <div class="data-buttons text-center mt-4">
+              <button type="button" class="btn btn-success btn-lg" id="water-button">Add Picture</button>
+              <button type="button" class="btn btn-success btn-lg" id="growth-button">Record Growth</button>
+            </div> -->
+            <div class="daily-streak text-center mt-4">
+              <h2 class="display-6">Daily Streak</h2>
+              <p class="streak-count display-4 fw-bold">5 🔥</p>
+            </div>  
         </div>
 
         <!-- Right Column -->
         <div class="col-3 bckgrnd border-start border-success">
-          <div class="container-fluid px-4 py-5">
+          <div class="container-fluid px-4">
             <header class="container about-info">
-                <h1 class="display-2">Stats</h1>
+                <h1 class="display-2 column-title">Share</h1>
             </header>
           </div>
         </div>
