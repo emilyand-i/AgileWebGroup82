@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/stylesheet.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="js/script.js"></script>
+
+    <title>P L A N T L Y</title>
+  </head>
+
+  
+  <body>
+    <div class="container-fluid">
+      <div class="row vh-100">
+        <!-- Left Column -->
+        <div class="col-3 bckgrnd border-end border-success d-flex flex-column align-items-center justify-content-start">
+          <header class="about-info-dash px-2">
+              <h1 class="display-2 column-title">Stats</h1>
+          </header>
+        </div>
+
+        <!-- Middle Column -->
+        <div class="col-6 bckgrnd border-start border-end border-success d-flex flex-column align-items-center justify-content-start">
+          <header class="about-info-dash w-100">
+              <h1 class="display-2 column-title mb-0">P L A N T L Y</h1>
+              <div class="plant-tabs mt-3">
+                  <ul class="nav nav-tabs" id="plantTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link active" id="plant1-tab" data-bs-toggle="tab" data-bs-target="#plant1" type="button" role="tab">
+                        My Plant 1
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link" id="plant2-tab" data-bs-toggle="tab" data-bs-target="#plant2" type="button" role="tab">
+                        MyPlant 1
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link" id="add-plant-tab" data-bs-toggle="tab" data-bs-target="#add-plant" type="button" role="tab">
+                        <i class="bi bi-plus-circle"></i> Add Plant
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+          </header>
+          
+          <!-- Tab Content -->
+          <div class="tab-content" id="plantTabsContent">
+            <div class="tab-pane fade show active" id="plant1" role="tabpanel">
+              <div id="flower-avatar-container" class="text-center">
+                <img src="https://png.pngtree.com/png-clipart/20241003/original/pngtree-cute-cartoon-flower-clipart-illustration-png-image_16177625.png" class="img-fluid text-center" id="flower-avatar">
+              </div>
+              <div class="daily-streak text-center mt-4">
+                <h2 class="display-6">Daily Streak</h2>
+                <p class="streak-count display-4 fw-bold">5 🔥</p>
+              </div>
+            </div>
+            
+            <div class="tab-pane fade" id="plant2" role="tabpanel">
+              <!-- Content for Plant 2 -->
+            </div>
+            
+            <div class="tab-pane fade" id="add-plant" role="tabpanel">
+              <div class="text-center mt-4">
+                <h3>Add a New Plant</h3>
+                <button class="btn btn-success btn-lg mt-3">
+                  <i class="bi bi-plus-circle me-2"></i>Create New Plant
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-3 bckgrnd border-start border-success d-flex flex-column align-items-center justify-content-start">
+            <header class="about-info-dash px-2">
+              <h1 class="display-2 column-title">Share</h1>
+            </header>
+          </div>
+          
+          
+      </div>
+    </div>
+    
+  </body>
+</html>
