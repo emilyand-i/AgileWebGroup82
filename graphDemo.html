@@ -32,3 +32,27 @@
 
  <canvas id="graphCanvas" width="800" height="400"></canvas>
 
+    <script>
+    const form = document.getElementById('growthForm');
+    const canvas = document.getElementById('graphCanvas');
+    const ctx = canvas.getContext('2d');
+    const plantSelector = document.getElementById('plantSelector');
+
+    function addToDropdown(name) {
+      // Make new option for the plant in the dropdown menu
+      const option = document.createElement('option');
+      option.value = name;
+      option.textContent = name;
+      plantSelector.appendChild(option);
+    }
+
+    plantSelector.addEventListener('change', () => {
+      const selectedPlant = plantSelector.value;
+      if (selectedPlant) {
+        drawGraph(selectedPlant);
+      } else {
+        // Clear the canvas if no plant is selected
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    });
+
