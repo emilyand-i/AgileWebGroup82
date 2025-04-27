@@ -16,7 +16,7 @@ body {
     min-height: 100vh;
     margin: 0;
     padding: 0;
-    background-color: rgb(84, 111, 91);
+    background-color: rgb(65, 90, 71);
 }
 
 .container-screen {
@@ -33,8 +33,9 @@ body {
 }
 
 .display-2 {
-  margin-top: -1rem;
-  font-size: 3rem;
+  margin-top: 10px;
+  padding:0;
+  font-size: 3.5rem;
 }
 
 
@@ -42,7 +43,6 @@ body {
 .content {
   gap: 40px;
   display: flex;
-  gap: 40px;
   width: 100%;
   align-items: flex-start;
 
@@ -59,12 +59,17 @@ body {
   top: 5rem;
   width: 48%;
   color:aliceblue;
-  height: fit-content;
+  height: 90dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   text-align: center;
+}
+
+.center-bottom-text {
+  margin-top: auto;
+  font-size: 0.9rem;
+  opacity: 0.7;
 }
 
 .about-info-dash{
@@ -81,12 +86,13 @@ body {
 }
 
 .flower-img {
-  margin-top: 2rem;
+  margin-top: 5rem;
   height: 320px;
   width: 320px;
   border-radius: 50%;
   border: 5px solid #729566;
   background-color:rgb(69, 97, 71);
+  box-shadow: 1px 0px 14px 7px rgba(57, 87, 57, 0.63);
   margin-left: auto;
   margin-right: auto;
 }
@@ -118,18 +124,6 @@ body {
   
 }
 
-
-.nav-link {
-  color: aliceblue;
-  font-size: 16px;  
-  border-radius: 1rem;
-  padding: 0.5rem;
-  width: 8rem;    
-  text-align: center;
-  background-color: #546f4b;
-  border: none;
-}
-
 .main-info {
   margin-top: 3rem;
   margin-bottom: 3rem;
@@ -142,7 +136,8 @@ body {
   max-height: 100vh;
   padding-bottom: 50px;
   scrollbar-width: none;
-  background-color: rgba(82, 137, 97, 0.468);
+  background-color: rgba(73, 105, 81, 0.573);
+  box-shadow: 1px 0px 14px 7px rgba(57, 87, 57, 0.63);
   border-radius: 3rem;
   height: 95vh;
 }
@@ -156,17 +151,19 @@ main.main-info {
 /* below classes used for scroll wheel */
 .main-info { 
   scrollbar-width: thin;      
-  scrollbar-color: #6db075 transparent;  
+  scrollbar-color: #6db07586 transparent;  
 }
 .main-info::-webkit-scrollbar {
-  width: 6px;  
+  width: 5px;  
 }
 .main-info::-webkit-scrollbar-track {
   background: transparent; 
+  margin-top:50px;
+  margin-bottom: 50px;
 }
 .main-info::-webkit-scrollbar-thumb {
   background-color: #6db075;  
-  border-radius: 10px;
+  border-radius: 5px;
 }
 
 
@@ -207,7 +204,6 @@ main.main-info {
 .form-card:hover {
   box-shadow: 1px 0px 14px 7px rgba(124, 175, 124, 0.63);
   cursor: pointer;
-  font-size: 20px;
 
 }
 
@@ -273,7 +269,7 @@ main.main-info {
   width: 100%;    
 }
 
-.nav-link {
+.nav-link, .add_stat {
   color: aliceblue;
   font-size: 1rem;    
   border-radius: 0.5rem; 
@@ -292,8 +288,57 @@ main.main-info {
   padding: 0 1rem; 
 }
 
-.nav-link.active {
-  background-color: #4a7c59;
+.nav-link:hover {
+  background-color: #66835c;
 }
 
 
+/* adjustments for mobile and ipad screen usage */
+
+@media (max-width: 768px) {
+  html, body {
+    height: 100vh;
+    width: 100vw;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  
+  .display-2 {
+    font-size: 35px;
+  }
+
+  .container-fluid, .container-lg.content {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    padding-top: 1rem !important;
+    max-width: 100% !important;
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+  }
+
+
+  .about-info, .main-info {
+    width: 100%; 
+    max-width: 100%;
+  }
+
+  .nav-info {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .nav-link {
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  .flower-img {
+    width: 250px;
+    height: 250px;
+  }
+
+  .form-wrapper {
+    display: none;
+  }
+}
