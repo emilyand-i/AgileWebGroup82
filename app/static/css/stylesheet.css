@@ -8,6 +8,7 @@
 	height: 100%;
 	width: 100%;
   font-family: 'Quicksand', sans-serif;
+  overflow: hidden;
   
 }
 
@@ -15,7 +16,6 @@ body {
     min-height: 100vh;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
     background-color: rgb(84, 111, 91);
 }
 
@@ -47,6 +47,7 @@ body {
   align-items: flex-start;
 
 }
+
 
 .container-lg.content {
     margin-bottom: 0;
@@ -141,9 +142,9 @@ body {
   max-height: 100vh;
   padding-bottom: 50px;
   scrollbar-width: none;
-  background-color: rgb(82, 137, 97);
+  background-color: rgba(82, 137, 97, 0.468);
   border-radius: 3rem;
-  height: 85vh;
+  height: 95vh;
 }
 
 
@@ -180,7 +181,8 @@ main.main-info {
 /* On create acc and sign in button press, the card will flip around to the appropriate side. */
 
 .form-wrapper {
-  margin: auto 0;
+  margin: auto;
+  margin-bottom: 20px;
   position: relative;
   perspective: 1000px;
   margin-top: 50px;
@@ -278,7 +280,7 @@ main.main-info {
   padding: 0.25rem 0.5rem; 
   width: 8rem;         
   text-align: center;
-  background-color: #546f4b;
+  background-color: #729566;
   border: none;
   white-space: nowrap; 
   overflow: hidden;
