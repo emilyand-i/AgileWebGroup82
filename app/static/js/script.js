@@ -55,12 +55,12 @@ document.addEventListener('DOMContentLoaded', function() {
     newTab.role = "presentation";
     newTab.className = "nav-item"
 
-    newTab.innerHTML = ` <button class="nav-link active" id="plant${myPlantCount}-tab" data-bs-toggle="tab" data-bs-target="#plant${myPlantCount}" type="button" role="tab"> 
+    newTab.innerHTML = ` <button class="nav-link" id="plant${myPlantCount}-tab" data-bs-toggle="tab" data-bs-target="#plant${myPlantCount}" type="button" role="tab"> 
                               ${plantName} 
                           </button>`;
 
     newTabContent = document.createElement("div");
-    newTabContent.className = "tab-pane fade show active";
+    newTabContent.className = "tab-pane fade";
     newTabContent.id = `plant${myPlantCount}`;
     newTabContent.role = "tabPanel"
 
@@ -74,12 +74,17 @@ document.addEventListener('DOMContentLoaded', function() {
               </div>
     `
 
+    const addPlantTab = document.getElementById("add-plant-tab").parentNode;
+    plantTabs.insertBefore(newTab, addPlantTab);
+
+    plantTabsContent.appendChild(newTabContent);
+
+    addPlantForm.reset();
+
+    const newTabButton = document.getElementById(`plant${myPlantCount}-tab`);
+    const tab = new bootstrap.Tab(newTabButton);
+    tab.show();
     
-
-
-
-    // console.log(plantName);
-    // console.log(plantType);
     
   });
 });
