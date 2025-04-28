@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
     newTabContent.role = "tabPanel"
 
     newTabContent.innerHTML = `
-      <div id="flower-avatar-container" class="text-center">
+      <div class="text-center flower-avatar-container">
                 <img src="assets/flower-avatar.png" class="img-fluid text-center" id="flower-avatar">
               </div>
               <div class="daily-streak text-center mt-4">
