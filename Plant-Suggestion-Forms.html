@@ -1,0 +1,115 @@
+<!-- to be added to the dashboard under a button
+css may need to be reviewd to make sure it works with the dashboard feature -->
+
+<!-- css will be in this file to make transfering to main file easier -->
+<!DOCTYPE html>
+<html lang="en">
+    <!-- check on diffrent screen sizes -->
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Plant Suggestion Forms</title>
+        <style>
+            body {
+                background-color: rgb(84, 111, 91);
+            }
+            h1 {
+                text-align: center;
+                color: white;
+                font-family: Arial, sans-serif;
+                font-size: 2.5em;
+                margin-top: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>🌱 Plant Suggestion Forms</h1>
+        <!-- either add instruction paragraph here or before the form button -->
+        <p>fill in all of the forms so we can get an idea of your ideal plant</p>
+
+        <!-- need forms that ask 
+         - what is your favorite color
+         - what is you type of plant do you want to grow (flower vegitables otheroptions)
+         - how long do you want to grow the plant
+        - how much time do you have to take care of the plant
+        - how much light do you have in your house
+        - how much space do you have for the plant -->
+        <div class="form-container">
+            <form id="favoriteColor">
+                <label for="color">What color plant are you looking for?</label>
+                <select id="color" name="color" required>
+                    <option value="">please choose an option</option>
+                    <option value="red">Red</option>
+                    <option value="blue">Blue</option>
+                    <option value="green">Green</option>
+                    <option value="yellow">Yellow</option>
+                    <option value="purple">Purple</option>
+                    <option value="pink">Pink</option>
+                    <option value="orange">Orange</option>
+                    <option value="white">White</option>
+                    <option value="black">Black</option>
+                    <option value="brown">Brown</option>
+                    <option value="gray">Gray</option>
+                </select>
+            </form>
+            <form id="avalibleLight">
+                <label for="light">How much light does your space get?</label>
+                <select id="light" name="light" required>
+                    <option value="">please choose an option</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                </select>
+            </form>
+            <form id="plantType">
+                <label for="type">What type of plant do you want to grow?</label>
+                <select id="type" name="type" required>
+                    <option value="">please choose an option</option>
+                    <option value="flower">Flower</option>
+                    <option value="vegetable">Vegetable</option>
+                    <option value="herb">Herb</option>
+                    <option value="tree">Tree</option>
+                    <option value="shrub">Shrub</option>
+                </select>
+            </form>
+            <form id="timeToGrow">
+                <label for="growTime">How long do you want to grow the plant for?</label>
+                <select id="growTime" name="growTime" required>
+                    <option value="">please choose an option</option>
+                    <option value="short">Short (less than 3 months)</option>
+                    <option value="medium">Medium (3-6 months)</option>
+                    <option value="long">Long (more than 6 months)</option>
+                </select>
+            </form>
+            <form>
+                <label for="water">What is your watering capability?</label>
+                <select id="water" name="water" required>
+                    <option value="">please choose an option</option>
+                    <option value="low">Low (once a week)</option>
+                    <option value="medium">Medium (twice a week)</option>
+                    <option value="high">High (every day)</option>
+                </select>
+            </form>
+            <form>
+                <label for="space">How much space do you have for the plant?</label>
+                <select id="space" name="space" required>
+                    <option value="">please choose an option</option>
+                    <option value="small">Small (less than 1 square foot)</option>
+                    <option value="medium">Medium (1-3 square feet)</option>
+                    <option value="large">Large (more than 3 square feet)</option>
+                </select>
+            </form>
+            <form>
+                <label for="edible">Do you want to be able to eat your plant?</label>
+                <select id="edible" name="edible" required>
+                    <option value="">please choose an option</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </form>
+        </div>
+        
+    
+    </body>
+    
+</html>
