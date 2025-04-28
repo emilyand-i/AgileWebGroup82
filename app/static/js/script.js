@@ -2,6 +2,24 @@ function flipForm() {
   document.getElementById("form-wrapper").classList.toggle("flip");
 }
 
+function toDash() {
+  window.location.href = "dashboard.html"
+}
+
+function scrollToSignin() {
+  const form = document.getElementById('form-wrapper');
+  if (form) {
+    form.scrollIntoView({behavior: 'smooth'});
+  }
+}
+
+function scrollToAbout() {
+  const about = document.getElementById('welcome');
+  if (about) {
+    about.scrollIntoView({behavior:'smooth'});
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('.signin-btn').addEventListener('click', flipForm);
 });
