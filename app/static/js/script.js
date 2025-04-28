@@ -51,6 +51,33 @@ document.addEventListener('DOMContentLoaded', function() {
     const plantName = document.getElementById('plantName').value;
     const plantType = document.getElementById('plantType').value;
     
+    const newTab = document.createElement("li");
+    newTab.role = "presentation";
+    newTab.className = "nav-item"
+
+    newTab.innerHTML = ` <button class="nav-link active" id="plant${myPlantCount}-tab" data-bs-toggle="tab" data-bs-target="#plant${myPlantCount}" type="button" role="tab"> 
+                              ${plantName} 
+                          </button>`;
+
+    newTabContent = document.createElement("div");
+    newTabContent.className = "tab-pane fade show active";
+    newTabContent.id = `plant${myPlantCount}`;
+    newTabContent.role = "tabPanel"
+
+    newTabContent.innerHTML = `
+      <div id="flower-avatar-container" class="text-center">
+                <img src="https://png.pngtree.com/png-clipart/20241003/original/pngtree-cute-cartoon-flower-clipart-illustration-png-image_16177625.png" class="img-fluid text-center" id="flower-avatar">
+              </div>
+              <div class="daily-streak text-center mt-4">
+                <h2 class="streak">Daily Streak</h2>
+                <p class="streak-count display-4 fw-bold">0 🔥</p>
+              </div>
+    `
+
+    
+
+
+
     // console.log(plantName);
     // console.log(plantType);
     
