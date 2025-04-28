@@ -13,19 +13,55 @@ css may need to be reviewd to make sure it works with the dashboard feature -->
             body {
                 background-color: rgb(84, 111, 91);
             }
-            h1 {
+            #formsTittle{ 
                 text-align: center;
                 color: white;
                 font-family: Arial, sans-serif;
                 font-size: 2.5em;
                 margin-top: 20px;
             }
+            .suggestion-form label{
+                color: white;
+                font-family: Arial, sans-serif;
+                font-size: 1.2em;
+            }
+            .suggestion-form{
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+            #form-insructions{
+                text-align: center;
+                color: white;
+                font-family: Arial, sans-serif;
+                font-size: 1.2em;
+                margin-bottom: 50px;
+            }
+            #submit-suggestion-form{
+                background-color: #4CAF50; /* Green */
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin-top: 50px;
+                cursor: pointer;
+                display: block;  
+                margin-left: auto;
+                margin-right: auto;
+                
+                
+            }
+            
         </style>
     </head>
     <body>
-        <h1>🌱 Plant Suggestion Forms</h1>
+        <h1 id="formsTittle">🌱 Plant Suggestion Forms</h1>
         <!-- either add instruction paragraph here or before the form button -->
-        <p>fill in all of the forms so we can get an idea of your ideal plant</p>
+        <p id="form-insructions">fill in all of the forms so we can suggest your ideal plant</p>
 
         <!-- need forms that ask 
          - what is your favorite color
@@ -35,7 +71,7 @@ css may need to be reviewd to make sure it works with the dashboard feature -->
         - how much light do you have in your house
         - how much space do you have for the plant -->
         <div class="form-container">
-            <form id="favoriteColor">
+            <form id="favoriteColor" class="suggestion-form">
                 <label for="color">What color plant are you looking for?</label>
                 <select id="color" name="color" required>
                     <option value="">please choose an option</option>
@@ -52,7 +88,7 @@ css may need to be reviewd to make sure it works with the dashboard feature -->
                     <option value="gray">Gray</option>
                 </select>
             </form>
-            <form id="avalibleLight">
+            <form id="avalibleLight" class = "suggestion-form">
                 <label for="light">How much light does your space get?</label>
                 <select id="light" name="light" required>
                     <option value="">please choose an option</option>
@@ -61,7 +97,7 @@ css may need to be reviewd to make sure it works with the dashboard feature -->
                     <option value="high">High</option>
                 </select>
             </form>
-            <form id="plantType">
+            <form id="plantType" class = "suggestion-form">
                 <label for="type">What type of plant do you want to grow?</label>
                 <select id="type" name="type" required>
                     <option value="">please choose an option</option>
@@ -72,7 +108,7 @@ css may need to be reviewd to make sure it works with the dashboard feature -->
                     <option value="shrub">Shrub</option>
                 </select>
             </form>
-            <form id="timeToGrow">
+            <form id="timeToGrow" class="suggestion-form">
                 <label for="growTime">How long do you want to grow the plant for?</label>
                 <select id="growTime" name="growTime" required>
                     <option value="">please choose an option</option>
@@ -81,7 +117,7 @@ css may need to be reviewd to make sure it works with the dashboard feature -->
                     <option value="long">Long (more than 6 months)</option>
                 </select>
             </form>
-            <form>
+            <form class="suggestion-form">
                 <label for="water">What is your watering capability?</label>
                 <select id="water" name="water" required>
                     <option value="">please choose an option</option>
@@ -90,7 +126,7 @@ css may need to be reviewd to make sure it works with the dashboard feature -->
                     <option value="high">High (every day)</option>
                 </select>
             </form>
-            <form>
+            <form class ="suggestion-form">
                 <label for="space">How much space do you have for the plant?</label>
                 <select id="space" name="space" required>
                     <option value="">please choose an option</option>
@@ -99,7 +135,7 @@ css may need to be reviewd to make sure it works with the dashboard feature -->
                     <option value="large">Large (more than 3 square feet)</option>
                 </select>
             </form>
-            <form>
+            <form class="suggestion-form">
                 <label for="edible">Do you want to be able to eat your plant?</label>
                 <select id="edible" name="edible" required>
                     <option value="">please choose an option</option>
@@ -107,6 +143,7 @@ css may need to be reviewd to make sure it works with the dashboard feature -->
                     <option value="no">No</option>
                 </select>
             </form>
+            <button id="submit-suggestion-form">Submit</button>
         </div>
         
     
