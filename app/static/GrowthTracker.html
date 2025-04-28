@@ -20,11 +20,7 @@
 </head>
 <body class="container py-5">
 
-  <div class="container py-5">
-    <button id="toggleDisplayBtn" class="btn btn-light">See Photo Display Tab</button>
-  </div>
 
-  <div id="mainContent" style="display: none;">
     <h1 class="mb-4">Plant Growth Tracker</h1>
 
     <form id="growthForm" class="row g-3">
@@ -50,26 +46,11 @@
     </div>
     
     <canvas id="graphCanvas" width="1200" height="500"></canvas>
-  </div>
+
 
   
 
   <script>
-    //JavaScript to get the button working
-    //ie) to show and hide like a tab (crude skeleton display but implementation is there)
-    const toggleDisplayBtn = document.getElementById('toggleDisplayBtn');
-    const mainContent = document.getElementById('mainContent');
-
-    toggleDisplayBtn.addEventListener('click', () => {
-      const isHidden = mainContent.style.display === 'none';
-      mainContent.style.display = isHidden ? 'block' : 'none';
-      toggleDisplayBtn.textContent = isHidden ? 'Hide Content' : 'See Photo Display Tab';
-
-      //REMOVE WHEN IMPLEMENTING INTO OTHER FILES/FUNCTIONS
-      console.log('Display toggled');
-    }); 
-
-
 
     // JavaScript for the Plant Growth Tracker
     const form = document.getElementById('growthForm');
