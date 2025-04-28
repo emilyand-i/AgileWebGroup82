@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     newTabContent.innerHTML = `
       <div id="flower-avatar-container" class="text-center">
-                <img src="https://png.pngtree.com/png-clipart/20241003/original/pngtree-cute-cartoon-flower-clipart-illustration-png-image_16177625.png" class="img-fluid text-center" id="flower-avatar">
+                <img src="assets/flower-avatar.png" class="img-fluid text-center" id="flower-avatar">
               </div>
               <div class="daily-streak text-center mt-4">
                 <h2 class="streak">Daily Streak</h2>
