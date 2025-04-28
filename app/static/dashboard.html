@@ -44,11 +44,11 @@
                         My Plant 1
                       </button>
                     </li>
-                    <li class="nav-item" role="presentation">
+                    <!-- <li class="nav-item" role="presentation">
                       <button class="nav-link" id="plant2-tab" data-bs-toggle="tab" data-bs-target="#plant2" type="button" role="tab">
                         MyPlant 1
                       </button>
-                    </li>
+                    </li> -->
                     <li class="nav-item" role="presentation">
                       <button class="nav-link" id="add-plant-tab" data-bs-toggle="tab" data-bs-target="#add-plant" type="button" role="tab">
                         <i class="bi bi-plus-circle"></i> Add Plant
@@ -76,10 +76,24 @@
             
             <div class="tab-pane fade" id="add-plant" role="tabpanel">
               <div class="text-center mt-4">
-                <h3>Add a New Plant</h3>
-                <button class="btn btn-success btn-lg mt-3">
-                  <i class="bi bi-plus-circle me-2"></i>Create New Plant
-                </button>
+                <h3 class="display-4">Add a New Plant</h3>
+                <form id="addPlantForm" class="mt-4 w-75 mx-auto">
+                  <div class="mb-3">
+                    <input type="text" class="form-control" id="plantName" placeholder="Plant Name" required>
+                  </div>
+                  <div class="mb-3">
+                    <select class="form-control" id="plantType" required>
+                      <option value="">Select Plant Type</option>
+                      <option value="flower">Flower</option>
+                      <option value="herb">Herb</option>
+                      <option value="succulent">Succulent</option>
+                      <option value="tree">Tree</option>
+                    </select>
+                  </div>
+                  <button type="submit" class="btn btn-success btn-lg">
+                    <i class="bi bi-plus-circle me-2"></i>Create New Plant!
+                  </button>
+                </form>
               </div>
             </div>
           </div>
