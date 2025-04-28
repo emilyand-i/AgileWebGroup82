@@ -108,10 +108,13 @@ body {
   display: block;
 }
 
-#flower-avatar-container img {
+.flower-avatar-container img {
   width: 20rem;
   margin-top: 3rem;
-  
+}
+
+#home-flower {
+  width: 10rem;
 }
 
 .mid-column {
