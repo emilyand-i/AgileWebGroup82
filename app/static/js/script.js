@@ -6,9 +6,17 @@ function toDash() {
   window.location.href = "dashboard.html"
 }
 
-function signinTabButton() {
-  if (window.innerWidth <= 768) {
-    document.getElementById('page-content').classList.add('hidden');
+function scrollToSignin() {
+  const form = document.getElementById('form-wrapper');
+  if (form) {
+    form.scrollIntoView({behavior: 'smooth'});
+  }
+}
+
+function scrollToAbout() {
+  const about = document.getElementById('welcome');
+  if (about) {
+    about.scrollIntoView({behavior:'smooth'});
   }
 }
 

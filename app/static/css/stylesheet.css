@@ -4,7 +4,11 @@
 	box-sizing: border-box;
 }
 
- html, body {
+html {
+  scroll-behavior:smooth;
+}
+
+html, body {
 	height: 100%;
 	width: 100%;
   font-family: 'Quicksand', sans-serif;
@@ -242,6 +246,7 @@ main.main-info {
 .btn:hover {
   color: white;
   background-color: rgba(124, 175, 124, 0.63);
+  cursor: pointer;
 }
 
 
@@ -338,7 +343,14 @@ main.main-info {
     height: 250px;
   }
 
-  .form-wrapper {
-    display: none;
+  
+  form {
+    padding-bottom: 20px;
   }
+
+  .form-card:hover {
+  box-shadow: none;
+    
+  }
+
 }
