@@ -38,4 +38,21 @@ document.addEventListener('wheel', function(e) {
 
 // adding/removing plant:
 
+document.addEventListener('DOMContentLoaded', function() {
+  const addPlantForm = document.getElementById("addPlantForm");
+  const plantTabs = document.getElementById("plantTabs");
+  const plantTabsContent = document.getElementById('plantTabsContent');
+  let myPlantCount = 0;
 
+  addPlantForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    myPlantCount++;
+    const plantName = document.getElementById('plantName').value;
+    const plantType = document.getElementById('plantType').value;
+    
+    // console.log(plantName);
+    // console.log(plantType);
+    
+  });
+});
