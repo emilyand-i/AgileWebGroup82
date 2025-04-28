@@ -20,14 +20,7 @@
   </style>
 </head>
 <body class="text-white"> 
-
-  <!-- Button to toggle the div on and off -->
-  <div class="container py-5">
-    <button id="toggleDisplayBtn" class="btn btn-light">See Photo Display Tab</button>
-  </div>
-
-  <!-- display defaults to blank page -->
-  <div id="mainContent" style="display: none;">
+  
     <div class="container my-5">
       <h1 class="mb-4">Upload Plant Growth Photo</h1>
 
@@ -49,24 +42,8 @@
       <h2 class="mb-3">My Photo Growth Journey</h2>
       <div id="display" class="d-flex flex-wrap"></div>
     </div>
-  </div>
 
   <script>
-    //JavaScript to get the button working
-    //ie) to show and hide like a tab (crude skeleton display but implementation is there)
-    const toggleDisplayBtn = document.getElementById('toggleDisplayBtn');
-    const mainContent = document.getElementById('mainContent');
-
-    toggleDisplayBtn.addEventListener('click', () => {
-      const isHidden = mainContent.style.display === 'none';
-      mainContent.style.display = isHidden ? 'block' : 'none';
-      toggleDisplayBtn.textContent = isHidden ? 'Hide Content' : 'See Photo Display Tab';
-
-      //REMOVE WHEN IMPLEMENTING INTO OTHER FILES/FUNCTIONS
-      console.log('Display toggled');
-    }); 
-    
-    
     //JAVASCRIPT FOR THE IMAGE HANDLING
     //collect references of form, input and the display
     const form = document.getElementById('photoForm');
