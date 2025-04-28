@@ -74,6 +74,17 @@ document.addEventListener('DOMContentLoaded', function() {
               </div>
     `
 
+    shareContent = document.getElementById("share-content");
+    shareContent.innerHTML = `
+        <h3 class="text-white"> Share Your Plant! </h3>
+              <img src="assets/flower-avatar.png" class="img-fluid text-center" id="flower-avatar">
+              <div class="share-controls text-center mt-4">
+                <button class="btn btn-success share-btn">
+                  <i class="bi bi-share"></i> Share Plant
+                </button>
+              </div>
+    `
+
     const addPlantTab = document.getElementById("add-plant-tab").parentNode;
     plantTabs.insertBefore(newTab, addPlantTab);
 
@@ -84,6 +95,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const newTabButton = document.getElementById(`plant${myPlantCount}-tab`);
     const tab = new bootstrap.Tab(newTabButton);
     tab.show();
+
+
     
     
   });
