@@ -35,3 +35,7 @@ document.addEventListener('wheel', function(e) {
     });
   }
 }, {passive:false});
+
+// adding/removing plant:
+
+
