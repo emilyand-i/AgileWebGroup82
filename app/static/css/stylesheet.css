@@ -383,7 +383,16 @@ main.main-info {
   color:aliceblue;
 }
 
-
+/* User Diary Section*/
 .user_diary {
   display:none;
+}
+
+.photo-card {
+  max-width: 300px;
+  margin: 15px;
+}
+.photo-img {
+  max-width: 100%;
+  height: auto;
 }
