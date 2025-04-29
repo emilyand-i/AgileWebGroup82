@@ -53,38 +53,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const plantName = document.getElementById('plantName').value;
     const plantType = document.getElementById('plantType').value;
 
-    // add plant to list
+    plants.push(
+      {
+        id: myPlantCount,
+        name: plantName,
+        type: plantType
+      }
+    );
 
-  plants.push(
-    {
-      id: myPlantCount,
-      name: plantName,
-      type: plantType
-    }
-  );
-
-    const newTab = document.createElement("li");
-    newTab.role = "presentation";
-    newTab.className = "nav-item"
-
-    newTab.innerHTML = ` <button class="nav-link" id="plant${myPlantCount}-tab" data-bs-toggle="tab" data-bs-target="#plant${myPlantCount}" type="button" role="tab"> 
-                              ${plantName} 
-                          </button>`;
-
-    newTabContent = document.createElement("div");
-    newTabContent.className = "tab-pane fade";
-    newTabContent.id = `plant${myPlantCount}`;
-    newTabContent.role = "tabPanel"
-
-    newTabContent.innerHTML = `
-      <div class="text-center flower-avatar-container">
-                <img src="assets/flower-avatar.png" class="img-fluid text-center" id="flower-avatar">
-              </div>
-              <div class="daily-streak text-center mt-4">
-                <h2 class="streak">Daily Streak</h2>
-                <p class="streak-count display-4 fw-bold">0 🔥</p>
-              </div>
-    `
+    const { tab: newTab, content: newTabContent } = addPlantTab(plantName, myPlantCount);
 
     shareContent = document.getElementById("share-content");
     shareContent.innerHTML = `
@@ -113,3 +90,40 @@ document.addEventListener('DOMContentLoaded', function() {
 
   });
 });
+
+function addPlantTab(plantName, myPlantCount) {
+  // Create tab
+  const newTab = document.createElement("li");
+  newTab.role = "presentation";
+  newTab.className = "nav-item";
+
+  newTab.innerHTML = `
+    <button class="nav-link" id="plant${myPlantCount}-tab" 
+            data-bs-toggle="tab" 
+            data-bs-target="#plant${myPlantCount}" 
+            type="button" 
+            role="tab"> 
+      ${plantName}
+    </button>`;
+
+  // Create tab content
+  const newTabContent = document.createElement("div");
+  newTabContent.className = "tab-pane fade";
+  newTabContent.id = `plant${myPlantCount}`;
+  newTabContent.role = "tabpanel";
+
+  newTabContent.innerHTML = `
+    <div class="text-center flower-avatar-container">
+      <img src="assets/flower-avatar.png" class="img-fluid text-center" id="flower-avatar-${myPlantCount}">
+    </div>
+    <div class="daily-streak text-center mt-4">
+      <h2 class="streak">Daily Streak</h2>
+      <p class="streak-count display-4 fw-bold">0 🔥</p>
+    </div>
+    <div class="share-controls text-center mt-4">
+      <button class="btn btn-success share-btn" onclick="sharePlant(${myPlantCount})">
+        <i class="bi bi-share"></i> Share Plant
+      </button>
+    </div>
+  `;
+}
