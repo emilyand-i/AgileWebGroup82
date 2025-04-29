@@ -39,7 +39,7 @@ function graph_show() {
 //Picture show Dropdown
 function pic_show() {
   const pic_diary = document.getElementById('user_diary');
-  const style = window.getComputedStyle(user_diary);
+  const style = window.getComputedStyle(pic_diary);
 
   if (style.display == 'none') {
     pic_diary.style.display = 'block';
@@ -54,7 +54,7 @@ document.addEventListener('wheel', function(e) {
   if (scroll_content) {
     scroll_content.scrollBy({
       top: e.deltaY,
-      behaviour: 'smooth'
+      behavior: 'smooth'  
     });
   }
 }, {passive:false});
@@ -76,74 +76,45 @@ document.addEventListener('DOMContentLoaded', function() {
     const plantName = document.getElementById('plantName').value;
     const plantType = document.getElementById('plantType').value;
 
-    plants.push({
+    console.log(5);
+    console.log(plantName);
+    
+
+    // add plant to list
+
+    plants.push(
+      {
         id: myPlantCount,
         name: plantName,
         type: plantType
-    });
+      }
+    );
 
-    // Remove the destructuring here
-    const newPlantTab = addPlantTab(plantName, myPlantCount);
+    const newTab = document.createElement("li");
+    newTab.role = "presentation";
+    newTab.className = "nav-item"
 
-    updateShareContent(plants);
+    newTab.innerHTML = ` <button class="nav-link" id="plant${myPlantCount}-tab" data-bs-toggle="tab" data-bs-target="#plant${myPlantCount}" type="button" role="tab"> 
+                              ${plantName} 
+                          </button>`;
 
-    // Change this variable name to avoid conflict
-    const addPlantButton = document.getElementById("add-plant-tab").parentNode;
-    plantTabs.insertBefore(newPlantTab.tab, addPlantButton);
+    const newTabContent = document.createElement("div");
+    newTabContent.className = "tab-pane fade";
+    newTabContent.id = `plant${myPlantCount}`;
+    newTabContent.role = "tabPanel"
 
-    plantTabsContent.appendChild(newPlantTab.content);
+    newTabContent.innerHTML = `
+      <div class="text-center flower-avatar-container">
+                <img src="assets/flower-avatar.png" class="img-fluid text-center" id="flower-avatar">
+              </div>
+              <div class="daily-streak text-center mt-4">
+                <h2 class="streak">Daily Streak</h2>
+                <p class="streak-count display-4 fw-bold">0 🔥</p>
+              </div>
+    `
 
-    addPlantForm.reset();
-
-    const newTabButton = document.getElementById(`plant${myPlantCount}-tab`);
-    const tab = new bootstrap.Tab(newTabButton);
-    tab.show();
-
-  });
-});
-
-function addPlantTab(plantName, myPlantCount) {
-  // Create tab
-  const newTab = document.createElement("li");
-  newTab.role = "presentation";
-  newTab.className = "nav-item";
-
-  newTab.innerHTML = `
-    button class="nav-link" id="plant${myPlantCount}-tab" 
-            data-bs-toggle="tab" 
-            data-bs-target="#plant${myPlantCount}" 
-            type="button" 
-            role="tab" 
-      ${plantName}
-    </button>`;
-
-  // Create tab content
-  const newTabContent = document.createElement("div");
-  newTabContent.className = "tab-pane fade";
-  newTabContent.id = `plant${myPlantCount}`;
-  newTabContent.role = "tabpanel";
-
-  newTabContent.innerHTML = `
-    <div class="text-center flower-avatar-container">
-      <img src="assets/flower-avatar.png" class="img-fluid text-center" id="flower-avatar-${myPlantCount}">
-    </div>
-    <div class="daily-streak text-center mt-4">
-      <h2 class="streak">Daily Streak</h2>
-      <p class="streak-count display-4 fw-bold">0 🔥</p>
-    </div>
-    <div class="share-controls text-center mt-4">
-      <button class="btn btn-success share-btn" onclick="sharePlant(${myPlantCount})">
-        <i class="bi bi-share"></i> Share Plant
-      </button>
-    </div>
-  `;
-
-  return { tab: newTab, content: newTabContent };
-}
-
-function updateShareContent(plants) {
-  const shareContent = document.getElementById("share-content");
-  shareContent.innerHTML = `
+    const shareContent = document.getElementById("share-content");
+    shareContent.innerHTML = `
       <h3 class="text-white"> Share Your Plant! </h3>
           <div class="d-flex justify-content-center">
           <img src="assets/flower-avatar.png" class="img-fluid text-center share-image centered">
@@ -155,7 +126,24 @@ function updateShareContent(plants) {
           </button>
           </div>
     `
-}
+
+    
+
+    const addPlantTab = document.getElementById("add-plant-tab").parentNode;
+    plantTabs.insertBefore(newTab, addPlantTab);
+
+    plantTabsContent.appendChild(newTabContent);
+
+    addPlantForm.reset();
+
+    const newTabButton = document.getElementById(`plant${myPlantCount}-tab`);
+    const tab = new bootstrap.Tab(newTabButton);
+    tab.show();
+
+  });
+});
+
+
 
 // JavaScript for the Plant Growth Tracker
 const form = document.getElementById('growthForm');
@@ -188,7 +176,7 @@ const plantData = {};
 form.addEventListener('submit', (e) => {
   e.preventDefault();
 
-  const name = document.getElementById('plantName').value.trim();
+  const name = document.getElementById('growthPlantName').value.trim();
   const date = document.getElementById('plantDate').value;
   const height = parseFloat(document.getElementById('plantHeight').value);
 
@@ -233,8 +221,8 @@ function drawGraph(plantName) {
 
 
   // scale our graph based on the min and max values of our data
-  const minDate = Math.min(...dates.map(d => d.getTime()));
-  const maxDate = Math.max(...dates.map(d => d.getTime()));
+  const minDate = Math.min(...dates.map(d.getTime()));
+  const maxDate = Math.max(...dates.map(d.getTime()));
   const minHeight = Math.min(...heights);
   const maxHeight = Math.max(...heights);
 
@@ -302,7 +290,7 @@ photoForm.addEventListener('submit', function (e) {
   const file = input.files[0];
   if (!file) return; //Get the file uploaded by the user
 
-  const plantName = document.getElementById('plantName').value
+  const plantName = document.getElementById('photoPlantName').value
   const comments = document.getElementById('comments').value
 
 
@@ -322,7 +310,7 @@ photoForm.addEventListener('submit', function (e) {
     const card = document.createElement('div');
     card.className = 'card photo-card';
 
-    cardHTML = `
+    let cardHTML = `  // Fix: Added 'let' declaration
       <img src="${imgSrc}" class="card-img-top photo-img" alt="Uploaded photo">
       <div class="card-body">
         <p class="card-text"><strong>Uploaded on:</strong> ${date}</p>
