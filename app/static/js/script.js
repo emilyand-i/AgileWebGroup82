@@ -61,6 +61,8 @@ document.addEventListener('wheel', function(e) {
 
 // adding/removing plant:
 
+let plants = [];
+
 document.addEventListener('DOMContentLoaded', function() {
   const addPlantForm = document.getElementById("addPlantForm");
   const plantTabs = document.getElementById("plantTabs");
@@ -73,45 +75,23 @@ document.addEventListener('DOMContentLoaded', function() {
     myPlantCount++;
     const plantName = document.getElementById('plantName').value;
     const plantType = document.getElementById('plantType').value;
-    
-    const newTab = document.createElement("li");
-    newTab.role = "presentation";
-    newTab.className = "nav-item"
 
-    newTab.innerHTML = ` <button class="nav-link" id="plant${myPlantCount}-tab" data-bs-toggle="tab" data-bs-target="#plant${myPlantCount}" type="button" role="tab"> 
-                              ${plantName} 
-                          </button>`;
+    plants.push({
+        id: myPlantCount,
+        name: plantName,
+        type: plantType
+    });
 
-    newTabContent = document.createElement("div");
-    newTabContent.className = "tab-pane fade";
-    newTabContent.id = `plant${myPlantCount}`;
-    newTabContent.role = "tabPanel"
+    // Remove the destructuring here
+    const newPlantTab = addPlantTab(plantName, myPlantCount);
 
-    newTabContent.innerHTML = `
-      <div class="text-center flower-avatar-container">
-                <img src="assets/flower-avatar.png" class="img-fluid text-center" id="flower-avatar">
-              </div>
-              <div class="daily-streak text-center mt-4">
-                <h2 class="streak">Daily Streak</h2>
-                <p class="streak-count display-4 fw-bold">0 🔥</p>
-              </div>
-    `
+    updateShareContent(plants);
 
-    shareContent = document.getElementById("share-content");
-    shareContent.innerHTML = `
-        <h3 class="text-white"> Share Your Plant! </h3>
-              <img src="assets/flower-avatar.png" class="img-fluid text-center" id="flower-avatar">
-              <div class="share-controls text-center mt-4">
-                <button class="btn btn-success share-btn">
-                  <i class="bi bi-share"></i> Share Plant
-                </button>
-              </div>
-    `
+    // Change this variable name to avoid conflict
+    const addPlantButton = document.getElementById("add-plant-tab").parentNode;
+    plantTabs.insertBefore(newPlantTab.tab, addPlantButton);
 
-    const addPlantTab = document.getElementById("add-plant-tab").parentNode;
-    plantTabs.insertBefore(newTab, addPlantTab);
-
-    plantTabsContent.appendChild(newTabContent);
+    plantTabsContent.appendChild(newPlantTab.content);
 
     addPlantForm.reset();
 
@@ -119,12 +99,63 @@ document.addEventListener('DOMContentLoaded', function() {
     const tab = new bootstrap.Tab(newTabButton);
     tab.show();
 
-
-    
-    
   });
 });
 
+function addPlantTab(plantName, myPlantCount) {
+  // Create tab
+  const newTab = document.createElement("li");
+  newTab.role = "presentation";
+  newTab.className = "nav-item";
+
+  newTab.innerHTML = `
+    button class="nav-link" id="plant${myPlantCount}-tab" 
+            data-bs-toggle="tab" 
+            data-bs-target="#plant${myPlantCount}" 
+            type="button" 
+            role="tab" 
+      ${plantName}
+    </button>`;
+
+  // Create tab content
+  const newTabContent = document.createElement("div");
+  newTabContent.className = "tab-pane fade";
+  newTabContent.id = `plant${myPlantCount}`;
+  newTabContent.role = "tabpanel";
+
+  newTabContent.innerHTML = `
+    <div class="text-center flower-avatar-container">
+      <img src="assets/flower-avatar.png" class="img-fluid text-center" id="flower-avatar-${myPlantCount}">
+    </div>
+    <div class="daily-streak text-center mt-4">
+      <h2 class="streak">Daily Streak</h2>
+      <p class="streak-count display-4 fw-bold">0 🔥</p>
+    </div>
+    <div class="share-controls text-center mt-4">
+      <button class="btn btn-success share-btn" onclick="sharePlant(${myPlantCount})">
+        <i class="bi bi-share"></i> Share Plant
+      </button>
+    </div>
+  `;
+
+  return { tab: newTab, content: newTabContent };
+}
+
+function updateShareContent(plants) {
+  const shareContent = document.getElementById("share-content");
+  shareContent.innerHTML = `
+      <h3 class="text-white"> Share Your Plant! </h3>
+          <div class="d-flex justify-content-center">
+          <img src="assets/flower-avatar.png" class="img-fluid text-center share-image centered">
+          </div>
+          <h4 class="text-white text-center">${plants[plants.length - 1].name}</h4>
+          <div class="share-controls text-center mt-4">
+          <button class="btn btn-success share-btn">
+            <i class="bi bi-share"></i> Share Plant
+          </button>
+          </div>
+    `
+}
 
 // JavaScript for the Plant Growth Tracker
 const form = document.getElementById('growthForm');
