@@ -53,34 +53,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const plantName = document.getElementById('plantName').value;
     const plantType = document.getElementById('plantType').value;
 
-    plants.push(
-      {
+    plants.push({
         id: myPlantCount,
         name: plantName,
         type: plantType
-      }
-    );
+    });
 
-    const { tab: newTab, content: newTabContent } = addPlantTab(plantName, myPlantCount);
+    // Remove the destructuring here
+    const newPlantTab = addPlantTab(plantName, myPlantCount);
 
-    shareContent = document.getElementById("share-content");
-    shareContent.innerHTML = `
-      <h3 class="text-white"> Share Your Plant! </h3>
-          <div class="d-flex justify-content-center">
-          <img src="assets/flower-avatar.png" class="img-fluid text-center share-image centered">
-          </div>
-          <h4 class="text-white text-center">${plantName}</h4>
-          <div class="share-controls text-center mt-4">
-          <button class="btn btn-success share-btn">
-            <i class="bi bi-share"></i> Share Plant
-          </button>
-          </div>
-    `
+    updateShareContent(plants);
 
-    const addPlantTab = document.getElementById("add-plant-tab").parentNode;
-    plantTabs.insertBefore(newTab, addPlantTab);
+    // Change this variable name to avoid conflict
+    const addPlantButton = document.getElementById("add-plant-tab").parentNode;
+    plantTabs.insertBefore(newPlantTab.tab, addPlantButton);
 
-    plantTabsContent.appendChild(newTabContent);
+    plantTabsContent.appendChild(newPlantTab.content);
 
     addPlantForm.reset();
 
@@ -126,4 +114,22 @@ function addPlantTab(plantName, myPlantCount) {
       </button>
     </div>
   `;
+
+  return { tab: newTab, content: newTabContent };
+}
+
+function updateShareContent(plants) {
+  const shareContent = document.getElementById("share-content");
+  shareContent.innerHTML = `
+      <h3 class="text-white"> Share Your Plant! </h3>
+          <div class="d-flex justify-content-center">
+          <img src="assets/flower-avatar.png" class="img-fluid text-center share-image centered">
+          </div>
+          <h4 class="text-white text-center">${plants[plants.length - 1].name}</h4>
+          <div class="share-controls text-center mt-4">
+          <button class="btn btn-success share-btn">
+            <i class="bi bi-share"></i> Share Plant
+          </button>
+          </div>
+    `
 }
