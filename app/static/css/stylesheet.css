@@ -356,3 +356,43 @@ main.main-info {
   }
 
 }
+
+/* Plant Graph Growth Section*/
+
+.growth_graph {
+  display:none;
+}
+
+.graph-canvas-wrapper{
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
+  padding: 2px;
+  box-sizing: border-box;
+}
+#graphCanvas {
+  border: 3px solid rgb(133, 192, 81);
+  background: #f9f9f9;
+  margin-top: 20px;
+  border-radius: 10px;
+}
+
+.plantheader {
+  color:aliceblue;
+}
+
+/* User Diary Section*/
+.user_diary {
+  display:none;
+}
+
+.photo-card {
+  max-width: 300px;
+  margin: 15px;
+}
+.photo-img {
+  max-width: 100%;
+  height: auto;
+}
