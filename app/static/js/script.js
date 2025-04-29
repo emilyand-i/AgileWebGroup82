@@ -24,6 +24,29 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('.signin-btn').addEventListener('click', flipForm);
 });
 
+//Plant Graph Dropdown
+function graph_show() {
+  const graph_section = document.getElementById('growth_graph');
+  const style = window.getComputedStyle(graph_section);
+
+  if (style.display == 'none') {
+    graph_section.style.display = 'block';
+  } else {
+    graph_section.style.display = 'none'
+  }
+}
+
+//Picture show Dropdown
+function pic_show() {
+  const pic_diary = document.getElementById('user_diary');
+  const style = window.getComputedStyle(graph_section);
+
+  if (style.display == 'none') {
+    pic_diary.style.display = 'block';
+  } else {
+    pic_diary.style.display = 'none'
+  }
+}
 
 // allow scroll of main-info from anywhere on the page
 document.addEventListener('wheel', function(e) {
