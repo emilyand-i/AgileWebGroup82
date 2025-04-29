@@ -39,7 +39,7 @@ function graph_show() {
 //Picture show Dropdown
 function pic_show() {
   const pic_diary = document.getElementById('user_diary');
-  const style = window.getComputedStyle(user_diary);
+  const style = window.getComputedStyle(pic_diary);
 
   if (style.display == 'none') {
     pic_diary.style.display = 'block';
@@ -54,7 +54,7 @@ document.addEventListener('wheel', function(e) {
   if (scroll_content) {
     scroll_content.scrollBy({
       top: e.deltaY,
-      behaviour: 'smooth'
+      behavior: 'smooth'  
     });
   }
 }, {passive:false});
@@ -109,11 +109,11 @@ function addPlantTab(plantName, myPlantCount) {
   newTab.className = "nav-item";
 
   newTab.innerHTML = `
-    button class="nav-link" id="plant${myPlantCount}-tab" 
+    <button class="nav-link" id="plant${myPlantCount}-tab" 
             data-bs-toggle="tab" 
             data-bs-target="#plant${myPlantCount}" 
             type="button" 
-            role="tab" 
+            role="tab">
       ${plantName}
     </button>`;
 
@@ -233,8 +233,8 @@ function drawGraph(plantName) {
 
 
   // scale our graph based on the min and max values of our data
-  const minDate = Math.min(...dates.map(d => d.getTime()));
-  const maxDate = Math.max(...dates.map(d => d.getTime()));
+  const minDate = Math.min(...dates.map(d.getTime()));
+  const maxDate = Math.max(...dates.map(d.getTime()));
   const minHeight = Math.min(...heights);
   const maxHeight = Math.max(...heights);
 
@@ -322,7 +322,7 @@ photoForm.addEventListener('submit', function (e) {
     const card = document.createElement('div');
     card.className = 'card photo-card';
 
-    cardHTML = `
+    let cardHTML = `  // Fix: Added 'let' declaration
       <img src="${imgSrc}" class="card-img-top photo-img" alt="Uploaded photo">
       <div class="card-body">
         <p class="card-text"><strong>Uploaded on:</strong> ${date}</p>
