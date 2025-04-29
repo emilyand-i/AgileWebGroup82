@@ -38,6 +38,8 @@ document.addEventListener('wheel', function(e) {
 
 // adding/removing plant:
 
+let plants = [];
+
 document.addEventListener('DOMContentLoaded', function() {
   const addPlantForm = document.getElementById("addPlantForm");
   const plantTabs = document.getElementById("plantTabs");
@@ -50,7 +52,17 @@ document.addEventListener('DOMContentLoaded', function() {
     myPlantCount++;
     const plantName = document.getElementById('plantName').value;
     const plantType = document.getElementById('plantType').value;
-    
+
+    // add plant to list
+
+  plants.push(
+    {
+      id: myPlantCount,
+      name: plantName,
+      type: plantType
+    }
+  );
+
     const newTab = document.createElement("li");
     newTab.role = "presentation";
     newTab.className = "nav-item"
@@ -80,6 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class="d-flex justify-content-center">
           <img src="assets/flower-avatar.png" class="img-fluid text-center share-image centered">
           </div>
+          <h4 class="text-white text-center">${plantName}</h4>
           <div class="share-controls text-center mt-4">
           <button class="btn btn-success share-btn">
             <i class="bi bi-share"></i> Share Plant
