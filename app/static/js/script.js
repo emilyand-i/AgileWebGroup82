@@ -76,13 +76,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     shareContent = document.getElementById("share-content");
     shareContent.innerHTML = `
-        <h3 class="text-white"> Share Your Plant! </h3>
-              <img src="assets/flower-avatar.png" class="img-fluid text-center" id="flower-avatar">
-              <div class="share-controls text-center mt-4">
-                <button class="btn btn-success share-btn">
-                  <i class="bi bi-share"></i> Share Plant
-                </button>
-              </div>
+      <h3 class="text-white"> Share Your Plant! </h3>
+          <div class="d-flex justify-content-center">
+          <img src="assets/flower-avatar.png" class="img-fluid text-center share-image centered">
+          </div>
+          <div class="share-controls text-center mt-4">
+          <button class="btn btn-success share-btn">
+            <i class="bi bi-share"></i> Share Plant
+          </button>
+          </div>
     `
 
     const addPlantTab = document.getElementById("add-plant-tab").parentNode;
@@ -96,8 +98,5 @@ document.addEventListener('DOMContentLoaded', function() {
     const tab = new bootstrap.Tab(newTabButton);
     tab.show();
 
-
-    
-    
   });
 });
