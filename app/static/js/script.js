@@ -13,6 +13,7 @@ function scrollToSignin() {
   }
 }
 
+
 function scrollToAbout() {
   const about = document.getElementById('welcome');
   if (about) {
