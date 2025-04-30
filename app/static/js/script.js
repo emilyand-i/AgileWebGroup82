@@ -27,10 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
 //Plant Graph Dropdown
 function graph_show() {
   const graph_section = document.getElementById('growth_graph');
+  const pic_diary = document.getElementById('user_diary');
   const style = window.getComputedStyle(graph_section);
 
   if (style.display == 'none') {
     graph_section.style.display = 'block';
+    pic_diary.style.display = 'none';
   } else {
     graph_section.style.display = 'none'
   }
@@ -39,10 +41,12 @@ function graph_show() {
 //Picture show Dropdown
 function pic_show() {
   const pic_diary = document.getElementById('user_diary');
+  const graph_section = document.getElementById('growth_graph');
   const style = window.getComputedStyle(user_diary);
 
   if (style.display == 'none') {
     pic_diary.style.display = 'block';
+    graph_section.style.display = 'none';
   } else {
     pic_diary.style.display = 'none'
   }
