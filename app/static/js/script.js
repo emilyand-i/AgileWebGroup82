@@ -67,8 +67,6 @@ document.addEventListener('wheel', function(e) {
 
 // adding/removing plant:
 
-let plants = [];
-
 document.addEventListener('DOMContentLoaded', function() {
   const addPlantForm = document.getElementById("addPlantForm");
   const plantTabs = document.getElementById("plantTabs");
@@ -81,21 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
     myPlantCount++;
     const plantName = document.getElementById('plantName').value;
     const plantType = document.getElementById('plantType').value;
-
-    console.log(5);
-    console.log(plantName);
     
-
-    // add plant to list
-
-    plants.push(
-      {
-        id: myPlantCount,
-        name: plantName,
-        type: plantType
-      }
-    );
-
     const newTab = document.createElement("li");
     newTab.role = "presentation";
     newTab.className = "nav-item"
@@ -104,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
                               ${plantName} 
                           </button>`;
 
-    const newTabContent = document.createElement("div");
+    newTabContent = document.createElement("div");
     newTabContent.className = "tab-pane fade";
     newTabContent.id = `plant${myPlantCount}`;
     newTabContent.role = "tabPanel"
@@ -119,21 +103,16 @@ document.addEventListener('DOMContentLoaded', function() {
               </div>
     `
 
-    const shareContent = document.getElementById("share-content");
+    shareContent = document.getElementById("share-content");
     shareContent.innerHTML = `
-      <h3 class="text-white"> Share Your Plant! </h3>
-          <div class="d-flex justify-content-center">
-          <img src="assets/flower-avatar.png" class="img-fluid text-center share-image centered">
-          </div>
-          <h4 class="text-white text-center">${plants[plants.length - 1].name}</h4>
-          <div class="share-controls text-center mt-4">
-          <button class="btn btn-success share-btn">
-            <i class="bi bi-share"></i> Share Plant
-          </button>
-          </div>
+        <h3 class="text-white"> Share Your Plant! </h3>
+              <img src="assets/flower-avatar.png" class="img-fluid text-center" id="flower-avatar">
+              <div class="share-controls text-center mt-4">
+                <button class="btn btn-success share-btn">
+                  <i class="bi bi-share"></i> Share Plant
+                </button>
+              </div>
     `
-
-    
 
     const addPlantTab = document.getElementById("add-plant-tab").parentNode;
     plantTabs.insertBefore(newTab, addPlantTab);
@@ -146,8 +125,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const tab = new bootstrap.Tab(newTabButton);
     tab.show();
 
+
+    
+    
   });
 });
+
 
 
 
