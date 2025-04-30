@@ -11,7 +11,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <script src="js/script.js"></script>
+    <script src="js/script.js" defer></script>
 
     <title>P L A N T L Y</title>
   </head>
@@ -37,7 +37,10 @@
               <input type="file" id="photoInput" accept="image/*" class="form-control mb-3" required>
       
             <!-- Optional plant name may be entered -->
+
               <input type="text" id="plant_name" class="form-control mb-3" placeholder="Enter plant name (optional)">
+              <input type="text" id="photoPlantName" class="form-control mb-3" placeholder="Enter plant name (optional)">
+
       
             <!-- Optional comments -->
               <textarea id="comments" class="form-control mb-3" placeholder="Enter comments (optional)"></textarea>
@@ -49,6 +52,7 @@
             <div id="display" class="d-flex flex-wrap"></div>
           </div>
 
+
           <!--GrowthTracker Graph section-->
           <button class="btn btn-success btn-lg mt-3 add_stat" onclick="graph_show()" id="graphDemoBtn">
             <i class="bi bi-plus-circle me-2"></i> Add Graph
@@ -59,7 +63,11 @@
         
             <form id="growthForm" class="flex flex-column">
               <div>
+
                 <input type="text" id="namePlant" class="form-control" placeholder="Plant Name (8 letters)" required maxlength="8">
+
+                <input type="text" id="growthPlantName" class="form-control" placeholder="Plant Name (8 letters)" required maxlength="8">
+
               </div>
               <div>
                 <input type="date" id="plantDate" class="form-control" required>

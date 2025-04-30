@@ -41,6 +41,9 @@ body {
   font-size: 3.5rem;
 }
 
+.share-image {
+  max-width: 5rem;
+}
 
 
 .content {
@@ -356,8 +359,6 @@ main.main-info {
   }
 
 }
-
-
 
 /* Plant Graph Growth Section*/
 
