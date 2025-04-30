@@ -1,3 +1,5 @@
+
+
 function flipForm() {
   document.getElementById("form-wrapper").classList.toggle("flip");
 }
@@ -27,17 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
 //Plant Graph Dropdown
 function graph_show() {
   const graph_section = document.getElementById('growth_graph');
-
   const pic_diary = document.getElementById('user_diary');
-
   const style = window.getComputedStyle(graph_section);
 
   if (style.display == 'none') {
     graph_section.style.display = 'block';
-
     pic_diary.style.display = 'none';
-
-
   } else {
     graph_section.style.display = 'none'
   }
@@ -46,19 +43,12 @@ function graph_show() {
 //Picture show Dropdown
 function pic_show() {
   const pic_diary = document.getElementById('user_diary');
-
   const graph_section = document.getElementById('growth_graph');
   const style = window.getComputedStyle(user_diary);
 
   if (style.display == 'none') {
     pic_diary.style.display = 'block';
     graph_section.style.display = 'none';
-
-  const style = window.getComputedStyle(pic_diary);
-
-  if (style.display == 'none') {
-    pic_diary.style.display = 'block';
-
   } else {
     pic_diary.style.display = 'none'
   }
@@ -159,204 +149,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-
-
-// JavaScript for the Plant Growth Tracker
-const form = document.getElementById('growthForm');
-const canvas = document.getElementById('graphCanvas');
-const ctx = canvas.getContext('2d');
-const plantSelector = document.getElementById('plantSelector');
-
-function addToDropdown(name) {
-  // Make new option for the plant in the dropdown menu
-  const option = document.createElement('option');
-  option.value = name;
-  option.textContent = name;
-  plantSelector.appendChild(option);
-}
-
-plantSelector.addEventListener('change', () => {
-  const selectedPlant = plantSelector.value;
-  if (selectedPlant) {
-    drawGraph(selectedPlant);
-  } else {
-    // Clear the canvas if no plant is selected
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-});
-
-const plantData = {}; 
-// Store plant data in an object; Keys are plant names, values are arrays of dates & growth 
-// Example: { Plant42: [{date: ..., height: ...}], Bulbasaur: [...] }
-
-form.addEventListener('submit', (e) => {
-  e.preventDefault();
-
-  const name = document.getElementById('growthPlantName').value.trim();
-  const date = document.getElementById('plantDate').value;
-  const height = parseFloat(document.getElementById('plantHeight').value);
-
-  //Don't add data if any field is empty or invalid
-  if (!name || !date || isNaN(height)) return;
-  
-  // Create a new entry for the plant if it doesn't exist
-  if (!plantData[name]) {
-    plantData[name] = [];
-    addToDropdown(name);
-  }
-
-  // Add the new info to plant's data array
-  plantData[name].push({ date, height });
-
-  // Sort the data by date
-  // Therefore if older data is added, graph will still be correct
-  plantData[name].sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  form.reset();
-  if (plantSelector.value === name) {
-    drawGraph(name); // Redraw if it's currently selected by our user
-  }
-});
-
-
-function drawGraph(plantName) {
-  const data = plantData[plantName];
-
-  // we can only draw the graph if we have at least 2 data points
-  if (!data || data.length < 2) return;
-
-  // Clear current canvas
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  const padding = 70;
-  const graphWidth = canvas.width - padding * 2;
-  const graphHeight = canvas.height - padding * 2;
-
-  const dates = data.map(d => new Date(d.date));
-  const heights = data.map(d => d.height);
-
-
-  // scale our graph based on the min and max values of our data
-  const minDate = Math.min(...dates.map(d.getTime()));
-  const maxDate = Math.max(...dates.map(d.getTime()));
-  const minHeight = Math.min(...heights);
-  const maxHeight = Math.max(...heights);
-
-  function getX(date) {
-    return padding + ((date.getTime() - minDate) / (maxDate - minDate)) * graphWidth;
-  }
-
-  function getY(height) {
-    return canvas.height - padding - ((height - minHeight) / (maxHeight - minHeight)) * graphHeight;
-  }
-
-  ctx.beginPath();
-  ctx.moveTo(padding, padding);
-  ctx.lineTo(padding, canvas.height - padding); //draw y-axis
-  ctx.lineTo(canvas.width - padding, canvas.height - padding); //draw x-axis
-  ctx.stroke(); //apply these lines to canvas
-
-  // Plot points and connect them
-  ctx.beginPath();
-  ctx.strokeStyle = '#28a745';
-  ctx.lineWidth = 4;
-  data.forEach((point, index) => {
-    const x = getX(new Date(point.date));
-    const y = getY(point.height);
-
-    if (index === 0){
-      ctx.moveTo(x, y);
-    }
-    else {
-      ctx.lineTo(x, y);
-    }
-
-    ctx.arc(x, y, 5, 0, 2 * Math.PI); // Draw point
-  });
-  ctx.stroke();
-
-  // Y-Axis label
-  ctx.save(); // Save current state
-  ctx.translate(20, canvas.height / 2);
-  ctx.rotate(-Math.PI / 2);
-  ctx.textAlign = "center";
-  ctx.font = "14px sans-serif";
-  ctx.fillText("Height Grown", 0, 0);
-  ctx.restore(); // Restore back to normal
-
-  // X-Axis label
-  ctx.font = "14px sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText("Time Spent Growing", canvas.width / 2, canvas.height - 10);
-
-  // Write Title linked to the plant name
-  ctx.font = "bold 18px sans-serif";
-  ctx.fillText(`${plantName}'s Growth Journey`, canvas.width / 2, padding - 15);
-}
-
-//JAVASCRIPT FOR THE IMAGE HANDLING
-//collect references of form, input and the display
-const photoForm = document.getElementById('photoForm');
-const input = document.getElementById('photoInput');
-const display = document.getElementById('display');
-
-photoForm.addEventListener('submit', function (e) {
-  e.preventDefault(); //USE THIS TO STOP PAGE REFRESHING ON SUBMITS!
-
-  const file = input.files[0];
-  if (!file) return; //Get the file uploaded by the user
-
-  const plantName = document.getElementById('photoPlantName').value
-  const comments = document.getElementById('comments').value
-
-
-  const reader = new FileReader(); // convert image so our site can use it
-  reader.onload = function (event) {
-    const imgSrc = event.target.result;
-    const date = new Date().toLocaleString(undefined, {
-      hour: 'numeric',
-      minute: 'numeric',
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    }); //Neater display without seconds
-
-    // Create a new card element for the photo
-    // all photos will be displayed seperately and uniformly
-    const card = document.createElement('div');
-    card.className = 'card photo-card';
-
-    let cardHTML = `  // Fix: Added 'let' declaration
-      <img src="${imgSrc}" class="card-img-top photo-img" alt="Uploaded photo">
-      <div class="card-body">
-        <p class="card-text"><strong>Uploaded on:</strong> ${date}</p>
-    `;
-      // Only add Plant Name if user wrote it
-    if (plantName) {
-      cardHTML += `<p class="card-text"><strong>Plant Name:</strong> ${plantName}</p>`;
-    }
-
-      // Only add Comments if user wrote it
-    if (comments) {
-      cardHTML += `<p class="card-text"><strong>Comments:</strong> ${comments}</p>`;
-    }
-
-    // finalise the body card 
-    cardHTML += `</div>`;
-    card.innerHTML = cardHTML;
-
-    display.prepend(card); // Newest first
-    //to make it start with the oldests first we just need to append it
-    //Not sure if we would like to consider option of switch photos apparance later
-    // ie) By newest, By oldest toggle for the user to press
-
-    //REMOVE WHEN IMPLEMENTING INTO OTHER FILES/FUNCTIONS
-    console.log('image added to diary');
-    photoForm.reset();
-  };
-
-  reader.readAsDataURL(file);
-});
 
 
 //JAVASCRIPT FOR THE IMAGE HANDLING
