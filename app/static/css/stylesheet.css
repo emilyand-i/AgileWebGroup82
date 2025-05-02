@@ -4,6 +4,7 @@
   box-sizing: border-box;
 }
 
+
 html {
   scroll-behavior:smooth;
 }
@@ -23,6 +24,7 @@ body {
     background-color: rgb(65, 90, 71);
 }
 
+/*INDEX*/
 .container-screen {
   margin: auto 0;
   display: flex;
@@ -39,10 +41,6 @@ body {
 .display-2 {
   padding:0;
   font-size: 3.5rem;
-}
-
-.share-image {
-  max-width: 5rem;
 }
 
 
@@ -78,19 +76,6 @@ body {
   opacity: 0.7;
 }
 
-.about-info-dash{
-  position: relative;
-  top: 0;  
-  width: 48%;
-  color:aliceblue;
-  height: fit-content;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
 .flower-img {
   margin-top: 2rem;
   height: 320px;
@@ -110,20 +95,6 @@ body {
   display: block;
 }
 
-.flower-avatar-container img {
-  width: 20rem;
-  margin-top: 3rem;
-}
-
-#home-flower {
-  width: 10rem;
-}
-
-.mid-column {
-  background-color: aqua;
-  display: flex;
-  flex-direction: column;
-}
 
 .nav-info {
   margin-top: 1rem;
@@ -254,55 +225,6 @@ main.main-info {
   cursor: pointer;
 }
 
-
-
-.column-title {
-  margin-top: 1rem;
-  font-weight: bold;
-}
-
-
-.daily-streak {
-  margin-top: 1rem;
-  font-weight: bold;
-  font-size: 20px;
-  color: #ffffff;
-}
-
-.nav-tabs {
-  background-color: transparent;
-  border-bottom: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;  
-  justify-content: center;
-  width: 100%;    
-}
-
-.nav-link, .add_stat {
-  color: aliceblue;
-  font-size: 1rem;    
-  border-radius: 0.5rem; 
-  padding: 0.25rem 0.5rem; 
-  width: 8rem;         
-  text-align: center;
-  background-color: #729566;
-  border: none;
-  white-space: nowrap; 
-  overflow: hidden;
-  text-overflow: ellipsis; 
-}
-
-.plant-tabs {
-  width: 100%;    
-  padding: 0 1rem; 
-}
-
-.nav-link:hover {
-  background-color: #66835c;
-}
-
-
 /* adjustments for mobile and ipad screen usage */
 
 @media (max-width: 768px) {
@@ -358,6 +280,91 @@ main.main-info {
     
   }
 
+}
+
+/*DASHBOARD*/
+
+.border-success {
+  border-color:#729566a9 !important;
+}
+
+.about-info-dash{
+  position: relative;
+  top: 0;  
+  width: 48%;
+  color:aliceblue;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.column-title {
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
+
+.daily-streak {
+  margin-top: 1rem;
+  font-weight: bold;
+  font-size: 20px;
+  color: #ffffff;
+}
+
+.nav-tabs {
+  background-color: transparent;
+  border-bottom: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;  
+  justify-content: center;
+  width: 100%;    
+}
+
+.flower-avatar-container img {
+  width: 20rem;
+  margin-top: 3rem;
+}
+
+#home-flower {
+  width: 10rem;
+}
+
+.mid-column {
+  background-color: aqua;
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-link, .add_stat {
+  color: aliceblue;
+  font-size: 1rem;    
+  border-radius: 0.5rem; 
+  padding: 0.25rem 0.5rem; 
+  width: 8rem;         
+  text-align: center;
+  background-color: #729566;
+  border: none;
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis; 
+}
+
+.plant-tabs {
+  width: 100%;    
+  padding: 0 1rem; 
+}
+
+.nav-link:hover {
+  background-color: #66835c;
+}
+
+
+.share-image {
+  max-width: 5rem;
 }
 
 /* Plant Graph Growth Section*/
