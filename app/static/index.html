@@ -52,12 +52,12 @@
                 <div class="form-wrapper" id="form-wrapper">
                   
                   <div class="form-card front" id="front">
-                    <form class="mt-5">
+                    <form class="login-form mt-5">
                       <h2 class="mt-2">Sign In</h2>
                       
-                      <input type="text" class="form-control " id="username" name="username" placeholder="Username" required>
+                      <input type="text" class="form-control " id="login-username" name="username" placeholder="Username" required>
                       
-                      <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                      <input type="password" class="form-control" id="login-password" name="password" placeholder="Password" required>
 
                       <button role="submit" type="submit" class="btn submit-btn mb-5" onclick="toDash()">Submit</button>
 
@@ -66,16 +66,16 @@
                     </form>
                   </div>
                   <div class="form-card back" id="back">
-                    <form>
-                      <h2 class="mt-5">Sign Up</h2>
+                    <form class="signup-form">
+                      <h2 class="mt-5">Register</h2>
                       
-                      <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
+                      <input type="email" class="form-control" id="signup-user" name="email" placeholder="Email" required>
                       
-                      <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                      <input type="password" class="form-control" id="signup-password" name="password" placeholder="Password" required>
         
                       <input type="password" class="form-control" id="confirm-password" name="confirm-password" placeholder="Confirm Password" required>
 
-                      <button role="submit" type="submit" class="btn submit-btn mb-2" onclick="toDash()">Submit</button>
+                      <button role="submit" type="submit" class="btn submit-btn mb-2" >Submit</button>
 
                       <p class="mt-4">Already have an account?</p>
                       <button class="btn signin-btn">Sign in</button>

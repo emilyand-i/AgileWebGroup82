@@ -11,9 +11,6 @@ function flipForm() {
   document.getElementById("form-wrapper").classList.toggle("flip");
 }
 
-function toDash() {
-  window.location.href = "dashboard.html"
-}
 
 function scrollToSignin() {
   const form = document.getElementById('form-wrapper');
@@ -21,6 +18,34 @@ function scrollToSignin() {
     form.scrollIntoView({behavior: 'smooth'});
   }
 }
+
+
+// Sign in && Register forms
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('login-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const username = document.getElementById('login-username').value;
+    const password = document.getElementById('login-password').value;
+
+    const fetch_login = await fetch('api/login', {
+      method: 'POST', 
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username, password})
+    });
+    
+
+    const login_data = await fetch_login.json();
+    if (fetch_login.ok) {
+      window.location.href = 'dashboard.html';
+    } else {
+      alert(login_data.error || 'Login failed');
+    }
+  });
+});
+
+
+
 
 function scrollToAbout() {
   const about = document.getElementById('welcome');
