@@ -1,4 +1,11 @@
-
+// allow scroll of main-info from anywhere on the page
+document.addEventListener('wheel', function(e) {
+  e.preventDefault();
+  const scroll_content = document.querySelector('.main-info');
+  if (scroll_content) {
+    scroll_content.scrollTop += e.deltaY;
+  }
+}, {passive:false});
 
 function flipForm() {
   document.getElementById("form-wrapper").classList.toggle("flip");
@@ -53,17 +60,6 @@ function pic_show() {
     pic_diary.style.display = 'none'
   }
 }
-
-// allow scroll of main-info from anywhere on the page
-document.addEventListener('wheel', function(e) {
-  const scroll_content = document.querySelector('.main-info');
-  if (scroll_content) {
-    scroll_content.scrollBy({
-      top: e.deltaY,
-      behavior: 'smooth'  
-    });
-  }
-}, {passive:false});
 
 // adding/removing plant:
 
