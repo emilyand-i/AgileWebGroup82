@@ -393,18 +393,33 @@ main.main-info {
   color:aliceblue;
 }
 
-/* User Diary Section*/
+/* User Photo Diary Section*/
 .user_diary {
   display:none;
 }
 
 .photo-card {
-  max-width: 300px;
+  flex: 0 0 auto;
+  width: 300px;
   margin: 15px;
+  border: 2px solid rgb(80, 163, 71);
+  padding: 5px;
+  flex-direction: column;
 }
 .photo-img {
   max-width: 100%;
   height: auto;
+  margin-bottom: 5px;
 }
 
 
+.photo_scroll {
+  display: flex;
+  flex-direction: row;
+  overflow-x: scroll !important;
+  scroll-behavior: smooth;
+  gap: 2px;
+  flex-wrap: nowrap;
+  scrollbar-width: none;
+  border: 1px solid transparent;
+}

@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
         minute: 'numeric',
         day: '2-digit',
         month: '2-digit',
-        year: 'numeric',
+        year: '2-digit',
       }); //Neater display without seconds
 
       // Create a new card element for the photo
@@ -166,9 +166,9 @@ document.addEventListener('DOMContentLoaded', function() {
       card.className = 'card photo-card';
 
       cardHTML = `
+      <p class="card-text">${date}</p>
+      <div class="card-body">
         <img src="${imgSrc}" class="card-img-top photo-img" alt="Uploaded photo">
-        <div class="card-body">
-          <p class="card-text"><strong>Uploaded on:</strong> ${date}</p>
       `;
         // Only add Plant Name if user wrote it
       if (plant_name) {
