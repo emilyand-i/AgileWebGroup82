@@ -423,3 +423,31 @@ main.main-info {
   scrollbar-width: none;
   border: 1px solid transparent;
 }
+
+.avatar-grid {
+  max-width: 30rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
+  gap: 0.5rem; 
+  justify-content: center;
+  padding: 1rem;
+}
+
+.avatar-choice {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.avatar-choice:hover {
+  cursor: pointer;
+  box-shadow: 0px 0px 4px 2px rgba(0, 0, 0, 0.5);
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+
+.selected-avatar {
+  max-width: 20rem;
+  border-radius: 2rem;
+}
