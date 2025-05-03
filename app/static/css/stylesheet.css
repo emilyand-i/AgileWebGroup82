@@ -399,3 +399,19 @@ main.main-info {
   max-width: 100%;
   height: auto;
 }
+
+.avatar-grid {
+  max-width: 30rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
+  gap: 0.5rem; 
+  justify-content: center;
+  padding: 1rem;
+}
+
+.avatar-choice {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 10px;
+}
