@@ -52,21 +52,21 @@
                 <div class="form-wrapper" id="form-wrapper">
                   
                   <div class="form-card front" id="front">
-                    <form class="login-form mt-5">
+                    <form id="login-form" class="mt-5">
                       <h2 class="mt-2">Sign In</h2>
                       
                       <input type="text" class="form-control " id="login-username" name="username" placeholder="Username" required>
                       
                       <input type="password" class="form-control" id="login-password" name="password" placeholder="Password" required>
 
-                      <button role="submit" type="submit" class="btn submit-btn mb-5" onclick="toDash()">Submit</button>
+                      <button role="submit" type="submit" class="btn submit-btn mb-5">Submit</button>
 
                       <p class="mt-4">Dont have an account?</p>
                       <button type="button" onclick="flipForm()" class="btn signup-btn">Create Account</button>
                     </form>
                   </div>
                   <div class="form-card back" id="back">
-                    <form class="signup-form">
+                    <form id="signup-form">
                       <h2 class="mt-5">Register</h2>
                       
                       <input type="email" class="form-control" id="signup-user" name="email" placeholder="Email" required>
