@@ -11,9 +11,6 @@ function flipForm() {
   document.getElementById("form-wrapper").classList.toggle("flip");
 }
 
-function toDash() {
-  window.location.href = "dashboard.html"
-}
 
 function scrollToSignin() {
   const form = document.getElementById('form-wrapper');
@@ -21,6 +18,62 @@ function scrollToSignin() {
     form.scrollIntoView({behavior: 'smooth'});
   }
 }
+
+
+// Sign in && Register forms
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('login-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const username = document.getElementById('login-username').value;
+    const password = document.getElementById('login-password').value;
+
+    const fetch_login = await fetch('/api/login', {
+      method: 'POST', 
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username, password})
+    });
+    
+
+    const login_data = await fetch_login.json();
+    if (fetch_login.ok) {
+      window.location.href = 'dashboard.html';
+    } else {
+      alert(login_data.error || 'Login failed');
+    }
+  });
+});
+
+//Register
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('signup-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const email = document.getElementById('signup-user').value;
+    const password = document.getElementById('signup-password').value;
+    const pass_confirm = document.getElementById('confirm-password').value;
+    
+    if (password != pass_confirm) {
+      alert('Password does not match');
+      return;
+    }
+
+    const fetch_signup = await fetch('/api/register', {
+      method: 'POST', 
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username: email, password})
+    });
+    const signup_data = await fetch_signup.json();
+    if (fetch_signup.ok) {
+      alert('Account created! Please log in.');
+      flipForm();
+    } else {
+      alert(signup_data.error || 'Signup error. Please use valid email.')
+    }
+  });
+});
+
+
 
 function scrollToAbout() {
   const about = document.getElementById('welcome');

@@ -2,6 +2,7 @@
 
 from flask import Flask
 from .models import user_db
+from .routes import routes_bp
 
 def create_app():
   app = Flask(__name__, static_folder = 'static') # app is our web server now
@@ -10,7 +11,6 @@ def create_app():
   
   user_db.init_app(app) # Connect database object to flask app
   
-  from .routes import routes_bp
   app.register_blueprint(routes_bp)
 
   return app
