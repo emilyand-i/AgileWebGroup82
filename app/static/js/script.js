@@ -69,6 +69,18 @@ document.addEventListener('DOMContentLoaded', function() {
   const plantTabsContent = document.getElementById('plantTabsContent');
   let myPlantCount = 0;
 
+  const avatars = document.querySelectorAll('.avatar-choice');
+  const container = document.getElementById('avatar-container');
+
+  avatars.forEach(avatar => {
+    avatar.addEventListener('click', () => {
+      container.innerHTML = `
+        <img src="${avatar.src}" alt="${avatar.alt}" class="selected-avatar">
+      `;
+    });
+  });
+
+
   addPlantForm.addEventListener('submit', function(e) {
     e.preventDefault();
     

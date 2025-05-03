@@ -422,3 +422,8 @@ main.main-info {
   transform: scale(1.05);
   transition: transform 0.3s ease;
 }
+
+.selected-avatar {
+  max-width: 20rem;
+  border-radius: 2rem;
+}
