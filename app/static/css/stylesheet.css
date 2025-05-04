@@ -308,6 +308,10 @@ main.main-info {
   font-weight: bold;
   font-size: 20px;
   color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .nav-tabs {

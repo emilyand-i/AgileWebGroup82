@@ -152,7 +152,14 @@ container.addEventListener("click", function(e) {
       selectedAvatarSrc = e.target.getAttribute("src");
     }
   });
-
+  
+  document.getElementById('settingsModal').addEventListener('show.bs.modal', function (event) {
+    const trigger = event.relatedTarget;
+    const plantName = trigger.getAttribute('data-plant-name');
+    if (plantName) {
+      document.getElementById('username').placeholder = plantName;
+    }
+  });
 
   addPlantForm.addEventListener('submit', function(e) {
     e.preventDefault();
@@ -169,7 +176,7 @@ container.addEventListener("click", function(e) {
   
     newTab.innerHTML = `
       <button class="nav-link" id="plant${myPlantCount}-tab" data-bs-toggle="tab" data-bs-target="#plant${myPlantCount}" type="button" role="tab"> 
-        ${plantName} 
+        ${plantName}
       </button>`;
   
     const newTabContent = document.createElement("div");
@@ -182,10 +189,20 @@ container.addEventListener("click", function(e) {
         <img src="${avatarImageSrc}" class="img-fluid text-center avatar">
       </div>
       <div class="daily-streak text-center mt-4">
-        <h2 class="streak">Daily Streak</h2>
-        <p class="streak-count display-4 fw-bold">0 🔥</p>
-      </div>
-    `;
+        <h2 class="streak">Daily Streak: 0🔥</h2>
+        <div class="nav-link bi bi-gear fs-3" 
+          role="button"
+          data-bs-toggle="modal"
+          data-bs-target="#settingsModal"
+          data-plant-name="${plantName}">
+        </div>
+      </div>`;
+
+
+       
+      
+       
+        
   
     const shareContent = document.getElementById("share-content");
     shareContent.innerHTML = `
