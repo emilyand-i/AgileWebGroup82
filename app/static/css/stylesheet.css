@@ -444,6 +444,6 @@ main.main-info {
 }
 
 .selected-avatar {
-  max-width: 20rem;
+  width: 10rem;
   border-radius: 2rem;
 }
