@@ -447,3 +447,13 @@ main.main-info {
   width: 10rem;
   border-radius: 2rem;
 }
+
+.avatar {
+  width: 10rem;
+  border-radius: 2rem;
+}
+
+.share-avatar {
+  width: 5rem;
+  border-radius: 2rem;
+}

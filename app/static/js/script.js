@@ -179,7 +179,7 @@ container.addEventListener("click", function(e) {
   
     newTabContent.innerHTML = `
       <div class="text-center flower-avatar-container">
-        <img src="${avatarImageSrc}" class="img-fluid text-center" id="flower-avatar">
+        <img src="${avatarImageSrc}" class="img-fluid text-center avatar">
       </div>
       <div class="daily-streak text-center mt-4">
         <h2 class="streak">Daily Streak</h2>
@@ -190,7 +190,7 @@ container.addEventListener("click", function(e) {
     const shareContent = document.getElementById("share-content");
     shareContent.innerHTML = `
       <h3 class="text-white"> Share Your Plant! </h3>
-      <img src="${avatarImageSrc}" class="img-fluid text-center" id="flower-avatar">
+      <img src="${avatarImageSrc}" class="img-fluid text-center share-avatar">
       <div class="share-controls text-center mt-4">
         <button class="btn btn-success share-btn">
           <i class="bi bi-share"></i> Share Plant
