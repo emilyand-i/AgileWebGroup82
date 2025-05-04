@@ -122,8 +122,7 @@
             </div>
             
             <div class="tab-pane fade" id="add-plant" role="tabpanel"> <!-- NEW PLANT CONTENT -->
-              <div class="text-center mt-4">
-                <h3 class="display-4 text-white">Add a New Plant</h3>
+              <div class="text-center mt-3">
                 <div id = "avatar-container">
                   <div id="avatar-choices" class="avatar-grid">
                     <img src="assets/Flower_Avatars/bush.jpg" alt="Bush" class="avatar-choice">
@@ -138,11 +137,11 @@
                     <img src="assets/flower-avatar.png" alt="flower" class="avatar-choice">
                   </div>
               </div>
-                <form id="addPlantForm" class="mt-4 w-75 mx-auto">
-                  <div class="mb-3">
+                <form id="addPlantForm" class="mt-1 text-center padding-0">
+                  <div class="mb-1">
                     <input type="text" class="form-control" id="plantName" placeholder="Plant Name" required>
                   </div>
-                  <div class="mb-3">
+                  <div class="mb-1">
                     <select class="form-control" id="plantType" required> <!-- PLANT INPUT FORM -->
                       <option value="">Select Plant Type</option>
                       <option value="flower">Flower</option>
@@ -157,6 +156,38 @@
                 </form>
               </div>
             </div>
+
+            <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true"> <!-- SETTINGS MODAL -->
+              <div class="modal-dialog">
+                <div class="modal-content">
+                
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+            
+                  <div class="modal-body">
+                    <form id="settingsForm">
+                      <div class="mb-3">
+                        <label for="plantName" class="form-label">Name of Plant</label>
+                        <input type="text" class="form-control" id="username" placeholder="Username">
+                      </div>
+                      <div class="mb-3">
+                        <label for="birthday" class="form-label">Birthday</label>
+                        <input type="date" class="form-control" id="birthday" placeholder="Enter birthday">
+                      </div>
+                    </form>
+                  </div>
+            
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                  </div>   <!-- MODAL SETTINGS END -->
+            
+                </div>
+              </div>
+            </div>
+            
           </div>
         </div>
 
@@ -165,10 +196,13 @@
             <header class="about-info-dash px-2">
               <h1 class="display-2 column-title mt-5 mb-4">Share</h1>
             </header>
-            <div id="share-content">
+            <div id="share-content" class="text-center">
               <h3 class="text-center text-white mt-5">Create A Plant First In Order To Share It!</h3>
             </div>
           </div>
+          
+
+          
           
           
       </div>

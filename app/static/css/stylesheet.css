@@ -308,6 +308,10 @@ main.main-info {
   font-weight: bold;
   font-size: 20px;
   color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .nav-tabs {
@@ -421,7 +425,7 @@ main.main-info {
 }
 
 .avatar-grid {
-  max-width: 30rem;
+  width: 30rem;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
   gap: 0.5rem; 
@@ -444,6 +448,21 @@ main.main-info {
 }
 
 .selected-avatar {
-  max-width: 20rem;
+  width: 10rem;
   border-radius: 2rem;
+}
+
+.avatar {
+  width: 10rem;
+  border-radius: 2rem;
+}
+
+.share-avatar {
+  width: 5rem;
+  border-radius: 2rem;
+}
+
+#addPlantForm {
+  width: 20rem;
+  margin: 0 auto;
 }
