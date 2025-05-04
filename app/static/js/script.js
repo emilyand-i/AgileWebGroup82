@@ -133,6 +133,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  let selectedAvatarSrc = null;
+
+  document.getElementById("avatar-choices").addEventListener("click", function(e) {
+    if (e.target && e.target.classList.contains("avatar-choice")) {
+      // Deselect all
+      document.querySelectorAll(".avatar-choice").forEach(img => img.classList.remove("selected"));
+      // Select current
+      e.target.classList.add("selected");
+      selectedAvatarSrc = e.target.getAttribute("src");
+    }
+  });
+
 
   addPlantForm.addEventListener('submit', function(e) {
     e.preventDefault();
@@ -141,6 +153,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const plantName = document.getElementById('plantName').value;
     const plantType = document.getElementById('plantType').value;
     
+    const avatarImageSrc = selectedAvatarSrc;
+
     const newTab = document.createElement("li");
     newTab.role = "presentation";
     newTab.className = "nav-item"
@@ -156,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     newTabContent.innerHTML = `
       <div class="text-center flower-avatar-container">
-                <img src="assets/flower-avatar.png" class="img-fluid text-center" id="flower-avatar">
+                <img src="${avatarImageSrc}" class="img-fluid text-center" id="flower-avatar">
               </div>
               <div class="daily-streak text-center mt-4">
                 <h2 class="streak">Daily Streak</h2>
