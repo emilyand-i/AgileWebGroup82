@@ -46,3 +46,23 @@ class User(user_db.Model):
     chosen_image_url = user_db.Column(user_db.String(255)) #255 characters max
     plant_type = user_db.Column(user_db.String(50)) #50 characters max
     date_created = user_db.Column(user_db.DateTime, default=user_db.func.now()) 
+
+
+
+# uploadedPics: table in user_dbase
+# photo_id: unique id for each photo (to be used in shared page to display them seperately)
+# user_id: foreign key to User table, links to the id of the user who uploaded the photo
+# (will also factor into the public/private setting of the user later on on shareboard page)
+# plant_id: foreign key to Plants table, links to the id of the plant, required
+# image_url: string, URL of the uploaded image, required
+# caption: string, optional caption for the image, optional
+# datetime_uploaded: date and time when the image was uploaded, default is the current date and time
+# (this will be used to sort the images in the shareboard page, so that the most recent ones are at the top)
+
+  class uploadedPics(user_db.Model):
+    photo_id = user_db.Column(user_db.Integer, primary_key=True)
+    user_id = user_db.Column(user_db.Integer, user_db.ForeignKey('user.id'), nullable=False)
+    plant_id = user_db.Column(user_db.Integer, user_db.ForeignKey('user_plant.id'), nullable=False)
+    image_url = user_db.Column(user_db.String(255), nullable=False)
+    caption = user_db.Column(user_db.String(255))
+    datetime_uploaded = user_db.Column(user_db.DateTime, default=user_db.func.now())

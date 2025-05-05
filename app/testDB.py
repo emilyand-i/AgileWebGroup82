@@ -24,8 +24,8 @@
     #   user_db.session.commit()
 
 
-    # To create a new USER PLANT entry:
-    #   new_plant = UserPlant(
+    # To create a new PLANTS entry:
+    #   new_plant = Plants(
     #       user_id = <owner_user_id>,
     #       plant_name = 'Aloe Vera',
     #       matching_image_url = '<optional_url>',  # ONLY OPTIONAL AT THE MOMENT
@@ -35,3 +35,12 @@
     #   user_db.session.add(new_plant)
     #   user_db.session.commit()
 
+    # To create a new UPLOADEDPICS:
+    #   new_photo = uploadedPics(
+    #       user_id = <user_id>,
+    #       plant_id = <plant_id>,
+    #       image_url = 'https://example.com/photo.jpg',
+    #       caption = 'My cactus thriving!'
+    #   )
+    #   user_db.session.add(new_photo)
+    #   user_db.session.commit()
