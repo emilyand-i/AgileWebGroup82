@@ -33,4 +33,16 @@ class User(user_db.Model):
     friend_id = user_db.Column(user_db.Integer, user_db.ForeignKey('user.id'), primary_key=True)
     status = user_db.Column(user_db.String(20), nullable=False, default='pending')
 
-    
+# Plants: table in user_dbase
+# id: unique id for each plant
+# user_id: foreign key to User table, links to the id of the user who owns the plant
+# plant_name: string, name of the plant, required
+# chosen_image_url: string, URL of the plant image, optional
+
+  class Plants(user_db.Model):
+    id = user_db.Column(user_db.Integer, primary_key=True)
+    user_id = user_db.Column(user_db.Integer, user_db.ForeignKey('user.id'), nullable=False)
+    plant_name = user_db.Column(user_db.String(100), nullable=False) #100 characters max
+    chosen_image_url = user_db.Column(user_db.String(255)) #255 characters max
+    plant_type = user_db.Column(user_db.String(50)) #50 characters max
+    date_created = user_db.Column(user_db.DateTime, default=user_db.func.now()) 

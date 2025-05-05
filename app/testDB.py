@@ -22,3 +22,16 @@
     #   )
     #   user_db.session.add(new_friend)
     #   user_db.session.commit()
+
+
+    # To create a new USER PLANT entry:
+    #   new_plant = UserPlant(
+    #       user_id = <owner_user_id>,
+    #       plant_name = 'Aloe Vera',
+    #       matching_image_url = '<optional_url>',  # ONLY OPTIONAL AT THE MOMENT
+                                                    #otherwise should be a link to image from our static folder
+    #       plant_type = 'Succulent'
+    #   )
+    #   user_db.session.add(new_plant)
+    #   user_db.session.commit()
+
