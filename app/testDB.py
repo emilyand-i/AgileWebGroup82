@@ -13,3 +13,12 @@
 #   )
 #   user_db.session.add(new_settings)
 #   user_db.session.commit()
+
+# To create a new FRIENDS LIST entry (e.g., friend request):
+    #   new_friend = FriendsList(
+    #       user_id = <requester_user_id>,
+    #       friend_id = <target_user_id>,
+    #       status = 'pending'  # or 'accepted'
+    #   )
+    #   user_db.session.add(new_friend)
+    #   user_db.session.commit()
