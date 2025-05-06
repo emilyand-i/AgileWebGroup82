@@ -18,7 +18,7 @@ with app.app_context():
 
     #Add plant to Emily
     emily = User.query.filter_by(username='Emily').first()
-    plant = Plants(user_id=emily.id, plant_name='Aloe Vera', plant_type='Succulent')
+    plant = Plants(user_id=emily.id, plant_name='Aloe Vera', plant_type='Succulent', chosen_image_url='assets/Flower_Avatars/cactus.jpg')
     user_db.session.add(plant)
     user_db.session.commit()
     print("🌿 Test plant added for Emily.")
