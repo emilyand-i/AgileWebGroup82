@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from .models import user_db, User
+from flask import session
 
 routes_bp = Blueprint('routes', __name__) # connect all related routes for later
 
@@ -8,6 +9,9 @@ def register(): # run once fetch request added, once POST to /api/register
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
+    
+    if not username or not password:
+        return jsonify({'error': 'Please enter username and password'})
 
     if User.query.filter_by(username=username).first(): # check if username already exists
         return jsonify({'error': 'Username already exists'}), 409 # we can use this to send a message back to user that the username is taken
@@ -31,9 +35,28 @@ def login():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
+    
+    if not username or not password:
+        return jsonify({'error': 'Please enter username and password'})
 
     user = User.query.filter_by(username=username, password=password).first()
     if user:
+        # store session info
+        session['user_id'] = user.id
+        session['username'] = user.username
         return jsonify({'message': 'Login successful'}), 200
     else:
         return jsonify({'error': 'Invalid details'}), 401
+    
+
+@routes_bp.route('/api/profile', methods = ['GET'])
+def get_profile():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not authorised'}), 401
+    
+    user  = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    return jsonify({'username': user.username, 'id': user.id}), 200
