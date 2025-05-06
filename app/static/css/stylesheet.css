@@ -339,7 +339,7 @@ main.main-info {
   flex-direction: column;
 }
 
-.nav-link, .add_stat {
+.nav-link, .add_stat, .logout_button {
   color: aliceblue;
   font-size: 1rem;    
   border-radius: 0.5rem; 
@@ -358,7 +358,7 @@ main.main-info {
   padding: 0 1rem; 
 }
 
-.nav-link:hover {
+.nav-link:hover, .logout_button:hover {
   background-color: #66835c;
 }
 

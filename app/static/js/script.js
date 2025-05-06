@@ -1,4 +1,7 @@
+
+
 // allow scroll of main-info from anywhere on the page
+
 document.addEventListener('wheel', function(e) {
   e.preventDefault();
   const scroll_content = document.querySelector('.main-info');
@@ -19,8 +22,23 @@ function scrollToSignin() {
   }
 }
 
+function scrollToAbout() {
+  const about = document.getElementById('welcome');
+  if (about) {
+    about.scrollIntoView({behavior:'smooth'});
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelector('.signin-btn').addEventListener('click', flipForm);
+});
+
+//--------------------------------------------------------------------------------------------
 
 // Sign in && Register forms
+
+
+// sign in
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('login-form').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -37,12 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const login_data = await fetch_login.json();
     if (fetch_login.ok) {
+      localStorage.setItem('user_profile', JSON.stringify(login_data));
       window.location.href = 'dashboard.html';
     } else {
       alert(login_data.error || 'Login failed');
     }
   });
 });
+
 
 //Register
 document.addEventListener('DOMContentLoaded', () => {
@@ -74,17 +94,66 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-
-function scrollToAbout() {
-  const about = document.getElementById('welcome');
-  if (about) {
-    about.scrollIntoView({behavior:'smooth'});
-  }
+// logout
+async function logout() {
+  await fetch('/api/logout', {
+    method: 'POST',
+    credentials: 'include'
+  });
+  localStorage.removeItem('user_profile');
+  window.location.href = 'index.html';
 }
 
+
+// Load Dash
+
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelector('.signin-btn').addEventListener('click', flipForm);
+  if (!window.location.pathname.includes('dashboard.html')) return;
+  const profile = JSON.parse(localStorage.getItem('user_profile'));
+  if (!profile) return;
+
+  document.querySelector('.welcome_to').textContent = `${profile.username}'s Garden`;
+
+  const plantTabs = document.getElementById("plantTabs");
+  const plantTabsContent = document.getElementById("plantTabsContent");
+  let myPlantCount = 0;
+
+  profile.plants.forEach((plant, index) => {
+    myPlantCount++;
+    const tabId = `plant${myPlantCount}`;
+
+    const newTab = document.createElement("li");
+    newTab.className = "nav-item";
+    newTab.innerHTML = `
+      <button class="nav-link" id="${tabId}-tab" data-bs-toggle="tab" data-bs-target="#${tabId}" type="button" role="tab">
+        ${plant.plant_name}
+      </button>`;
+
+    const newContent = document.createElement("div");
+    newContent.className = "tab-pane fade";
+    newContent.id = tabId;
+    newContent.role = "tabpanel";
+    newContent.innerHTML = `
+      <div class="text-center flower-avatar-container">
+        <img src="${plant.chosen_image_url}" class="img-fluid text-center avatar">
+      </div>
+      <div class="daily-streak text-center mt-4">
+        <h2 class="streak">Daily Streak: 0🔥</h2>
+        <div class="nav-link bi bi-gear fs-3" 
+          role="button"
+          data-bs-toggle="modal"
+          data-bs-target="#settingsModal"
+          data-plant-name="${plant.plant_name}">
+        </div>
+      </div>`;
+
+    const addPlantTab = document.getElementById("add-plant-tab").parentNode;
+    plantTabs.insertBefore(newTab, addPlantTab);
+    plantTabsContent.appendChild(newContent);
+  });
 });
+//--------------------------------------------------------------------------------------------
+
 
 //Plant Graph Dropdown
 function graph_show() {
@@ -113,6 +182,9 @@ function pic_show() {
     pic_diary.style.display = 'none'
   }
 }
+
+
+//--------------------------------------------------------------------------------------------
 
 // adding/removing plant:
 
@@ -240,6 +312,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>`;
 
     const shareContent = document.getElementById("share-content"); // POPULATES SHARE COLUMN
+
     shareContent.innerHTML = `
       <h3 class="text-white"> Share Your Plant! </h3>
       <img src="${avatarImageSrc}" class="img-fluid text-center share-avatar">
@@ -288,9 +361,6 @@ document.addEventListener('DOMContentLoaded', function() {
     tab.show();
   });
 });
-
-
-
 
 
 
