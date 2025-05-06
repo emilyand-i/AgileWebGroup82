@@ -156,11 +156,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const tab = document.getElementById(plant.tabId);
     const tabContent = document.getElementById(plant.contentId);
   
-    tab.remove();
+    tab.remove(); // REMOVE TAB ELEMENT
     tabContent.remove();
   
-    delete plants[currentPlantName];
+    delete plants[currentPlantName]; // DELETE PLANT FROM PLANT DICTIONARY
     currentPlantName = null;
+    myPlantCount--;
+
+    if (myPlantCount > 0) { // Switches to first plant after a plant is deleted
+      const remainingTabs = document.querySelectorAll(".nav-link");
+      const firstTab = remainingTabs[1];
+      const bootstrapTab = new bootstrap.Tab(firstTab);
+      bootstrapTab.show();
+    }
+    else { // Switches to home page after a plant is deleted if no more plants
+      const remainingTabs = document.querySelectorAll(".nav-link");
+      const firstTab = remainingTabs[0];
+      const bootstrapTab = new bootstrap.Tab(firstTab);
+      bootstrapTab.show();
+    }
   });
 
   addPlantForm.addEventListener('submit', function(e) { // WHEN ADD PLANT FORM IS SUBMITTED...
