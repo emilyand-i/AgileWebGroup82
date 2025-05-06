@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Settings Menu</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background:  #6db07586 ;
+      padding: 20px;
+    }
+
+    .settings-container {
+      max-width: 600px;
+      margin: auto;
+      background:  #6db07586 ;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+
+    .section {
+      margin-bottom: 15px;
+    }
+
+    .section button.section-toggle {
+      width: 100%;
+      text-align: left;
+      padding: 15px;
+      background: #00c24a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .options {
+      display: none;
+      margin-top: 10px;
+      padding-left: 15px;
+    }
+
+    .options button {
+      display: block;
+      background: #f1f1f1;
+      border: none;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: left;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .options button:hover {
+      background: #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="settings-container">
+  <div class="section">
+    <button class="section-toggle" onclick="toggleOptions('account')">Account Settings</button>
+    <div class="options" id="account">
+      <button>Change Email</button>
+      <button>Change Password</button>
+      <button>Two-Factor Authentication</button>
+      <button>Delete Account</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <button class="section-toggle" onclick="toggleOptions('appearance')">Appearance</button>
+    <div class="options" id="appearance">
+      <button>Toggle Dark Mode</button>
+      <button>Change Font Size</button>
+      <button>Colorblind Mode</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <button class="section-toggle" onclick="toggleOptions('notifications')">Notification Settings</button>
+    <div class="options" id="notifications">
+      <button>Email Notifications</button>
+      <button>Push Notifications</button>
+      <button>SMS Alerts</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <button class="section-toggle" onclick="toggleOptions('privacy')">Privacy Settings</button>
+    <div class="options" id="privacy">
+      <button>Profile Visibility</button>
+      <button>Search Visibility</button>
+      <button>Blocked Users</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleOptions(id) {
+    const el = document.getElementById(id);
+    el.style.display = el.style.display === 'block' ? 'none' : 'block';
+  }
+</script>
+
+</body>
+</html>
