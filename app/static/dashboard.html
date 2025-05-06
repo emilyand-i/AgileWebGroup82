@@ -134,7 +134,7 @@
                     <img src="assets/Flower_Avatars/leaves 2.jpg" alt="leaves" class="avatar-choice">
                     <img src="assets/Flower_Avatars/tree.jpg" alt="Tree" class="avatar-choice">
                     <img src="assets/Flower_Avatars/sapling.jpg" alt="Sapling" class="avatar-choice">
-                    <img src="assets/flower-avatar.png" alt="flower" class="avatar-choice">
+                    <img src="assets/Flower_Avatars/houseplant.jpg" alt="houseplant" class="avatar-choice">
                   </div>
               </div>
                 <form id="addPlantForm" class="mt-1 text-center padding-0">
@@ -194,20 +194,23 @@
                     <h5 class="modal-title" id="plantModalLabel">Take Care of Your Plant!</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
-                  <div class="modal-body">
-                    <div class="d-flex justify-content-evenly">
-                      <button class="btn btn-success btn-lg mt-3 add_stat" onclick="graph_show()" id="graphDemoBtn"> <!-- ADD GRAPH BUTTON -->
+                  <div class="d-flex justify-content-evenly">
+
+                    <div class="text-center d-flex flex-column align-items-center p-5">
+                      <img src="assets/icons/graph.svg" alt="Graph Icon" style="width: 50px; height: auto;">
+                      <button class="btn btn-success btn-lg mt-2 add_stat" onclick="graph_show()" id="graphDemoBtn">
                         <i class="bi bi-plus-circle me-2"></i> Add Graph
                       </button>
-                      <button class="btn btn-success btn-lg mt-3 add_stat" onclick="pic_show()"><i class="bi bi-plus-circle me-2"> <!-- ADD PICTURE BUTTON -->
-                        </i> Add Picture
+                    </div>
+                  
+                    <div class="text-center d-flex flex-column align-items-center p-5">
+                      <img src="assets/icons/camera.svg" alt="Picture Icon" style="width: 50px; height: auto;">
+                      <button class="btn btn-success btn-lg mt-2 add_stat" onclick="pic_show()">
+                        <i class="bi bi-plus-circle me-2"></i> Add Picture
                       </button>
                     </div>
-                     
-
-
-                    
                   </div>
+                  
                 </div>
               </div>
             </div> <!-- PLANT ADD MODAL END -->

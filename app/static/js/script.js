@@ -243,7 +243,7 @@ container.addEventListener("click", function(e) {
         <img src="assets/Flower_Avatars/leaves 2.jpg" alt="leaves" class="avatar-choice">
         <img src="assets/Flower_Avatars/tree.jpg" alt="Tree" class="avatar-choice">
         <img src="assets/Flower_Avatars/sapling.jpg" alt="Sapling" class="avatar-choice">
-        <img src="assets/flower-avatar.png" alt="flower" class="avatar-choice">
+        <img src="assets/Flower_Avatars/houseplant.jpg" alt="houseplant" class="avatar-choice">
       </div>
     `;
   
