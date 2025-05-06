@@ -83,7 +83,17 @@
               <canvas id="graphCanvas" width="400" height="200"></canvas>
             </div>
           </div>
+          <!-- user settings modal dialog -->
+          <div class="mt-auto w-100 px-3 pb-4">
+            <button class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center"
+                    data-bs-toggle="modal" data-bs-target="#User-Settings-Modal">
+              <i class="bi bi-gear me-2"></i> Settings
+            </button>
+            
+          </div>
         </div>
+
+        
 
         <!-- Middle Column -->
         <div class="col-6 bckgrnd border-start border-end border-success d-flex flex-column align-items-center justify-content-start">
@@ -207,6 +217,15 @@
           
       </div>
     </div>
+    <!-- Modal shell (goes at bottom of index.html, outside of layout) -->
+<div class="modal fade" id="User-Settings-Modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content" id="SettingsModalContent">
+      <!-- The content from User-Settings.html will be loaded here by JS -->
+    </div>
+  </div>
+</div>
+<script src="User-Setting-JS.js"></script>
     
   </body>
 </html>
