@@ -116,46 +116,38 @@ function pic_show() {
 
 // adding/removing plant:
 
+let myPlantCount = 0;
+let plants = {};
+let selectedAvatarSrc = null;
+let currentPlantName = null;
+
 document.addEventListener('DOMContentLoaded', function() {
   const addPlantForm = document.getElementById("addPlantForm");
   const plantTabs = document.getElementById("plantTabs");
   const plantTabsContent = document.getElementById('plantTabsContent');
-  let myPlantCount = 0;
-
   const container = document.getElementById('avatar-container');
 
-container.addEventListener("click", function(e) {
-  if (e.target && e.target.classList.contains("avatar-choice")) {
-    // Deselect all
-    container.querySelectorAll(".avatar-choice").forEach(img => img.classList.remove("selected"));
-    
-    // Select clicked
-    e.target.classList.add("selected");
+  container.addEventListener("click", function(e) {
+    if (e.target && e.target.classList.contains("avatar-choice")) {
+      container.querySelectorAll(".avatar-choice").forEach(img => img.classList.remove("selected"));
+      e.target.classList.add("selected");
+      selectedAvatarSrc = e.target.getAttribute("src");
 
-    selectedAvatarSrc = e.target.getAttribute("src");
-
-    // Show selected avatar
-    container.innerHTML = `
-      <img src="${selectedAvatarSrc}" alt="${e.target.alt}" class="selected-avatar">
-    `;
-  }
-});
-
-  let selectedAvatarSrc = null;
+      container.innerHTML = `
+        <img src="${selectedAvatarSrc}" alt="${e.target.alt}" class="selected-avatar">
+      `;
+    }
+  });
 
   document.getElementById("avatar-choices").addEventListener("click", function(e) {
     if (e.target && e.target.classList.contains("avatar-choice")) {
-      // Deselect all
       document.querySelectorAll(".avatar-choice").forEach(img => img.classList.remove("selected"));
-      // Select current
       e.target.classList.add("selected");
       selectedAvatarSrc = e.target.getAttribute("src");
     }
   });
-  
-  let currentPlantName = null;
 
-  document.getElementById('infoModal').addEventListener('show.bs.modal', function (event) { // INFO MODAL PLACEHOLDER NAME
+  document.getElementById('infoModal').addEventListener('show.bs.modal', function (event) {
     const trigger = event.relatedTarget;
     const plantName = trigger.getAttribute('data-plant-name');
     currentPlantName = plantName;
@@ -164,45 +156,50 @@ container.addEventListener("click", function(e) {
     }
   });
 
-  // DELETION OF PLANT
-
   const deleteButton = document.getElementById('delete-plant-button');
   deleteButton.addEventListener("click", function() {
-    alert(myPlantCount);
     const tab = document.getElementById(`plant${myPlantCount}-tab`);
     const tabContent = document.getElementById(`plant${myPlantCount}`);
+    const plant = plants[currentPlantName];
     
-    tab.remove()
+    tab.remove();
     tabContent.remove();
 
+    alert(currentPlantName);
+
     myPlantCount--;
-  })
-
-
+  });
 
   addPlantForm.addEventListener('submit', function(e) {
     e.preventDefault();
-  
+
     myPlantCount++;
     const plantName = document.getElementById('plantName').value;
     const plantType = document.getElementById('plantType').value;
-  
-    const avatarImageSrc = selectedAvatarSrc; 
-  
+    const tabId = `plant${myPlantCount}-tab`;
+    const contentId = `plant${myPlantCount}`;
+
+    const avatarImageSrc = selectedAvatarSrc;
+
+    plants[plantName] = {
+      tabId: tabId,
+      contentId: contentId,
+      name: plantName,
+    };
+
     const newTab = document.createElement("li");
     newTab.role = "presentation";
     newTab.className = "nav-item";
-  
     newTab.innerHTML = `
-      <button class="nav-link" id="plant${myPlantCount}-tab" data-bs-toggle="tab" data-bs-target="#plant${myPlantCount}" type="button" role="tab"> 
+      <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${contentId}" type="button" role="tab"> 
         ${plantName}
       </button>`;
-  
+
     const newTabContent = document.createElement("div");
     newTabContent.className = "tab-pane fade";
-    newTabContent.id = `plant${myPlantCount}`;
+    newTabContent.id = contentId;
     newTabContent.role = "tabpanel";
-  
+
     newTabContent.innerHTML = `
       <div class="text-center flower-avatar-container">
         <img src="${avatarImageSrc}" class="img-fluid text-center avatar">
@@ -223,15 +220,8 @@ container.addEventListener("click", function(e) {
             data-plant-name="${plantName}">
           </div>
         </div>
-
       </div>`;
 
-
-       
-      
-       
-        
-  
     const shareContent = document.getElementById("share-content");
     shareContent.innerHTML = `
       <h3 class="text-white"> Share Your Plant! </h3>
@@ -242,15 +232,15 @@ container.addEventListener("click", function(e) {
         </button>
       </div>
     `;
-  
+
     const addPlantTab = document.getElementById("add-plant-tab").parentNode;
     plantTabs.insertBefore(newTab, addPlantTab);
-  
+
     plantTabsContent.appendChild(newTabContent);
-  
+
     addPlantForm.reset();
     selectedAvatarSrc = null;
-  
+
     container.innerHTML = `
       <div id="avatar-choices" class="avatar-grid">
         <img src="assets/Flower_Avatars/bush.jpg" alt="Bush" class="avatar-choice">
@@ -265,7 +255,7 @@ container.addEventListener("click", function(e) {
         <img src="assets/Flower_Avatars/houseplant.jpg" alt="houseplant" class="avatar-choice">
       </div>
     `;
-  
+
     document.getElementById("avatar-choices").addEventListener("click", function(e) {
       if (e.target && e.target.classList.contains("avatar-choice")) {
         document.querySelectorAll(".avatar-choice").forEach(img => img.classList.remove("selected"));
@@ -273,12 +263,13 @@ container.addEventListener("click", function(e) {
         selectedAvatarSrc = e.target.getAttribute("src");
       }
     });
-  
-    const newTabButton = document.getElementById(`plant${myPlantCount}-tab`);
+
+    const newTabButton = document.getElementById(tabId);
     const tab = new bootstrap.Tab(newTabButton);
     tab.show();
   });
 });
+
 
 
 
