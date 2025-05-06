@@ -159,7 +159,7 @@
 
             <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true"> <!-- SETTINGS MODAL -->
               <div class="modal-dialog">
-                <div class="modal-content">
+                <div class="modal-content modal-style">
                 
                   <div class="modal-header">
                     <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
@@ -182,25 +182,35 @@
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary">Save changes</button>
-                  </div>   <!-- MODAL SETTINGS END -->
-            
+                  </div>   
                 </div>
               </div>
-            </div>
+            </div> <!-- MODAL SETTINGS END -->
 
-            <div class="modal fade" id="addInfoModal" tabindex="-1" aria-labelledby="plantModalLabel" aria-hidden="true"> <!-- PLANT MODAL -->
+            <div class="modal fade " id="addInfoModal" tabindex="-1" aria-labelledby="plantModalLabel" aria-hidden="true"> <!-- PLANT MODAL -->
               <div class="modal-dialog modal-lg">
-                <div class="modal-content">
+                <div class="modal-content modal-style">
                   <div class="modal-header">
-                    <h5 class="modal-title" id="plantModalLabel">Plant Details</h5>
+                    <h5 class="modal-title" id="plantModalLabel">Take Care of Your Plant!</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body">
-                    <p>test</p>
+                    <div class="d-flex justify-content-evenly">
+                      <button class="btn btn-success btn-lg mt-3 add_stat" onclick="graph_show()" id="graphDemoBtn"> <!-- ADD GRAPH BUTTON -->
+                        <i class="bi bi-plus-circle me-2"></i> Add Graph
+                      </button>
+                      <button class="btn btn-success btn-lg mt-3 add_stat" onclick="pic_show()"><i class="bi bi-plus-circle me-2"> <!-- ADD PICTURE BUTTON -->
+                        </i> Add Picture
+                      </button>
+                    </div>
+                     
+
+
+                    
                   </div>
                 </div>
               </div>
-            </div>
+            </div> <!-- PLANT ADD MODAL END -->
             
           </div>
         </div>
