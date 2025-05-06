@@ -122,61 +122,133 @@ document.addEventListener('DOMContentLoaded', function() {
   const plantTabsContent = document.getElementById('plantTabsContent');
   let myPlantCount = 0;
 
+  const container = document.getElementById('avatar-container');
+
+container.addEventListener("click", function(e) {
+  if (e.target && e.target.classList.contains("avatar-choice")) {
+    // Deselect all
+    container.querySelectorAll(".avatar-choice").forEach(img => img.classList.remove("selected"));
+    
+    // Select clicked
+    e.target.classList.add("selected");
+
+    selectedAvatarSrc = e.target.getAttribute("src");
+
+    // Show selected avatar
+    container.innerHTML = `
+      <img src="${selectedAvatarSrc}" alt="${e.target.alt}" class="selected-avatar">
+    `;
+  }
+});
+
+  let selectedAvatarSrc = null;
+
+  document.getElementById("avatar-choices").addEventListener("click", function(e) {
+    if (e.target && e.target.classList.contains("avatar-choice")) {
+      // Deselect all
+      document.querySelectorAll(".avatar-choice").forEach(img => img.classList.remove("selected"));
+      // Select current
+      e.target.classList.add("selected");
+      selectedAvatarSrc = e.target.getAttribute("src");
+    }
+  });
+  
+  document.getElementById('settingsModal').addEventListener('show.bs.modal', function (event) {
+    const trigger = event.relatedTarget;
+    const plantName = trigger.getAttribute('data-plant-name');
+    if (plantName) {
+      document.getElementById('username').placeholder = plantName;
+    }
+  });
+
   addPlantForm.addEventListener('submit', function(e) {
     e.preventDefault();
-    
+  
     myPlantCount++;
     const plantName = document.getElementById('plantName').value;
     const plantType = document.getElementById('plantType').value;
-    
+  
+    const avatarImageSrc = selectedAvatarSrc; 
+  
     const newTab = document.createElement("li");
     newTab.role = "presentation";
-    newTab.className = "nav-item"
-
-    newTab.innerHTML = ` <button class="nav-link" id="plant${myPlantCount}-tab" data-bs-toggle="tab" data-bs-target="#plant${myPlantCount}" type="button" role="tab"> 
-                              ${plantName} 
-                          </button>`;
-
-    newTabContent = document.createElement("div");
+    newTab.className = "nav-item";
+  
+    newTab.innerHTML = `
+      <button class="nav-link" id="plant${myPlantCount}-tab" data-bs-toggle="tab" data-bs-target="#plant${myPlantCount}" type="button" role="tab"> 
+        ${plantName}
+      </button>`;
+  
+    const newTabContent = document.createElement("div");
     newTabContent.className = "tab-pane fade";
     newTabContent.id = `plant${myPlantCount}`;
-    newTabContent.role = "tabPanel"
-
+    newTabContent.role = "tabpanel";
+  
     newTabContent.innerHTML = `
       <div class="text-center flower-avatar-container">
-                <img src="assets/flower-avatar.png" class="img-fluid text-center" id="flower-avatar">
-              </div>
-              <div class="daily-streak text-center mt-4">
-                <h2 class="streak">Daily Streak</h2>
-                <p class="streak-count display-4 fw-bold">0 🔥</p>
-              </div>
-    `
+        <img src="${avatarImageSrc}" class="img-fluid text-center avatar">
+      </div>
+      <div class="daily-streak text-center mt-4">
+        <h2 class="streak">Daily Streak: 0🔥</h2>
+        <div class="nav-link bi bi-gear fs-3" 
+          role="button"
+          data-bs-toggle="modal"
+          data-bs-target="#settingsModal"
+          data-plant-name="${plantName}">
+        </div>
+      </div>`;
 
-    shareContent = document.getElementById("share-content");
+
+       
+      
+       
+        
+  
+    const shareContent = document.getElementById("share-content");
     shareContent.innerHTML = `
-        <h3 class="text-white"> Share Your Plant! </h3>
-              <img src="assets/flower-avatar.png" class="img-fluid text-center" id="flower-avatar">
-              <div class="share-controls text-center mt-4">
-                <button class="btn btn-success share-btn">
-                  <i class="bi bi-share"></i> Share Plant
-                </button>
-              </div>
-    `
-
+      <h3 class="text-white"> Share Your Plant! </h3>
+      <img src="${avatarImageSrc}" class="img-fluid text-center share-avatar">
+      <div class="share-controls text-center mt-4">
+        <button class="btn btn-success share-btn">
+          <i class="bi bi-share"></i> Share Plant
+        </button>
+      </div>
+    `;
+  
     const addPlantTab = document.getElementById("add-plant-tab").parentNode;
     plantTabs.insertBefore(newTab, addPlantTab);
-
+  
     plantTabsContent.appendChild(newTabContent);
-
+  
     addPlantForm.reset();
-
+    selectedAvatarSrc = null;
+  
+    container.innerHTML = `
+      <div id="avatar-choices" class="avatar-grid">
+        <img src="assets/Flower_Avatars/bush.jpg" alt="Bush" class="avatar-choice">
+        <img src="assets/Flower_Avatars/cactus 3.jpg" alt="Cactus" class="avatar-choice">
+        <img src="assets/Flower_Avatars/cactus.jpg" alt="Cactus" class="avatar-choice">
+        <img src="assets/Flower_Avatars/cactus2.jpg" alt="Cactus" class="avatar-choice">
+        <img src="assets/Flower_Avatars/flower.jpg" alt="Flower" class="avatar-choice">
+        <img src="assets/Flower_Avatars/leaves.jpg" alt="Leaves" class="avatar-choice">
+        <img src="assets/Flower_Avatars/leaves 2.jpg" alt="leaves" class="avatar-choice">
+        <img src="assets/Flower_Avatars/tree.jpg" alt="Tree" class="avatar-choice">
+        <img src="assets/Flower_Avatars/sapling.jpg" alt="Sapling" class="avatar-choice">
+        <img src="assets/flower-avatar.png" alt="flower" class="avatar-choice">
+      </div>
+    `;
+  
+    document.getElementById("avatar-choices").addEventListener("click", function(e) {
+      if (e.target && e.target.classList.contains("avatar-choice")) {
+        document.querySelectorAll(".avatar-choice").forEach(img => img.classList.remove("selected"));
+        e.target.classList.add("selected");
+        selectedAvatarSrc = e.target.getAttribute("src");
+      }
+    });
+  
     const newTabButton = document.getElementById(`plant${myPlantCount}-tab`);
     const tab = new bootstrap.Tab(newTabButton);
     tab.show();
-
-
-    
-    
   });
 });
 
