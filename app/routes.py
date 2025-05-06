@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from .models import user_db, User
+from .models import *
 from flask import session
 
 routes_bp = Blueprint('routes', __name__) # connect all related routes for later
@@ -59,4 +59,56 @@ def get_profile():
     if not user:
         return jsonify({'error': 'User not found'}), 404
     
-    return jsonify({'username': user.username, 'id': user.id}), 200
+    plants = Plants.query.filter_by(user_id=user_id).all()
+    growth_entries = PlantGrowthEntry.query.filter_by(user_id=user_id).all()
+
+    plant_data = [
+        {
+            'plant_name': plant.plant_name,
+            'plant_type': plant.plant_type,
+            'chosen_image_url': plant.chosen_image_url,
+            'date_created': plant.date_created,
+            'id': plant.id
+        } for plant in plants
+    ]
+
+    growth_data = [
+        {
+            'plant_name': entry.plant_name,
+            'date_recorded': entry.date_recorded,
+            'cm_grown': entry.cm_grown
+        } for entry in growth_entries
+    ]
+
+    return jsonify({
+        'username': user.username,
+        'user_id': user.id,
+        'plants': plant_data,
+        'growth_entries': growth_data
+    }), 200
+
+
+@routes_bp.route('/api/add-plant', methods=['POST'])
+def add_plant():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    data = request.get_json()
+    plant_name = data.get('plant_name')
+    plant_type = data.get('plant_type')
+    chosen_image_url = data.get('chosen_image_url')
+
+    if not plant_name or not plant_type:
+        return jsonify({'error': 'Missing plant name or type'}), 400
+
+    new_plant = Plants(
+        user_id=user_id,
+        plant_name=plant_name,
+        plant_type=plant_type,
+        chosen_image_url=chosen_image_url
+    )
+    user_db.session.add(new_plant)
+    user_db.session.commit()
+
+    return jsonify({'message': 'Plant added successfully'}), 201
