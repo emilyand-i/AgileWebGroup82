@@ -45,8 +45,11 @@ def login():
         session['user_id'] = user.id
         session['username'] = user.username
         
+        settings = UserSettings.query.filter_by(user_id=user.id).first()
+        friends = FriendsList.query.filter_by(user_id=user.id).all()
         plants = Plants.query.filter_by(user_id=user.id).all()
         growth_entries = PlantGrowthEntry.query.filter_by(user_id=user.id).all()
+        photos = uploadedPics.query.filter_by(user_id=user.id).all()
 
         plant_data = [
             {
@@ -65,6 +68,30 @@ def login():
                 'cm_grown': entry.cm_grown
             } for entry in growth_entries
         ]
+        
+        friends_data = [
+            {
+                'user_id': friend.user_id,
+                'friend_id': friend.friend_id,
+                'status': friend.status
+            } for friend in friends
+        ]
+
+        photo_data = [
+            {
+                'photo_id': pic.photo_id,
+                'plant_id': pic.plant_id,
+                'image_url': pic.image_url,
+                'caption': pic.caption,
+                'datetime_uploaded': pic.datetime_uploaded
+            } for pic in photos
+        ]
+
+        settings_data = {
+            'is_profile_public': settings.is_profile_public if settings else True,
+            'allow_friend_requests': settings.allow_friend_requests if settings else True
+        }
+
 
         return jsonify({
             'message': 'Login successful',
@@ -76,7 +103,10 @@ def login():
     else:
         return jsonify({'error': 'Invalid credentials'}), 401
 
-
+@routes_bp.route('/api/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return jsonify({'message': 'Logged out successfully'}), 200
 
 @routes_bp.route('/api/add-plant', methods=['POST'])
 def add_plant():
