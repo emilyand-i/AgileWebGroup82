@@ -1,4 +1,7 @@
+
+
 // allow scroll of main-info from anywhere on the page
+
 document.addEventListener('wheel', function(e) {
   e.preventDefault();
   const scroll_content = document.querySelector('.main-info');
@@ -19,8 +22,23 @@ function scrollToSignin() {
   }
 }
 
+function scrollToAbout() {
+  const about = document.getElementById('welcome');
+  if (about) {
+    about.scrollIntoView({behavior:'smooth'});
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelector('.signin-btn').addEventListener('click', flipForm);
+});
+
+//--------------------------------------------------------------------------------------------
 
 // Sign in && Register forms
+
+
+// sign in
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('login-form').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -74,17 +92,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+// add plant
 
-function scrollToAbout() {
-  const about = document.getElementById('welcome');
-  if (about) {
-    about.scrollIntoView({behavior:'smooth'});
-  }
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelector('.signin-btn').addEventListener('click', flipForm);
-});
+//--------------------------------------------------------------------------------------------
+
 
 //Plant Graph Dropdown
 function graph_show() {
@@ -113,6 +125,9 @@ function pic_show() {
     pic_diary.style.display = 'none'
   }
 }
+
+
+//--------------------------------------------------------------------------------------------
 
 // adding/removing plant:
 
@@ -199,10 +214,6 @@ container.addEventListener("click", function(e) {
       </div>`;
 
 
-       
-      
-       
-        
   
     const shareContent = document.getElementById("share-content");
     shareContent.innerHTML = `
@@ -251,7 +262,6 @@ container.addEventListener("click", function(e) {
     tab.show();
   });
 });
-
 
 
 

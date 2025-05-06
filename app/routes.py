@@ -44,48 +44,38 @@ def login():
         # store session info
         session['user_id'] = user.id
         session['username'] = user.username
-        return jsonify({'message': 'Login successful'}), 200
+        
+        plants = Plants.query.filter_by(user_id=user.id).all()
+        growth_entries = PlantGrowthEntry.query.filter_by(user_id=user.id).all()
+
+        plant_data = [
+            {
+                'plant_name': plant.plant_name,
+                'plant_type': plant.plant_type,
+                'chosen_image_url': plant.chosen_image_url,
+                'date_created': plant.date_created,
+                'id': plant.id
+            } for plant in plants
+        ]
+
+        growth_data = [
+            {
+                'plant_name': entry.plant_name,
+                'date_recorded': entry.date_recorded,
+                'cm_grown': entry.cm_grown
+            } for entry in growth_entries
+        ]
+
+        return jsonify({
+            'message': 'Login successful',
+            'username': user.username,
+            'user_id': user.id,
+            'plants': plant_data,
+            'growth_entries': growth_data
+        }), 200
     else:
-        return jsonify({'error': 'Invalid details'}), 401
-    
+        return jsonify({'error': 'Invalid credentials'}), 401
 
-@routes_bp.route('/api/profile', methods = ['GET'])
-def get_profile():
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({'error': 'Not authorised'}), 401
-    
-    user  = User.query.get(user_id)
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
-    
-    plants = Plants.query.filter_by(user_id=user_id).all()
-    growth_entries = PlantGrowthEntry.query.filter_by(user_id=user_id).all()
-
-    plant_data = [
-        {
-            'plant_name': plant.plant_name,
-            'plant_type': plant.plant_type,
-            'chosen_image_url': plant.chosen_image_url,
-            'date_created': plant.date_created,
-            'id': plant.id
-        } for plant in plants
-    ]
-
-    growth_data = [
-        {
-            'plant_name': entry.plant_name,
-            'date_recorded': entry.date_recorded,
-            'cm_grown': entry.cm_grown
-        } for entry in growth_entries
-    ]
-
-    return jsonify({
-        'username': user.username,
-        'user_id': user.id,
-        'plants': plant_data,
-        'growth_entries': growth_data
-    }), 200
 
 
 @routes_bp.route('/api/add-plant', methods=['POST'])

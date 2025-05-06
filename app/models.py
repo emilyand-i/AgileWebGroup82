@@ -67,7 +67,7 @@ class uploadedPics(user_db.Model):
   __tablename__ = 'uploaded_pics'
   photo_id = user_db.Column(user_db.Integer, primary_key=True)
   user_id = user_db.Column(user_db.Integer, user_db.ForeignKey('user.id'), nullable=False)
-  plant_id = user_db.Column(user_db.Integer, user_db.ForeignKey('user_plant.id'), nullable=False)
+  plant_id = user_db.Column(user_db.Integer, user_db.ForeignKey('plants.id'), nullable=False)
   image_url = user_db.Column(user_db.String(255), nullable=False)
   caption = user_db.Column(user_db.String(255))
   datetime_uploaded = user_db.Column(user_db.DateTime, default=user_db.func.now())
