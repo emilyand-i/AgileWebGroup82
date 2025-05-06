@@ -200,7 +200,7 @@ container.addEventListener("click", function(e) {
           <div class="nav-link bi bi-plus-circle fs-3" 
             role="button"
             data-bs-toggle="modal"
-            data-bs-target="#settingsModal"
+            data-bs-target="#addInfoModal"
             data-plant-name="${plantName}">
           </div>
         </div>
