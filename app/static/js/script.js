@@ -160,12 +160,25 @@ document.addEventListener('DOMContentLoaded', function() {
   addPlantForm.addEventListener('submit', function(e) { // WHEN ADD PLANT FORM IS SUBMITTED...
     e.preventDefault();
 
-    myPlantCount++;
-    const plantName = document.getElementById('plantName').value;
+    
+    const plantName = document.getElementById('plantName').value.trim();
+    const plantNameInput = document.getElementById('plantName');
     const tabId = `plant${myPlantCount}-tab`;
     const contentId = `plant${myPlantCount}`;
     const avatarImageSrc = selectedAvatarSrc;
 
+    if (plantName in plants) {
+      document.getElementById('uniqueNameError').classList.remove('d-none');
+      plantNameInput.classList.add('is-invalid');
+
+      plantNameInput.addEventListener('input', function() {
+        document.getElementById('uniqueNameError').classList.add('d-none');
+        plantNameInput.classList.remove('is-invalid');
+      });
+      return;
+    }
+    
+    myPlantCount++;
     plants[plantName] = {
       tabId: tabId,
       contentId: contentId,
@@ -222,6 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
     plantTabsContent.appendChild(newTabContent);
 
     addPlantForm.reset();
+
     selectedAvatarSrc = null;
 
     // RESETS AVATAR CHOICES
