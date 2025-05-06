@@ -150,11 +150,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const deleteButton = document.getElementById('delete-plant-button'); // DELETES PLANTS
   deleteButton.addEventListener("click", function() {
-    const tab = document.getElementById(`plant${myPlantCount}-tab`);
-    const tabContent = document.getElementById(`plant${myPlantCount}`);
+    const plant = plants[currentPlantName];
+    if (!plant) return;
+  
+    const tab = document.getElementById(plant.tabId);
+    const tabContent = document.getElementById(plant.contentId);
+  
     tab.remove();
     tabContent.remove();
-    myPlantCount--;
+  
+    delete plants[currentPlantName];
+    currentPlantName = null;
   });
 
   addPlantForm.addEventListener('submit', function(e) { // WHEN ADD PLANT FORM IS SUBMITTED...
