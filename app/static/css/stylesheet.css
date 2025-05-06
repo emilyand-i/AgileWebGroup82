@@ -478,3 +478,7 @@ main.main-info {
   color: white;
   /* text-align: center; */
 }
+
+.delete-plant {
+  background-color: rgb(151, 29, 29);
+}
