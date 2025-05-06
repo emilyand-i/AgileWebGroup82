@@ -190,12 +190,21 @@ container.addEventListener("click", function(e) {
       </div>
       <div class="daily-streak text-center mt-4">
         <h2 class="streak">Daily Streak: 0🔥</h2>
-        <div class="nav-link bi bi-gear fs-3" 
-          role="button"
-          data-bs-toggle="modal"
-          data-bs-target="#settingsModal"
-          data-plant-name="${plantName}">
+        <div class="plant-info-buttons">
+          <div class="nav-link bi bi-info-circle fs-3" 
+            role="button"
+            data-bs-toggle="modal"
+            data-bs-target="#settingsModal"
+            data-plant-name="${plantName}">
+          </div>
+          <div class="nav-link bi bi-plus-circle fs-3" 
+            role="button"
+            data-bs-toggle="modal"
+            data-bs-target="#settingsModal"
+            data-plant-name="${plantName}">
+          </div>
         </div>
+
       </div>`;
 
 

@@ -466,3 +466,9 @@ main.main-info {
   width: 20rem;
   margin: 0 auto;
 }
+
+.plant-info-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
