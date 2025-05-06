@@ -153,13 +153,32 @@ container.addEventListener("click", function(e) {
     }
   });
   
-  document.getElementById('settingsModal').addEventListener('show.bs.modal', function (event) {
+  let currentPlantName = null;
+
+  document.getElementById('infoModal').addEventListener('show.bs.modal', function (event) { // INFO MODAL PLACEHOLDER NAME
     const trigger = event.relatedTarget;
     const plantName = trigger.getAttribute('data-plant-name');
+    currentPlantName = plantName;
     if (plantName) {
       document.getElementById('username').placeholder = plantName;
     }
   });
+
+  // DELETION OF PLANT
+
+  const deleteButton = document.getElementById('delete-plant-button');
+  deleteButton.addEventListener("click", function() {
+    alert(myPlantCount);
+    const tab = document.getElementById(`plant${myPlantCount}-tab`);
+    const tabContent = document.getElementById(`plant${myPlantCount}`);
+    
+    tab.remove()
+    tabContent.remove();
+
+    myPlantCount--;
+  })
+
+
 
   addPlantForm.addEventListener('submit', function(e) {
     e.preventDefault();
@@ -194,7 +213,7 @@ container.addEventListener("click", function(e) {
           <div class="nav-link bi bi-info-circle fs-3" 
             role="button"
             data-bs-toggle="modal"
-            data-bs-target="#settingsModal"
+            data-bs-target="#infoModal"
             data-plant-name="${plantName}">
           </div>
           <div class="nav-link bi bi-plus-circle fs-3" 
