@@ -17,193 +17,230 @@
   </head>
 
   <body>
-      <div class="container-fluid">
-        <div class="row vh-100">
-          <!-- Left Column -->
-          <div class="col-3 bckgrnd border-end border-success d-flex flex-column align-items-center justify-content-start left_col">
-            <header class="about-info-dash px-2">
-                <h1 class="display-2 column-title mt-5 mb-4">Stats</h1>
-            </header>
+    <div class="container-fluid">
+      <div class="row vh-100">
+        <!-- Left Column -->
+        <div class="col-3 bckgrnd border-end border-success d-flex flex-column align-items-center justify-content-start left_col">
+          <header class="about-info-dash px-2">
+              <h1 class="display-2 column-title mt-5 mb-4">Stats</h1>
+          </header>
 
-            <!--User photo diary section-->
-            <button class="btn btn-success btn-lg mt-3 add_stat" onclick="pic_show()"><i class="bi bi-plus-circle me-2"></i> Add Picture</button>
-            <div class="container my-5 user_diary" id="user_diary">
-              <h1 class="mb-4 plantheader">Upload Plant Growth Photo</h1>
-        
-              <p class="mb-4 plantheader"><b>Share your plant growth journey with us!</b><br>Upload a photo of your plant and share your thoughts too</p>
-        
-              <!-- The photo is a required input field here -->
-              <form id="photoForm" class="mb-5">
-                <input type="file" id="photoInput" accept="image/*" class="form-control mb-3" required>
-        
-              <!-- Optional plant name may be entered -->
-                <input type="text" id="plant_name" class="form-control mb-3" placeholder="Enter plant name (optional)">
+          <!--User photo diary section-->
+          <button class="btn btn-success btn-lg mt-3 add_stat" onclick="pic_show()"><i class="bi bi-plus-circle me-2"></i> Add Picture</button>
+          <div class="container my-5 user_diary" id="user_diary">
+            <h1 class="mb-4 plantheader">Upload Plant Growth Photo</h1>
+      
+            <p class="mb-4 plantheader"><b>Share your plant growth journey with us!</b><br>Upload a photo of your plant and share your thoughts too</p>
+      
+            <!-- The photo is a required input field here -->
+            <form id="photoForm" class="mb-5">
+              <input type="file" id="photoInput" accept="image/*" class="form-control mb-3" required>
+      
+            <!-- Optional plant name may be entered -->
+              <input type="text" id="plant_name" class="form-control mb-3" placeholder="Enter plant name (optional)">
 
-              <!-- Optional comments -->
-                <textarea id="comments" class="form-control mb-3" placeholder="Enter comments (optional)"></textarea>
-                <button type="submit" class="btn add_stat">Submit Photo</button>
-              </form>
+            <!-- Optional comments -->
+              <textarea id="comments" class="form-control mb-3" placeholder="Enter comments (optional)"></textarea>
+              <button type="submit" class="btn add_stat">Submit Photo</button>
+            </form>
+      
+            <h2 class="plantheader mb-3">My Photo Growth Journey</h2>
+            <div id="display" class="photo_scroll"></div>
+          </div>
+
+
+          <!--GrowthTracker Graph section-->
+          <button class="btn btn-success btn-lg mt-3 add_stat" onclick="graph_show()" id="graphDemoBtn">
+            <i class="bi bi-plus-circle me-2"></i> Add Graph
+          </button> 
+          <div class="container py-5 growth_graph" id="growth_graph">
+
+            <h1 class="mb-4 plantheader">Plant Growth Tracker</h1>
         
-              <h2 class="plantheader mb-3">My Photo Growth Journey</h2>
-              <div id="display" class="photo_scroll"></div>
+            <form id="growthForm" class="flex flex-column">
+              <div>
+
+                <input type="text" id="namePlant" class="form-control" placeholder="Plant Name (8 letters)" required maxlength="8">
+
+              </div>
+              <div>
+                <input type="date" id="plantDate" class="form-control" required>
+              </div>
+              <div>
+                <input type="number" id="plantHeight" class="form-control" placeholder="Height (cm)" required>
+              </div>
+              <div class="d-flex justify-content-center">
+                <button type="submit" class="btn add_stat">Add Data</button>
+              </div>
+            </form>
+            <div class="mt-4">
+              <label for="plantSelector" class="form-label plantheader">What Plant's Stats are you viewing?</label>
+              <select id="plantSelector" class="form-select">
+                <option value="">-- Choose a Plant --</option>
+              </select>
             </div>
-
-
-            <!--GrowthTracker Graph section-->
-            <button class="btn btn-success btn-lg mt-3 add_stat" onclick="graph_show()" id="graphDemoBtn">
-              <i class="bi bi-plus-circle me-2"></i> Add Graph
-            </button> 
-            <div class="container py-5 growth_graph" id="growth_graph">
-
-              <h1 class="mb-4 plantheader">Plant Growth Tracker</h1>
-          
-              <form id="growthForm" class="flex flex-column">
-                <div>
-
-                  <input type="text" id="namePlant" class="form-control" placeholder="Plant Name (8 letters)" required maxlength="8">
-
-                </div>
-                <div>
-                  <input type="date" id="plantDate" class="form-control" required>
-                </div>
-                <div>
-                  <input type="number" id="plantHeight" class="form-control" placeholder="Height (cm)" required>
-                </div>
-                <div class="d-flex justify-content-center">
-                  <button type="submit" class="btn add_stat">Add Data</button>
-                </div>
-              </form>
-              <div class="mt-4">
-                <label for="plantSelector" class="form-label plantheader">What Plant's Stats are you viewing?</label>
-                <select id="plantSelector" class="form-select">
-                  <option value="">-- Choose a Plant --</option>
-                </select>
-              </div>
-              <div class="graph-canvas-wrapper">
-                <canvas id="graphCanvas" width="400" height="200"></canvas>
-              </div>
+            <div class="graph-canvas-wrapper">
+              <canvas id="graphCanvas" width="400" height="200"></canvas>
             </div>
           </div>
+        </div>
+
+        <!-- Middle Column -->
+        <div class="col-6 bckgrnd border-start border-end border-success d-flex flex-column align-items-center justify-content-start">
+          <header class="about-info-dash w-100">
+              <img class="mb-2 w-50" src="assets/plantly-logo.png" alt="plantly Logo" id="plantly-logo">
+              <div class="plant-tabs mt-3">
+                  <ul class="nav nav-tabs" id="plantTabs" role="tablist">
+                    <li class="nav-item" role="presentation"> <!-- HOME TAB -->
+                      <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab">
+                        <i class="bi bi-house"></i> Home
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation"> <!-- ADD PLANT TAB-->
+                      <button class="nav-link" id="add-plant-tab" data-bs-toggle="tab" data-bs-target="#add-plant" type="button" role="tab">
+                        <i class="bi bi-plus-circle"></i> Add Plant
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+          </header>
           
-
-          <!-- Middle Column -->
-          <div class="col-6 bckgrnd border-start border-end border-success d-flex flex-column align-items-center justify-content-start">
-            <header class="about-info-dash w-100">
-                <h1 class="display-2 column-title mt-5 mb-4">🌱 P L A N T L Y 🌱</h1>
-                <div class="plant-tabs mt-3">
-                    <ul class="nav nav-tabs" id="plantTabs" role="tablist">
-                      <li class="nav-item" role="presentation"> <!-- HOME TAB -->
-                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab">
-                          <i class="bi bi-house"></i> Home
-                        </button>
-                      </li>
-                      <li class="nav-item" role="presentation"> <!-- ADD PLANT TAB-->
-                        <button class="nav-link" id="add-plant-tab" data-bs-toggle="tab" data-bs-target="#add-plant" type="button" role="tab">
-                          <i class="bi bi-plus-circle"></i> Add Plant
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-            </header>
+          <!-- Tab Content -->
+          <div class="tab-content" id="plantTabsContent">
+            <!-- Add this new default tab content -->
+            <div class="tab-pane fade show active" id="home" role="tabpanel"> <!-- HOME PAGE CONTENT -->
+              <div class="text-center mt-4 text-white">
+                <h3 class="display-4 text-white">Welcome to Plantly!</h3>
+                <div class="mt-4">
+                  <p class="lead">Track and care for your plants with ease!</p>
+                   
+                    <img src="assets/redFlower.png" alt="Welcome Plant" class="img-fluid mt-3" id="home-flower">
+      
+                  <p class="mt-4">Click "Add Plant" to get started with your first plant!</p>
+                </div>
+              </div>
+            </div>
             
-            <!-- Tab Content -->
-            <div class="tab-content" id="plantTabsContent">
-              <!-- Add this new default tab content -->
-              <div class="tab-pane fade show active" id="home" role="tabpanel"> <!-- HOME PAGE CONTENT -->
-                <div class="text-center mt-4 text-white">
-                  <h3 class="display-4 text-white welcome_to">Welcome to Plantly!</h3>
-                  <div class="mt-4">
-                    <p class="lead">Track and care for your plants with ease!</p>
-                    
-                      <img src="assets/redFlower.png" alt="Welcome Plant" class="img-fluid mt-3" id="home-flower">
-        
-                    <p class="mt-4">Click "Add Plant" to get started with your first plant!</p>
+            <div class="tab-pane fade" id="add-plant" role="tabpanel"> <!-- NEW PLANT CONTENT -->
+              <div class="text-center mt-3">
+                <div id = "avatar-container">
+                  <div id="avatar-choices" class="avatar-grid">
+                    <img src="assets/Flower_Avatars/bush.jpg" alt="Bush" class="avatar-choice">
+                    <img src="assets/Flower_Avatars/cactus 3.jpg" alt="Cactus" class="avatar-choice">
+                    <img src="assets/Flower_Avatars/cactus.jpg" alt="Cactus" class="avatar-choice">
+                    <img src="assets/Flower_Avatars/cactus2.jpg" alt="Cactus" class="avatar-choice">
+                    <img src="assets/Flower_Avatars/flower.jpg" alt="Flower" class="avatar-choice">
+                    <img src="assets/Flower_Avatars/leaves.jpg" alt="Leaves" class="avatar-choice">
+                    <img src="assets/Flower_Avatars/leaves 2.jpg" alt="leaves" class="avatar-choice">
+                    <img src="assets/Flower_Avatars/tree.jpg" alt="Tree" class="avatar-choice">
+                    <img src="assets/Flower_Avatars/sapling.jpg" alt="Sapling" class="avatar-choice">
+                    <img src="assets/Flower_Avatars/houseplant.jpg" alt="houseplant" class="avatar-choice">
                   </div>
-                </div>
               </div>
-              
-              <div class="tab-pane fade" id="add-plant" role="tabpanel"> <!-- NEW PLANT CONTENT -->
-                <div class="text-center mt-3">
-                  <div id = "avatar-container">
-                    <div id="avatar-choices" class="avatar-grid">
-                      <img src="assets/Flower_Avatars/bush.jpg" alt="Bush" class="avatar-choice">
-                      <img src="assets/Flower_Avatars/cactus 3.jpg" alt="Cactus" class="avatar-choice">
-                      <img src="assets/Flower_Avatars/cactus.jpg" alt="Cactus" class="avatar-choice">
-                      <img src="assets/Flower_Avatars/cactus2.jpg" alt="Cactus" class="avatar-choice">
-                      <img src="assets/Flower_Avatars/flower.jpg" alt="Flower" class="avatar-choice">
-                      <img src="assets/Flower_Avatars/leaves.jpg" alt="Leaves" class="avatar-choice">
-                      <img src="assets/Flower_Avatars/leaves 2.jpg" alt="leaves" class="avatar-choice">
-                      <img src="assets/Flower_Avatars/tree.jpg" alt="Tree" class="avatar-choice">
-                      <img src="assets/Flower_Avatars/sapling.jpg" alt="Sapling" class="avatar-choice">
-                      <img src="assets/flower-avatar.png" alt="flower" class="avatar-choice">
-                    </div>
-                </div>
-                  <form id="addPlantForm" class="mt-1 text-center padding-0">
-                    <div class="mb-1">
-                      <input type="text" class="form-control" id="plantName" placeholder="Plant Name" required>
-                    </div>
-                    <div class="mb-1">
-                      <select class="form-control" id="plantType" required> <!-- PLANT INPUT FORM -->
-                        <option value="">Select Plant Type</option>
-                        <option value="flower">Flower</option>
-                        <option value="herb">Herb</option>
-                        <option value="succulent">Succulent</option>
-                        <option value="tree">Tree</option>
-                      </select>
-                    </div>
-                    <button type="submit" class="btn btn-success btn-lg">
-                      <i class="bi bi-plus-circle me-2"></i>Create New Plant!
-                    </button>
-                  </form>
-                </div>
+                <form id="addPlantForm" class="mt-1 text-center padding-0">
+                  <div class="mb-1">
+                    <input type="text" class="form-control" id="plantName" placeholder="Plant Name" required>
+                  </div>
+                  <p id="uniqueNameError" class="text-danger d-none">This plant name already exists!</p>
+                  <div class="mb-1">
+                    <select class="form-control" id="plantType" required> <!-- PLANT INPUT FORM -->
+                      <option value="">Select Plant Type</option>
+                      <option value="flower">Flower</option>
+                      <option value="herb">Herb</option>
+                      <option value="succulent">Succulent</option>
+                      <option value="tree">Tree</option>
+                    </select>
+                  </div>
+                  <button type="submit" class="btn btn-success btn-lg">
+                    <i class="bi bi-plus-circle me-2"></i>Create New Plant!
+                  </button>
+                </form>
               </div>
+            </div>
 
-              <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true"> <!-- SETTINGS MODAL -->
-                <div class="modal-dialog">
-                  <div class="modal-content">
-                  
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-              
-                    <div class="modal-body">
-                      <form id="settingsForm">
-                        <div class="mb-3">
-                          <label for="plantName" class="form-label">Name of Plant</label>
-                          <input type="text" class="form-control" id="username" placeholder="Username">
-                        </div>
-                        <div class="mb-3">
-                          <label for="birthday" class="form-label">Birthday</label>
-                          <input type="date" class="form-control" id="birthday" placeholder="Enter birthday">
-                        </div>
-                      </form>
-                    </div>
-              
-                    <div class="modal-footer">
+            <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true"> <!-- SETTINGS MODAL -->
+              <div class="modal-dialog">
+                <div class="modal-content modal-style">
+                
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+            
+                  <div class="modal-body">
+                    <form id="settingsForm">
+                      <div class="mb-3">
+                        <label for="plantName" class="form-label">Name of Plant</label>
+                        <input type="text" class="form-control" id="username" placeholder="Username">
+                      </div>
+                      <div class="mb-3">
+                        <label for="birthday" class="form-label">Birthday</label>
+                        <input type="date" class="form-control" id="birthday" placeholder="Enter birthday">
+                      </div>
+                    </form>
+                  </div>
+            
+                  <div class="modal-footer d-flex justify-content-between w-100">
+                    <button type="button" class="btn btn-secondary delete-plant bi bi-trash" id="delete-plant-button" data-bs-dismiss="modal">
+                      Delete Plant
+                    </button>
+                    <div>
                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                       <button type="button" class="btn btn-primary">Save changes</button>
-                    </div>   <!-- MODAL SETTINGS END -->
-              
-                  </div>
+                    </div>
+                  </div>   
                 </div>
               </div>
-              
-            </div>
-          </div>
+            </div> <!-- MODAL SETTINGS END -->
 
-          <!-- Right Column -->
-          <div class="col-3 bckgrnd border-start border-success d-flex flex-column align-items-center justify-content-start">
-              <header class="about-info-dash px-2">
-                <h1 class="display-2 column-title mt-5 mb-4">Share</h1>
-              </header>
-              <div id="share-content" class="text-center">
-                <h3 class="text-center text-white mt-5">Create A Plant First In Order To Share It!</h3>
+            <div class="modal fade " id="addInfoModal" tabindex="-1" aria-labelledby="plantModalLabel" aria-hidden="true"> <!-- PLANT MODAL -->
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content modal-style">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="plantModalLabel">Take Care of Your Plant!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="d-flex justify-content-evenly">
+
+                    <div class="text-center d-flex flex-column align-items-center p-5">
+                      <img src="assets/icons/graph.svg" alt="Graph Icon" style="width: 50px; height: auto;">
+                      <button class="btn btn-success btn-lg mt-2 add_stat" onclick="graph_show()" id="graphDemoBtn">
+                        <i class="bi bi-plus-circle me-2"></i> Add Graph
+                      </button>
+                    </div>
+                  
+                    <div class="text-center d-flex flex-column align-items-center p-5">
+                      <img src="assets/icons/camera.svg" alt="Picture Icon" style="width: 50px; height: auto;">
+                      <button class="btn btn-success btn-lg mt-2 add_stat" onclick="pic_show()">
+                        <i class="bi bi-plus-circle me-2"></i> Add Picture
+                      </button>
+                    </div>
+                  </div>
+                  
+                </div>
               </div>
-              <button onclick="logout()" class="btn mt-3 logout_button position-absolute bottom-0 mb-5"?>Logout</button>
-            </div>
+            </div> <!-- PLANT ADD MODAL END -->
+            
           </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-3 bckgrnd border-start border-success d-flex flex-column align-items-center justify-content-start">
+            <header class="about-info-dash px-2">
+              <h1 class="display-2 column-title mt-5 mb-4">Share</h1>
+            </header>
+            <div id="share-content" class="text-center">
+              <h3 class="text-center text-white mt-5">Create A Plant First In Order To Share It!</h3>
+            </div>
+            <button onclick="logout()" class="btn mt-3 logout_button position-absolute bottom-0 mb-5">Logout</button>
+          </div>
+          
+
+          
+          
+          
       </div>
+    </div>
     
   </body>
 </html>

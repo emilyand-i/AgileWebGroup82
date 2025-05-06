@@ -466,3 +466,19 @@ main.main-info {
   width: 20rem;
   margin: 0 auto;
 }
+
+.plant-info-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.modal-style {
+  background-color: rgb(65, 90, 71);
+  color: white;
+  /* text-align: center; */
+}
+
+.delete-plant {
+  background-color: rgb(151, 29, 29);
+}

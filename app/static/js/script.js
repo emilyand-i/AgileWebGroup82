@@ -188,91 +188,131 @@ function pic_show() {
 
 // adding/removing plant:
 
+let myPlantCount = 0;
+let plants = {};
+let selectedAvatarSrc = null;
+let currentPlantName = null;
+
 document.addEventListener('DOMContentLoaded', function() {
   const addPlantForm = document.getElementById("addPlantForm");
   const plantTabs = document.getElementById("plantTabs");
   const plantTabsContent = document.getElementById('plantTabsContent');
-  let myPlantCount = 0;
-
   const container = document.getElementById('avatar-container');
 
-container.addEventListener("click", function(e) {
-  if (e.target && e.target.classList.contains("avatar-choice")) {
-    // Deselect all
-    container.querySelectorAll(".avatar-choice").forEach(img => img.classList.remove("selected"));
-    
-    // Select clicked
-    e.target.classList.add("selected");
-
-    selectedAvatarSrc = e.target.getAttribute("src");
-
-    // Show selected avatar
-    container.innerHTML = `
-      <img src="${selectedAvatarSrc}" alt="${e.target.alt}" class="selected-avatar">
-    `;
-  }
-});
-
-  let selectedAvatarSrc = null;
-
-  document.getElementById("avatar-choices").addEventListener("click", function(e) {
+  container.addEventListener("click", function(e) { // MAKES IMAGE THAT IS SELECTED IN ADD PLANT SECTION BIGGER
     if (e.target && e.target.classList.contains("avatar-choice")) {
-      // Deselect all
-      document.querySelectorAll(".avatar-choice").forEach(img => img.classList.remove("selected"));
-      // Select current
+      container.querySelectorAll(".avatar-choice").forEach(img => img.classList.remove("selected"));
       e.target.classList.add("selected");
       selectedAvatarSrc = e.target.getAttribute("src");
+
+      container.innerHTML = ` 
+        <img src="${selectedAvatarSrc}" alt="${e.target.alt}" class="selected-avatar">
+      `;
     }
   });
-  
-  document.getElementById('settingsModal').addEventListener('show.bs.modal', function (event) {
+
+  document.getElementById('infoModal').addEventListener('show.bs.modal', function (event) { // MAKES PLACEHOLDER IN POPUP THE NAME OF PLANT
     const trigger = event.relatedTarget;
     const plantName = trigger.getAttribute('data-plant-name');
+    currentPlantName = plantName;
     if (plantName) {
       document.getElementById('username').placeholder = plantName;
     }
   });
 
-  addPlantForm.addEventListener('submit', function(e) {
+  const deleteButton = document.getElementById('delete-plant-button'); // DELETES PLANTS
+  deleteButton.addEventListener("click", function() {
+    const plant = plants[currentPlantName];
+    if (!plant) return;
+  
+    const tab = document.getElementById(plant.tabId);
+    const tabContent = document.getElementById(plant.contentId);
+  
+    tab.remove(); // REMOVE TAB ELEMENT
+    tabContent.remove();
+  
+    delete plants[currentPlantName]; // DELETE PLANT FROM PLANT DICTIONARY
+    currentPlantName = null;
+    myPlantCount--;
+
+    if (myPlantCount > 0) { // Switches to first plant after a plant is deleted
+      const remainingTabs = document.querySelectorAll(".nav-link");
+      const firstTab = remainingTabs[1];
+      const bootstrapTab = new bootstrap.Tab(firstTab);
+      bootstrapTab.show();
+    }
+    else { // Switches to home page after a plant is deleted if no more plants
+      const remainingTabs = document.querySelectorAll(".nav-link");
+      const firstTab = remainingTabs[0];
+      const bootstrapTab = new bootstrap.Tab(firstTab);
+      bootstrapTab.show();
+    }
+  });
+
+  addPlantForm.addEventListener('submit', function(e) { // WHEN ADD PLANT FORM IS SUBMITTED...
     e.preventDefault();
-  
+
+    
+    const plantName = document.getElementById('plantName').value.trim();
+    const plantNameInput = document.getElementById('plantName');
+    const tabId = `plant${myPlantCount}-tab`;
+    const contentId = `plant${myPlantCount}`;
+    const avatarImageSrc = selectedAvatarSrc;
+
+    if (plantName in plants) {
+      document.getElementById('uniqueNameError').classList.remove('d-none');
+      plantNameInput.classList.add('is-invalid');
+
+      plantNameInput.addEventListener('input', function() {
+        document.getElementById('uniqueNameError').classList.add('d-none');
+        plantNameInput.classList.remove('is-invalid');
+      });
+      return;
+    }
+    
     myPlantCount++;
-    const plantName = document.getElementById('plantName').value;
-    const plantType = document.getElementById('plantType').value;
-  
-    const avatarImageSrc = selectedAvatarSrc; 
-  
-    const newTab = document.createElement("li");
+    plants[plantName] = {
+      tabId: tabId,
+      contentId: contentId,
+      name: plantName,
+    };
+
+    const newTab = document.createElement("li"); // CREATES NEW PLANT TAB
     newTab.role = "presentation";
     newTab.className = "nav-item";
-  
     newTab.innerHTML = `
-      <button class="nav-link" id="plant${myPlantCount}-tab" data-bs-toggle="tab" data-bs-target="#plant${myPlantCount}" type="button" role="tab"> 
+      <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${contentId}" type="button" role="tab"> 
         ${plantName}
       </button>`;
-  
-    const newTabContent = document.createElement("div");
+
+    const newTabContent = document.createElement("div"); // CREATES NEW PLANT TAB CONTENT
     newTabContent.className = "tab-pane fade";
-    newTabContent.id = `plant${myPlantCount}`;
+    newTabContent.id = contentId;
     newTabContent.role = "tabpanel";
-  
     newTabContent.innerHTML = `
       <div class="text-center flower-avatar-container">
         <img src="${avatarImageSrc}" class="img-fluid text-center avatar">
       </div>
       <div class="daily-streak text-center mt-4">
         <h2 class="streak">Daily Streak: 0🔥</h2>
-        <div class="nav-link bi bi-gear fs-3" 
-          role="button"
-          data-bs-toggle="modal"
-          data-bs-target="#settingsModal"
-          data-plant-name="${plantName}">
+        <div class="plant-info-buttons">
+          <div class="nav-link bi bi-info-circle fs-3" 
+            role="button"
+            data-bs-toggle="modal"
+            data-bs-target="#infoModal"
+            data-plant-name="${plantName}">
+          </div>
+          <div class="nav-link bi bi-plus-circle fs-3" 
+            role="button"
+            data-bs-toggle="modal"
+            data-bs-target="#addInfoModal"
+            data-plant-name="${plantName}">
+          </div>
         </div>
       </div>`;
 
+    const shareContent = document.getElementById("share-content"); // POPULATES SHARE COLUMN
 
-  
-    const shareContent = document.getElementById("share-content");
     shareContent.innerHTML = `
       <h3 class="text-white"> Share Your Plant! </h3>
       <img src="${avatarImageSrc}" class="img-fluid text-center share-avatar">
@@ -282,16 +322,17 @@ container.addEventListener("click", function(e) {
         </button>
       </div>
     `;
-  
-    const addPlantTab = document.getElementById("add-plant-tab").parentNode;
+
+    const addPlantTab = document.getElementById("add-plant-tab").parentNode; // INSERTS NEW PLANT BEFORE THE "ADD PLAN" TAB
     plantTabs.insertBefore(newTab, addPlantTab);
-  
     plantTabsContent.appendChild(newTabContent);
-  
+
     addPlantForm.reset();
+
     selectedAvatarSrc = null;
-  
-    container.innerHTML = `
+
+    // RESETS AVATAR CHOICES
+    container.innerHTML = ` 
       <div id="avatar-choices" class="avatar-grid">
         <img src="assets/Flower_Avatars/bush.jpg" alt="Bush" class="avatar-choice">
         <img src="assets/Flower_Avatars/cactus 3.jpg" alt="Cactus" class="avatar-choice">
@@ -302,10 +343,11 @@ container.addEventListener("click", function(e) {
         <img src="assets/Flower_Avatars/leaves 2.jpg" alt="leaves" class="avatar-choice">
         <img src="assets/Flower_Avatars/tree.jpg" alt="Tree" class="avatar-choice">
         <img src="assets/Flower_Avatars/sapling.jpg" alt="Sapling" class="avatar-choice">
-        <img src="assets/flower-avatar.png" alt="flower" class="avatar-choice">
+        <img src="assets/Flower_Avatars/houseplant.jpg" alt="houseplant" class="avatar-choice">
       </div>
     `;
-  
+    
+    // Reattach the click listener for avatar selection
     document.getElementById("avatar-choices").addEventListener("click", function(e) {
       if (e.target && e.target.classList.contains("avatar-choice")) {
         document.querySelectorAll(".avatar-choice").forEach(img => img.classList.remove("selected"));
@@ -313,8 +355,8 @@ container.addEventListener("click", function(e) {
         selectedAvatarSrc = e.target.getAttribute("src");
       }
     });
-  
-    const newTabButton = document.getElementById(`plant${myPlantCount}-tab`);
+
+    const newTabButton = document.getElementById(tabId);
     const tab = new bootstrap.Tab(newTabButton);
     tab.show();
   });
