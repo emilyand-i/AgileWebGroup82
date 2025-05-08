@@ -592,3 +592,19 @@ function toggleOptions(id) {
   const el = document.getElementById(id);
   el.style.display = el.style.display === 'block' ? 'none' : 'block';
 }
+
+
+function toggleLightIntensity() {
+  const overlay = document.getElementById("dark-overlay");
+  const isOn = overlay.style.display === "block";
+  overlay.style.display = isOn ? "none" : "block";
+  localStorage.setItem("dimmed", !isOn);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const saved = localStorage.getItem("dimmed") === "true";
+  const overlay = document.getElementById("dark-overlay");
+  if (overlay && saved) {
+    overlay.style.display = "block";
+  }
+});

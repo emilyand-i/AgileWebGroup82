@@ -527,3 +527,17 @@ main.main-info {
 .delete-plant {
   background-color: rgb(151, 29, 29);
 }
+
+/* dark mode classes */
+#dark-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+  opacity: 0.4;
+  pointer-events: none; /* Don't block clicks */
+  z-index: 9999;
+  display: none; /* Hidden by default */
+}
