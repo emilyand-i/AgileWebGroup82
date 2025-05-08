@@ -98,7 +98,7 @@
         <!-- Middle Column -->
         <div class="col-6 bckgrnd border-start border-end border-success d-flex flex-column align-items-center justify-content-start">
           <header class="about-info-dash w-100">
-              <h1 class="display-2 column-title mt-5 mb-4">🌱 P L A N T L Y 🌱</h1>
+              <img class="mb-2 w-50" src="assets/plantly-logo.png" alt="plantly Logo" id="plantly-logo">
               <div class="plant-tabs mt-3">
                   <ul class="nav nav-tabs" id="plantTabs" role="tablist">
                     <li class="nav-item" role="presentation"> <!-- HOME TAB -->
@@ -144,13 +144,14 @@
                     <img src="assets/Flower_Avatars/leaves 2.jpg" alt="leaves" class="avatar-choice">
                     <img src="assets/Flower_Avatars/tree.jpg" alt="Tree" class="avatar-choice">
                     <img src="assets/Flower_Avatars/sapling.jpg" alt="Sapling" class="avatar-choice">
-                    <img src="assets/flower-avatar.png" alt="flower" class="avatar-choice">
+                    <img src="assets/Flower_Avatars/houseplant.jpg" alt="houseplant" class="avatar-choice">
                   </div>
               </div>
                 <form id="addPlantForm" class="mt-1 text-center padding-0">
                   <div class="mb-1">
                     <input type="text" class="form-control" id="plantName" placeholder="Plant Name" required>
                   </div>
+                  <p id="uniqueNameError" class="text-danger d-none">This plant name already exists!</p>
                   <div class="mb-1">
                     <select class="form-control" id="plantType" required> <!-- PLANT INPUT FORM -->
                       <option value="">Select Plant Type</option>
@@ -167,9 +168,9 @@
               </div>
             </div>
 
-            <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true"> <!-- SETTINGS MODAL -->
+            <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true"> <!-- SETTINGS MODAL -->
               <div class="modal-dialog">
-                <div class="modal-content">
+                <div class="modal-content modal-style">
                 
                   <div class="modal-header">
                     <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
@@ -189,14 +190,46 @@
                     </form>
                   </div>
             
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                  </div>   <!-- MODAL SETTINGS END -->
-            
+                  <div class="modal-footer d-flex justify-content-between w-100">
+                    <button type="button" class="btn btn-secondary delete-plant bi bi-trash" id="delete-plant-button" data-bs-dismiss="modal">
+                      Delete Plant
+                    </button>
+                    <div>
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-primary">Save changes</button>
+                    </div>
+                  </div>   
                 </div>
               </div>
-            </div>
+            </div> <!-- MODAL SETTINGS END -->
+
+            <div class="modal fade " id="addInfoModal" tabindex="-1" aria-labelledby="plantModalLabel" aria-hidden="true"> <!-- PLANT MODAL -->
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content modal-style">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="plantModalLabel">Take Care of Your Plant!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="d-flex justify-content-evenly">
+
+                    <div class="text-center d-flex flex-column align-items-center p-5">
+                      <img src="assets/icons/graph.svg" alt="Graph Icon" style="width: 50px; height: auto;">
+                      <button class="btn btn-success btn-lg mt-2 add_stat" onclick="graph_show()" id="graphDemoBtn">
+                        <i class="bi bi-plus-circle me-2"></i> Add Graph
+                      </button>
+                    </div>
+                  
+                    <div class="text-center d-flex flex-column align-items-center p-5">
+                      <img src="assets/icons/camera.svg" alt="Picture Icon" style="width: 50px; height: auto;">
+                      <button class="btn btn-success btn-lg mt-2 add_stat" onclick="pic_show()">
+                        <i class="bi bi-plus-circle me-2"></i> Add Picture
+                      </button>
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+            </div> <!-- PLANT ADD MODAL END -->
             
           </div>
         </div>
@@ -209,6 +242,7 @@
             <div id="share-content" class="text-center">
               <h3 class="text-center text-white mt-5">Create A Plant First In Order To Share It!</h3>
             </div>
+            <button onclick="logout()" class="btn mt-3 logout_button position-absolute bottom-0 mb-5">Logout</button>
           </div>
           
 

@@ -339,7 +339,7 @@ main.main-info {
   flex-direction: column;
 }
 
-.nav-link, .add_stat {
+.nav-link, .add_stat, .logout_button {
   color: aliceblue;
   font-size: 1rem;    
   border-radius: 0.5rem; 
@@ -358,7 +358,7 @@ main.main-info {
   padding: 0 1rem; 
 }
 
-.nav-link:hover {
+.nav-link:hover, .logout_button:hover {
   background-color: #66835c;
 }
 
@@ -511,4 +511,19 @@ main.main-info {
 
 .options button:hover {
   background: #e0e0e0;
+}
+.plant-info-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.modal-style {
+  background-color: rgb(65, 90, 71);
+  color: white;
+  /* text-align: center; */
+}
+
+.delete-plant {
+  background-color: rgb(151, 29, 29);
 }
