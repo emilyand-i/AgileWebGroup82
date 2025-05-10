@@ -18,71 +18,48 @@
 
   <body>
     <div class="container-fluid">
-      <div class="row vh-100">
+      <div class="row vh-100 text-center">
         <!-- Left Column -->
-        <div class="col-3 bckgrnd border-end border-success d-flex flex-column align-items-center justify-content-start left_col">
+        <div class="col-3 bckgrnd border-end border-success d-flex flex-column align-items-center justify-content-start left_col position-relative">
+          <button class="btn btn-sm fullscreen-toggle" onclick="toggleFullscreen()">
+            <i class="bi bi-arrows-fullscreen me-1"></i>
+          </button>
+          
           <header class="about-info-dash px-2">
               <h1 class="display-2 column-title mt-5 mb-4">Stats</h1>
           </header>
 
           <!--User photo diary section-->
-          <button class="btn btn-success btn-lg mt-3 add_stat" onclick="pic_show()"><i class="bi bi-plus-circle me-2"></i> Add Picture</button>
-          <div class="container my-5 user_diary" id="user_diary">
-            <h1 class="mb-4 plantheader">Upload Plant Growth Photo</h1>
-      
-            <p class="mb-4 plantheader"><b>Share your plant growth journey with us!</b><br>Upload a photo of your plant and share your thoughts too</p>
-      
-            <!-- The photo is a required input field here -->
-            <form id="photoForm" class="mb-5">
-              <input type="file" id="photoInput" accept="image/*" class="form-control mb-3" required>
-      
-            <!-- Optional plant name may be entered -->
-              <input type="text" id="plant_name" class="form-control mb-3" placeholder="Enter plant name (optional)">
-
-            <!-- Optional comments -->
-              <textarea id="comments" class="form-control mb-3" placeholder="Enter comments (optional)"></textarea>
-              <button type="submit" class="btn add_stat">Submit Photo</button>
-            </form>
-      
-            <h2 class="plantheader mb-3">My Photo Growth Journey</h2>
-            <div id="display" class="photo_scroll"></div>
+          <div class="text-center d-flex justify-content-between gap-2"> 
+            <button class="btn btn-success btn-lg mt-3 add_stat" data-bs-toggle="modal" data-bs-target="#pictureModal">
+              <i class="bi bi-plus-circle me-2"></i> Add Picture
+            </button>
+            <button class="btn btn-success btn-lg mt-3 add_stat" data-bs-toggle="modal" data-bs-target="#graphModal">
+              <i class="bi bi-plus-circle me-2"></i> Add Graph
+            </button>
           </div>
 
-
-          <!--GrowthTracker Graph section-->
-          <button class="btn btn-success btn-lg mt-3 add_stat" onclick="graph_show()" id="graphDemoBtn">
-            <i class="bi bi-plus-circle me-2"></i> Add Graph
-          </button> 
-          <div class="container py-5 growth_graph" id="growth_graph">
-
-            <h1 class="mb-4 plantheader">Plant Growth Tracker</h1>
-        
-            <form id="growthForm" class="flex flex-column">
-              <div>
-
-                <input type="text" id="namePlant" class="form-control" placeholder="Plant Name (8 letters)" required maxlength="8">
-
+          <!-- Recent Updates Section -->
+          <div class="container mt-4">
+            <!-- Latest Photo -->
+            <div class="recent-photo mb-4">
+              <h3 class="plantheader">Latest Photo</h3>
+              <div id="latestPhotoContainer" class="text-center">
+                <p class="text-white text-center" id="noPhotoMessage">No photos yet</p>
               </div>
-              <div>
-                <input type="date" id="plantDate" class="form-control" required>
-              </div>
-              <div>
-                <input type="number" id="plantHeight" class="form-control" placeholder="Height (cm)" required>
-              </div>
-              <div class="d-flex justify-content-center">
-                <button type="submit" class="btn add_stat">Add Data</button>
-              </div>
-            </form>
-            <div class="mt-4">
-              <label for="plantSelector" class="form-label plantheader">What Plant's Stats are you viewing?</label>
-              <select id="plantSelector" class="form-select">
-                <option value="">-- Choose a Plant --</option>
-              </select>
             </div>
-            <div class="graph-canvas-wrapper">
-              <canvas id="graphCanvas" width="400" height="200"></canvas>
+
+            <!-- Quick Graph View -->
+            <div class="recent-graph">
+              <h3 class="plantheader">Growth Progress</h3>
+              <div class="graph-preview">
+                <div class="graph-canvas-wrapper">
+                  <canvas id="quickGraphCanvas" width="300" height="200"></canvas>
+                </div>
+              </div>
             </div>
           </div>
+
           <!-- user settings modal dialog -->
           <div class="mt-auto w-100 px-3 pb-4">
             <button class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center"
@@ -214,14 +191,14 @@
 
                     <div class="text-center d-flex flex-column align-items-center p-5">
                       <img src="assets/icons/graph.svg" alt="Graph Icon" style="width: 50px; height: auto;">
-                      <button class="btn btn-success btn-lg mt-2 add_stat" onclick="graph_show()" id="graphDemoBtn">
+                      <button class="btn btn-success btn-lg mt-2 add_stat" data-bs-toggle="modal" data-bs-target="#graphModal">
                         <i class="bi bi-plus-circle me-2"></i> Add Graph
                       </button>
                     </div>
-                  
+
                     <div class="text-center d-flex flex-column align-items-center p-5">
                       <img src="assets/icons/camera.svg" alt="Picture Icon" style="width: 50px; height: auto;">
-                      <button class="btn btn-success btn-lg mt-2 add_stat" onclick="pic_show()">
+                      <button class="btn btn-success btn-lg mt-2 add_stat" data-bs-toggle="modal" data-bs-target="#pictureModal">
                         <i class="bi bi-plus-circle me-2"></i> Add Picture
                       </button>
                     </div>
@@ -235,7 +212,7 @@
         </div>
 
         <!-- Right Column -->
-        <div class="col-3 bckgrnd border-start border-success d-flex flex-column align-items-center justify-content-start">
+        <div class="col-3 bckgrnd border-start border-success d-flex flex-column align-items-center justify-content-start right_col">
             <header class="about-info-dash px-2">
               <h1 class="display-2 column-title mt-5 mb-4">Share</h1>
             </header>
@@ -260,6 +237,88 @@
       </div>
     </div>
     <div id="dark-overlay"></div>
+
+    <!-- Add these modal structures -->
+    <!-- Picture Modal -->
+    <div class="modal fade" id="pictureModal" tabindex="-1" aria-labelledby="pictureModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content modal-style">
+          <div class="modal-header">
+            <h5 class="modal-title" id="pictureModalLabel">Upload Plant Growth Photo</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="container">
+              <p class="mb-4 plantheader"><b>Share your plant growth journey with us!</b><br>Upload a photo of your plant and share your thoughts too</p>
+      
+              <form id="photoForm" class="mb-5">
+                <!-- Photo input -->
+                <div class="mb-3">
+                  <label for="photoInput" class="form-label plantheader">Select Photo</label>
+                  <input type="file" id="photoInput" accept="image/*" class="form-control" required>
+                </div>
+
+                <!-- Plant selection -->
+                <div class="mb-3">
+                  <label for="photoPlantSelect" class="form-label plantheader">Select Plant</label>
+                  <select id="photoPlantSelect" class="form-select" required>
+                    <option value="">-- Choose a Plant --</option>
+                  </select>
+                </div>
+
+                <!-- Comments -->
+                <div class="mb-3">
+                  <label for="comments" class="form-label plantheader">Comments</label>
+                  <textarea id="comments" class="form-control" placeholder="Share your thoughts about this growth update (optional)"></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                  <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn add_stat">Upload Photo</button>
+                </div>
+              </form>
+
+              <!-- Photo Display Section -->
+              <div class="mt-4">
+                <h2 class="plantheader mb-3">Recent Photos</h2>
+                <div id="photoDisplay" class="photo_scroll"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Graph Modal -->
+    <!-- Graph Modal -->
+    <div class="modal fade" id="graphModal" tabindex="-1" aria-labelledby="graphModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content modal-style">
+          <div class="modal-header">
+            <h5 class="modal-title" id="graphModalLabel">Add Plant Growth Graph</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-3 plantheader">Track your plant's growth over time with a custom graph.</p>
+            <!-- Add your graph input form or canvas here -->
+            <form id="graphForm">
+              <div class="mb-3">
+                <label for="graphPlantSelect" class="form-label">Select Plant</label>
+                <select id="graphPlantSelect" class="form-select" required>
+                  <option value="">-- Choose a Plant --</option>
+                  <!-- JavaScript should populate this dynamically -->
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="growthValue" class="form-label">Growth Value</label>
+                <input type="number" class="form-control" id="growthValue" required>
+              </div>
+              <button type="submit" class="btn btn-success">Add Data Point</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
 
     
   </body>
