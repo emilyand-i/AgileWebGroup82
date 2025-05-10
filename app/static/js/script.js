@@ -3,6 +3,15 @@
  * Helper functions used across the application
  */
 
+function getCurrentActivePlantName() {
+  const activeTab = document.querySelector('#plantTabs .nav-link.active');
+  if (!activeTab) return null;
+
+  // Find the tab's label, which matches the plant name
+  return activeTab.textContent.trim();
+}
+
+
 /**
  * DOCUMENT READY EVENT HANDLER
  * Main initialization when DOM is fully loaded
@@ -185,8 +194,6 @@ function loadDashboard() {
       creationDate: plant.creation_date || new Date().toISOString(),
       lastUpdated: plant.last_updated || new Date().toISOString()
     };
-
-    let currentlyActive = null;
 
     const newTab = document.createElement("li");
     newTab.className = "nav-item";
