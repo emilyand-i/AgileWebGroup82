@@ -592,19 +592,40 @@ function toggleOptions(id) {
   const el = document.getElementById(id);
   el.style.display = el.style.display === 'block' ? 'none' : 'block';
 }
+// dark mode functions
 
-
+// function to toggle dark mode
 function toggleLightIntensity() {
   const overlay = document.getElementById("dark-overlay");
   const isOn = overlay.style.display === "block";
   overlay.style.display = isOn ? "none" : "block";
   localStorage.setItem("dimmed", !isOn);
 }
-
+// event handler to set darkmode on page load
 document.addEventListener("DOMContentLoaded", () => {
   const saved = localStorage.getItem("dimmed") === "true";
   const overlay = document.getElementById("dark-overlay");
   if (overlay && saved) {
     overlay.style.display = "block";
   }
+});
+
+// slecting font size settings
+
+// setting font size 
+function setFontScale(scale) {
+  const html = document.documentElement;
+  html.classList.remove('font-small', 'font-normal', 'font-large');
+  html.classList.add(`font-${scale}`);
+  localStorage.setItem('fontScale', scale);
+
+  //hide the dropdown after choosing
+  const dropdown = document.getElementById('font-size-options');
+  if (dropdown) dropdown.classList.add('hidden');
+}
+
+// Restore font scale on page load
+document.addEventListener('DOMContentLoaded', function () {
+  const saved = localStorage.getItem('fontScale') || 'normal';
+  document.documentElement.classList.add(`font-${saved}`);
 });

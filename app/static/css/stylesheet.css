@@ -528,7 +528,7 @@ main.main-info {
   background-color: rgb(151, 29, 29);
 }
 
-/* dark mode classes */
+/* dark mode dimming feature */
 #dark-overlay {
   position: fixed;
   top: 0;
@@ -540,4 +540,45 @@ main.main-info {
   pointer-events: none; /* Don't block clicks */
   z-index: 9999;
   display: none; /* Hidden by default */
+}
+
+/* creating the font size dropdown menue */
+.hidden {
+  display: none;
+}
+
+.dropdown {
+  margin-top: 0.5rem;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+/* setting application for changing the font size*/
+/* classes applied to the <html> elements to control the base font size for the whole site */
+html.font-small {
+  font-size: 85%;
+}
+
+html.font-normal {
+  font-size: 100%;
+}
+
+html.font-large {
+  font-size: 115%;
+}
+
+/* hides any element via display: none using java Script */
+.hidden {
+  display: none;
+}
+
+/* drop down options for font size options */
+#font-size-options {
+  margin-top: 0.5rem;
+  background: #f8f8f8;
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  border-radius: 4px;
 }

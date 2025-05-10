@@ -23,7 +23,17 @@
             <button class="section-toggle" onclick="toggleOptions('appearance')">Appearance</button>
             <div class="options" id="appearance">
               <button onclick="toggleLightIntensity()">Toggle Dark Mode</button>
-              <button>Change Font Size</button>
+              
+              <div class="font-size-dropdown">
+                <button type="button" onclick="document.getElementById('font-size-options').classList.toggle('hidden')">
+                  Change Font Size ▼
+                </button>
+                <div id="font-size-options" class="dropdown hidden">
+                  <button data-font-scale="small" onclick="setFontScale('small')">Small</button>
+                  <button data-font-scale="normal" onclick="setFontScale('normal')">Default</button>
+                  <button data-font-scale="large" onclick="setFontScale('large')">Large</button>
+                </div>
+              </div>
             </div>
           </div>
 
