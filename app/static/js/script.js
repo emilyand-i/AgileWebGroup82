@@ -608,3 +608,20 @@ document.addEventListener("DOMContentLoaded", () => {
     overlay.style.display = "block";
   }
 });
+
+function toggleFullscreen() {
+  const leftCol = document.querySelector('.left_col');
+  const rightCol = document.querySelector('.right_col');
+
+  const isExpanded = leftCol.classList.contains('col-12');
+
+  if (!isExpanded) { // Expands left column
+    leftCol.classList.remove('col-3');
+    leftCol.classList.add('col-12', 'vh-100');
+    rightCol.classList.add('d-none');
+  } else { // collapses left column
+    leftCol.classList.remove('col-12', 'vh-100');
+    leftCol.classList.add('col-3');
+    rightCol.classList.remove('d-none');
+  }
+}
