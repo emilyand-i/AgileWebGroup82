@@ -3,31 +3,11 @@
  * Helper functions used across the application
  */
 
-// Save global plants to localStorage
-function savePlantsToStorage() {
-  localStorage.setItem('globalPlants', JSON.stringify(globalPlants));
-  console.log('Plants saved to localStorage');
-}
-
-// Load plants from localStorage
-function loadPlantsFromStorage() {
-  const savedPlants = localStorage.getItem('globalPlants');
-  if (savedPlants) {
-    globalPlants = JSON.parse(savedPlants);
-    console.log('Plants loaded from localStorage:', Object.keys(globalPlants));
-    return true;
-  }
-  return false;
-}
-
 /**
  * DOCUMENT READY EVENT HANDLER
  * Main initialization when DOM is fully loaded
  */
 document.addEventListener('DOMContentLoaded', () => {
-  // Try to load plants from localStorage first
-  const plantsLoaded = loadPlantsFromStorage();
-  
   // Initialize signin button event listener
   const signinBtn = document.querySelector('.signin-btn');
   if (signinBtn) {
@@ -40,10 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize signup form
   initializeSignupForm();
   
-  // Load dashboard if on dashboard page
-  if (!plantsLoaded) {
-    loadDashboard();
-  }
+  // Load dashboard
+  loadDashboard();
   
   // Initialize plant management
   initializePlantManagement();
@@ -54,14 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize plant growth tracker
   initializePlantGrowthTracker();
   
-  // Initialize user settings modal
+  // Initialize settings modal
   initializeSettingsModal();
   
-  // Initialize dimming feature from localStorage
+  // Initialize dimming feature
   initializeDimming();
-  
-  // Set up event listener for beforeunload to save plants data
-  window.addEventListener('beforeunload', savePlantsToStorage);
 });
 
 /**
@@ -123,7 +98,6 @@ function initializeLoginForm() {
     
     const login_data = await fetch_login.json();
     if (fetch_login.ok) {
-      localStorage.setItem('user_profile', JSON.stringify(login_data));
       window.location.href = 'dashboard.html';
     } else {
       alert(login_data.error || 'Login failed');
@@ -170,7 +144,6 @@ async function logout() {
     method: 'POST',
     credentials: 'include'
   });
-  localStorage.removeItem('user_profile');
   window.location.href = 'index.html';
 }
 
@@ -212,6 +185,8 @@ function loadDashboard() {
       creationDate: plant.creation_date || new Date().toISOString(),
       lastUpdated: plant.last_updated || new Date().toISOString()
     };
+
+    let currentlyActive = null;
 
     const newTab = document.createElement("li");
     newTab.className = "nav-item";
@@ -367,9 +342,6 @@ function initializePlantManagement() {
         }
       }
       
-      // Save updated plants data to localStorage
-      savePlantsToStorage();
-      
       currentPlantName = null;
       myPlantCount--;
 
@@ -494,9 +466,6 @@ function initializePlantManagement() {
       }
       globalPlants.growthData[plantName] = [];
       
-      // Save plants data to localStorage
-      savePlantsToStorage();
-
       addPlantForm.reset();
       selectedAvatarSrc = null;
 
@@ -826,15 +795,13 @@ function toggleLightIntensity() {
   
   const isOn = overlay.style.display === "block";
   overlay.style.display = isOn ? "none" : "block";
-  localStorage.setItem("dimmed", !isOn);
 }
 
 // Initialize dimming from localStorage
 function initializeDimming() {
-  const saved = localStorage.getItem("dimmed") === "true";
   const overlay = document.getElementById("dark-overlay");
-  if (overlay && saved) {
-    overlay.style.display = "block";
+  if (overlay) {
+    overlay.style.display = "none";
   }
 }
 
