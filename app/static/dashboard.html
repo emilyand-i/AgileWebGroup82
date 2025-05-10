@@ -290,38 +290,36 @@
     </div>
 
     <!-- Graph Modal -->
+    <!-- Graph Modal -->
     <div class="modal fade" id="graphModal" tabindex="-1" aria-labelledby="graphModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
         <div class="modal-content modal-style">
           <div class="modal-header">
-            <h5 class="modal-title" id="graphModalLabel">Plant Growth Tracker</h5>
+            <h5 class="modal-title" id="graphModalLabel">Add Plant Growth Graph</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <div class="container growth_graph">
-              <!-- Add plant selector dropdown -->
+            <p class="mb-3 plantheader">Track your plant's growth over time with a custom graph.</p>
+            <!-- Add your graph input form or canvas here -->
+            <form id="graphForm">
               <div class="mb-3">
-                <select id="plantSelector" class="form-select">
-                  <option value="">Select a plant</option>
+                <label for="graphPlantSelect" class="form-label">Select Plant</label>
+                <select id="graphPlantSelect" class="form-select" required>
+                  <option value="">-- Choose a Plant --</option>
+                  <!-- JavaScript should populate this dynamically -->
                 </select>
               </div>
-              <div id="growthFormContainer" class="text-center">
-                <form id="growthForm" class="mb-4">
-                  <div class="mb-3">
-                    <input type="date" id="plantDate" class="form-control" required>
-                  </div>
-                  <div class="mb-3">
-                    <input type="number" id="plantHeight" class="form-control" 
-                           placeholder="Height (cm)" step="0.1" required>
-                  </div>
-                  <button type="submit" class="btn btn-success">Add Growth Data</button>
-                </form>
+              <div class="mb-3">
+                <label for="growthValue" class="form-label">Growth Value</label>
+                <input type="number" class="form-control" id="growthValue" required>
               </div>
-            </div>
+              <button type="submit" class="btn btn-success">Add Data Point</button>
+            </form>
           </div>
         </div>
       </div>
     </div>
+
     
   </body>
 </html>
