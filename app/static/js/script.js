@@ -1,8 +1,33 @@
 /**
+ * UTILITY FUNCTIONS
+ * Helper functions used across the application
+ */
+
+// Save global plants to localStorage
+function savePlantsToStorage() {
+  localStorage.setItem('globalPlants', JSON.stringify(globalPlants));
+  console.log('Plants saved to localStorage');
+}
+
+// Load plants from localStorage
+function loadPlantsFromStorage() {
+  const savedPlants = localStorage.getItem('globalPlants');
+  if (savedPlants) {
+    globalPlants = JSON.parse(savedPlants);
+    console.log('Plants loaded from localStorage:', Object.keys(globalPlants));
+    return true;
+  }
+  return false;
+}
+
+/**
  * DOCUMENT READY EVENT HANDLER
  * Main initialization when DOM is fully loaded
  */
 document.addEventListener('DOMContentLoaded', () => {
+  // Try to load plants from localStorage first
+  const plantsLoaded = loadPlantsFromStorage();
+  
   // Initialize signin button event listener
   const signinBtn = document.querySelector('.signin-btn');
   if (signinBtn) {
@@ -16,7 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeSignupForm();
   
   // Load dashboard if on dashboard page
-  loadDashboard();
+  if (!plantsLoaded) {
+    loadDashboard();
+  }
   
   // Initialize plant management
   initializePlantManagement();
@@ -32,6 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Initialize dimming feature from localStorage
   initializeDimming();
+  
+  // Set up event listener for beforeunload to save plants data
+  window.addEventListener('beforeunload', savePlantsToStorage);
 });
 
 /**
@@ -160,29 +190,46 @@ function loadDashboard() {
 
   const plantTabs = document.getElementById("plantTabs");
   const plantTabsContent = document.getElementById("plantTabsContent");
-  let myPlantCount = 0;
+  
+  // Reset plant count when loading dashboard
+  myPlantCount = 0;
+  
+  // Clear global plants dictionary to rebuild it from profile data
+  globalPlants = {};
 
   profile.plants.forEach((plant) => {
     myPlantCount++;
     const tabId = `plant${myPlantCount}`;
+    const contentId = tabId;
+    
+    // Add plant to global plants dictionary
+    globalPlants[plant.plant_name] = {
+      tabId: tabId,
+      contentId: contentId,
+      name: plant.plant_name,
+      avatarSrc: plant.chosen_image_url,
+      streakCount: plant.streak || 0,
+      creationDate: plant.creation_date || new Date().toISOString(),
+      lastUpdated: plant.last_updated || new Date().toISOString()
+    };
 
     const newTab = document.createElement("li");
     newTab.className = "nav-item";
     newTab.innerHTML = `
-      <button class="nav-link" id="${tabId}-tab" data-bs-toggle="tab" data-bs-target="#${tabId}" type="button" role="tab">
+      <button class="nav-link" id="${tabId}-tab" data-bs-toggle="tab" data-bs-target="#${contentId}" type="button" role="tab">
         ${plant.plant_name}
       </button>`;
 
     const newContent = document.createElement("div");
     newContent.className = "tab-pane fade";
-    newContent.id = tabId;
+    newContent.id = contentId;
     newContent.role = "tabpanel";
     newContent.innerHTML = `
       <div class="text-center flower-avatar-container">
         <img src="${plant.chosen_image_url}" class="img-fluid text-center avatar">
       </div>
       <div class="daily-streak text-center mt-4">
-        <h2 class="streak">Daily Streak: 0🔥</h2>
+        <h2 class="streak">Daily Streak: ${globalPlants[plant.plant_name].streakCount}🔥</h2>
         <div class="nav-link bi bi-gear fs-3" 
           role="button"
           data-bs-toggle="modal"
@@ -195,6 +242,8 @@ function loadDashboard() {
     plantTabs.insertBefore(newTab, addPlantTab);
     plantTabsContent.appendChild(newContent);
   });
+  
+  console.log('Loaded plants:', Object.keys(globalPlants));
 }
 
 /**
@@ -231,12 +280,20 @@ function pic_show() {
 }
 
 /**
+ * GLOBAL VARIABLES
+ * Global variables used across different functions
+ */
+
+// Global plants dictionary to track all plants
+// Structure: { plantName: { tabId, contentId, avatarSrc, streakCount, creationDate, etc. } }
+let globalPlants = {};
+
+/**
  * PLANT MANAGEMENT
  * Functions to add, remove, and manage plants
  */
 
 let myPlantCount = 0;
-let plants = {};
 let selectedAvatarSrc = null;
 let currentPlantName = null;
 
@@ -279,7 +336,7 @@ function initializePlantManagement() {
   const deleteButton = document.getElementById('delete-plant-button');
   if (deleteButton) {
     deleteButton.addEventListener("click", function() {
-      const plant = plants[currentPlantName];
+      const plant = globalPlants[currentPlantName];
       if (!plant) return;
     
       const tab = document.getElementById(plant.tabId);
@@ -288,7 +345,31 @@ function initializePlantManagement() {
       tab.remove();
       tabContent.remove();
     
-      delete plants[currentPlantName];
+      // Remove plant from global plants dictionary
+      delete globalPlants[currentPlantName];
+      
+      // Also remove plant's growth data if it exists
+      if (globalPlants.growthData && globalPlants.growthData[currentPlantName]) {
+        delete globalPlants.growthData[currentPlantName];
+      }
+      
+      console.log(`Plant "${currentPlantName}" deleted from global registry`);
+      console.log('Current plants:', Object.keys(globalPlants));
+      
+      // Update growth tracking dropdown by removing the plant
+      const plantSelector = document.getElementById('plantSelector');
+      if (plantSelector) {
+        for (let i = 0; i < plantSelector.options.length; i++) {
+          if (plantSelector.options[i].value === currentPlantName) {
+            plantSelector.remove(i);
+            break;
+          }
+        }
+      }
+      
+      // Save updated plants data to localStorage
+      savePlantsToStorage();
+      
       currentPlantName = null;
       myPlantCount--;
 
@@ -318,7 +399,8 @@ function initializePlantManagement() {
       const contentId = `plant${myPlantCount}`;
       const avatarImageSrc = selectedAvatarSrc;
 
-      if (plantName in plants) {
+      // Check if plant name already exists in the global plants dictionary
+      if (plantName in globalPlants) {
         document.getElementById('uniqueNameError').classList.remove('d-none');
         plantNameInput.classList.add('is-invalid');
 
@@ -330,10 +412,16 @@ function initializePlantManagement() {
       }
       
       myPlantCount++;
-      plants[plantName] = {
+      
+      // Add plant to global plants dictionary with all relevant details
+      globalPlants[plantName] = {
         tabId: tabId,
         contentId: contentId,
         name: plantName,
+        avatarSrc: avatarImageSrc,
+        streakCount: 0,
+        creationDate: new Date().toISOString(),
+        lastUpdated: new Date().toISOString()
       };
 
       // Create new plant tab
@@ -390,6 +478,24 @@ function initializePlantManagement() {
       const addPlantTab = document.getElementById("add-plant-tab").parentNode;
       plantTabs.insertBefore(newTab, addPlantTab);
       plantTabsContent.appendChild(newTabContent);
+      
+      // Update growth tracking dropdown with new plant
+      const plantSelector = document.getElementById('plantSelector');
+      if (plantSelector) {
+        const option = document.createElement('option');
+        option.value = plantName;
+        option.textContent = plantName;
+        plantSelector.appendChild(option);
+      }
+      
+      // Initialize empty growth data for this plant
+      if (!globalPlants.growthData) {
+        globalPlants.growthData = {};
+      }
+      globalPlants.growthData[plantName] = [];
+      
+      // Save plants data to localStorage
+      savePlantsToStorage();
 
       addPlantForm.reset();
       selectedAvatarSrc = null;
@@ -511,9 +617,32 @@ function initializePlantGrowthTracker() {
   if (!form || !canvas || !plantSelector) return;
   
   const ctx = canvas.getContext('2d');
-  const plantData = {};
+  
+  // Use plant growth data from global plants dictionary
+  // This ensures plant data persists across the application
+  if (!globalPlants.growthData) {
+    globalPlants.growthData = {};
+  }
 
-  // Add plant to dropdown menu
+  // Populate dropdown with plants from global dictionary
+  function populatePlantDropdown() {
+    // Clear existing options first
+    while (plantSelector.options.length > 1) {
+      plantSelector.remove(1);
+    }
+    
+    // Add all plants from global dictionary
+    Object.keys(globalPlants).forEach(plantName => {
+      if (plantName !== 'growthData') { // Skip the special growthData key
+        const option = document.createElement('option');
+        option.value = plantName;
+        option.textContent = plantName;
+        plantSelector.appendChild(option);
+      }
+    });
+  }
+
+  // Add single plant to dropdown menu
   function addToDropdown(name) {
     const option = document.createElement('option');
     option.value = name;
@@ -541,25 +670,53 @@ function initializePlantGrowthTracker() {
 
     if (!name || !date || isNaN(height)) return;
     
-    if (!plantData[name]) {
-      plantData[name] = [];
-      addToDropdown(name);
+    // Check if this is an existing plant in our global dictionary
+    if (!(name in globalPlants) && name !== 'growthData') {
+      alert('Please enter the name of an existing plant or add this plant first.');
+      return;
+    }
+    
+    // Initialize growth data for this plant if it doesn't exist
+    if (!globalPlants.growthData[name]) {
+      globalPlants.growthData[name] = [];
+      
+      // If not in dropdown already, add it
+      if (Array.from(plantSelector.options).findIndex(option => option.value === name) === -1) {
+        addToDropdown(name);
+      }
     }
 
-    plantData[name].push({ date, height });
-    plantData[name].sort((a, b) => new Date(a.date) - new Date(b.date));
+    // Add new growth data point
+    globalPlants.growthData[name].push({ date, height });
+    
+    // Sort by date
+    globalPlants.growthData[name].sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    // Update last updated timestamp for the plant
+    if (globalPlants[name]) {
+      globalPlants[name].lastUpdated = new Date().toISOString();
+    }
 
     form.reset();
     if (plantSelector.value === name) {
       drawGraph(name);
     }
   });
+  
+  // Initial population of dropdown
+  populatePlantDropdown();
 
   // Draw growth graph for selected plant
   function drawGraph(namePlant) {
-    const data = plantData[namePlant];
+    const data = globalPlants.growthData[namePlant];
 
-    if (!data || data.length < 2) return;
+    if (!data || data.length < 2) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = "16px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(`Not enough data for ${namePlant} yet. Add at least 2 growth points.`, canvas.width/2, canvas.height/2);
+      return;
+    }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
