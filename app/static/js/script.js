@@ -567,3 +567,44 @@ document.addEventListener('DOMContentLoaded', function() {
     ctx.fillText(`${namePlant}'s Growth Journey`, canvas.width / 2, padding - 15);
   }
 });
+
+// function to load the setting modal
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("User-Settings-Modal");
+
+  modal.addEventListener("show.bs.modal", () => {
+    fetch("User-Settings.html")
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById("SettingsModalContent").innerHTML = html;
+      })
+      .catch(error => {
+        document.getElementById("SettingsModalContent").innerHTML = `
+          <div class="modal-body text-danger">Failed to load settings content.</div>
+        `;
+        console.error("Error loading settings:", error);
+      });
+  });
+});
+
+// function to toggle the options in the settings modal
+function toggleOptions(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+
+
+function toggleLightIntensity() {
+  const overlay = document.getElementById("dark-overlay");
+  const isOn = overlay.style.display === "block";
+  overlay.style.display = isOn ? "none" : "block";
+  localStorage.setItem("dimmed", !isOn);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const saved = localStorage.getItem("dimmed") === "true";
+  const overlay = document.getElementById("dark-overlay");
+  if (overlay && saved) {
+    overlay.style.display = "block";
+  }
+});

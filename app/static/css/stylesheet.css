@@ -467,6 +467,51 @@ main.main-info {
   margin: 0 auto;
 }
 
+
+/* Settings Page */
+.settings-container {
+  background: #6db07586;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.section {
+  margin-bottom: 15px;
+}
+
+.section button.section-toggle {
+  width: 100%;
+  text-align: left;
+  padding: 15px;
+  background: #00c24a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.options {
+  display: none;
+  margin-top: 10px;
+  padding-left: 15px;
+}
+
+.options button {
+  display: block;
+  background: #f1f1f1;
+  border: none;
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+}
+
+.options button:hover {
+  background: #e0e0e0;
+}
 .plant-info-buttons {
   display: flex;
   justify-content: center;
@@ -481,4 +526,18 @@ main.main-info {
 
 .delete-plant {
   background-color: rgb(151, 29, 29);
+}
+
+/* dark mode classes */
+#dark-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+  opacity: 0.4;
+  pointer-events: none; /* Don't block clicks */
+  z-index: 9999;
+  display: none; /* Hidden by default */
 }
