@@ -317,9 +317,9 @@ document.addEventListener('DOMContentLoaded', function() {
       <h3 class="text-white"> Share Your Plant! </h3>
       <img src="${avatarImageSrc}" class="img-fluid text-center share-avatar">
       <div class="share-controls text-center mt-4">
-        <button class="btn btn-success share-btn">
-          <i class="bi bi-share"></i> Share Plant
-        </button>
+          <a class="btn btn-success btn-lg" href="shareBoard.html">
+            <i class="bi bi-share me-2"></i> Share Plant
+          </a>
       </div>
     `;
 
