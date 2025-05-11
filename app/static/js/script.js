@@ -510,6 +510,35 @@ function initializePlantManagement() {
       tab.show();
     });
   }
+
+  document.addEventListener('shown.bs.tab', function(event) { // Event Listener for Tab Switch
+    const activeTab = event.target; // newly activated tab
+    const previousTab = event.relatedTarget; // previous active tab
+    
+    if (activeTab && !activeTab.id.includes('add-plant')) { // checks if tab is not add-plant tab
+      const plantName = activeTab.textContent.trim();
+      const plantData = globalPlants[plantName];
+      
+      if (plantData) {
+        // Update any UI elements that depend on the current plant
+        console.log(`Switched to plant: ${plantName}`);
+        
+        // Update share content if it exists
+        const shareContent = document.getElementById("share-content");
+        if (shareContent && plantData.avatarSrc) {
+          shareContent.innerHTML = `
+            <h3 class="text-white"> Share Your Plant! </h3>
+            <img src="${plantData.avatarSrc}" class="img-fluid text-center share-avatar">
+            <div class="share-controls text-center mt-4">
+              <a class="btn btn-success btn-lg" href="shareBoard.html">
+                <i class="bi bi-share me-2"></i> Share Plant
+              </a>
+            </div>
+          `;
+        }
+      }
+    }
+  });
 }
 
 /**
