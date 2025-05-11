@@ -38,12 +38,6 @@ body {
   padding: 0;
 }
 
-.display-2 {
-  padding:0;
-  font-size: 3.5rem;
-}
-
-
 .content {
   gap: 40px;
   display: flex;
@@ -585,8 +579,9 @@ main.main-info {
     justify-content: center;
     align-items: center;
     margin-bottom: 10px;
-    background-color: white;
+    background-color: rgb(106, 139, 124);
     border-radius: 1rem;
+    color: white;
 }
 
 .graphHeader {

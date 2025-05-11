@@ -736,6 +736,11 @@ function initializePhotoUpload() {
 function initializePlantGrowthTracker() {
   const form = document.getElementById('growthDataForm');
   const submitBtn = document.getElementById('addGrowthDataBtn');
+  const dateInput = document.getElementById('growthDate');
+
+  if (dateInput) {
+    dateInput.valueAsDate = new Date();
+  }
 
   if (form && submitBtn) {
     form.addEventListener('submit', handleGrowthDataSubmit);
@@ -762,14 +767,14 @@ function initializePlantGrowthTracker() {
     globalPlants.growthData[name].push({ date, height });
     globalPlants.growthData[name].sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    
-
     if (globalPlants[name]) {
       globalPlants[name].lastUpdated = new Date().toISOString();
     }
 
     // Clear form and close modal
     form.reset();
+    dateInput.valueAsDate = new Date();
+    
     const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
     if (modal) {
       modal.hide();
@@ -814,12 +819,6 @@ function initializePlantGrowthTracker() {
   }
 
   // Add single plant to dropdown menu
-  function addToDropdown(name) {
-    const option = document.createElement('option');
-    option.value = name;
-    option.textContent = name;
-    plantSelector.appendChild(option);
-  }
 
   // Handle plant selection change
   plantSelector.addEventListener('change', () => {
