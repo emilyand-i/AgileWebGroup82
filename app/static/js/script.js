@@ -489,7 +489,7 @@ function initializePlantManagement() {
       
       myPlantCount++;
       
-      // Add plant to global plants dictionary with all relevant details
+      // Add this to the plant initialization in initializePlantManagement()
       globalPlants[plantName] = {
         tabId: tabId,
         contentId: contentId,
@@ -497,7 +497,8 @@ function initializePlantManagement() {
         avatarSrc: avatarImageSrc,
         streakCount: 0,
         creationDate: new Date().toISOString(),
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
+        photos: [] // Add this line to store plant photos
       };
 
       // Create new plant tab
@@ -655,6 +656,9 @@ function initializePlantManagement() {
             ctx.fillText(`No growth data for ${plantName} yet.`, canvas.width/2, canvas.height/2);
           }
         }
+
+        // Update photo display for the selected plant
+        updatePhotoDisplay(plantName);
       }
     }
   });
@@ -667,71 +671,94 @@ function initializePlantManagement() {
 
 // Initialize photo upload functionality
 function initializePhotoUpload() {
-  const photoForm = document.getElementById('photoForm');
-  const input = document.getElementById('photoInput');
-  const display = document.getElementById('latestPhotoContainer');
-  const noPhotoMessage = document.getElementById('noPhotoMessage');
+    const photoForm = document.getElementById('photoForm');
+    const input = document.getElementById('photoInput');
+    const display = document.getElementById('latestPhotoContainer');
+    const noPhotoMessage = document.getElementById('noPhotoMessage');
 
-  if (!photoForm || !input || !display) return;
+    if (!photoForm || !input || !display) return;
 
-  photoForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    e.stopPropagation();
+    photoForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
 
-    const file = input.files[0];
-    if (!file) return;
+        const file = input.files[0];
+        if (!file) return;
 
-    const plant_name = document.getElementById('plant_name')?.value;
-    const comments = document.getElementById('comments')?.value;
+        const currentPlant = getCurrentActivePlantName();
+        if (!currentPlant || !globalPlants[currentPlant]) {
+            alert('Please select a plant first');
+            return;
+        }
 
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      const imgSrc = event.target.result;
-      const date = new Date().toLocaleString(undefined, {
-        hour: 'numeric',
-        minute: 'numeric',
-        day: '2-digit',
-        month: '2-digit',
-        year: '2-digit',
-      });
+        const comments = document.getElementById('comments')?.value;
 
-      const card = document.createElement('div');
-      card.className = 'card photo-card mb-3';
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            const imgSrc = event.target.result;
+            const date = new Date().toLocaleString(undefined, {
+                hour: 'numeric',
+                minute: 'numeric',
+                day: '2-digit',
+                month: '2-digit',
+                year: '2-digit',
+            });
 
-      let cardHTML = `
-        <div class="card-body">
-          <p class="card-text"><small>${date}</small></p>
-          <img src="${imgSrc}" class="card-img-top photo-img mb-2" alt="Uploaded photo">
-      `;
+            // Create photo object
+            const photoData = {
+                src: imgSrc,
+                date: date,
+                comments: comments || '',
+            };
 
-      if (plant_name) {
-        cardHTML += `<p class="card-text"><strong>Plant Name:</strong> ${plant_name}</p>`;
-      }
+            // Add to plant's photos array
+            if (!globalPlants[currentPlant].photos) {
+                globalPlants[currentPlant].photos = [];
+            }
+            globalPlants[currentPlant].photos.unshift(photoData); // Add new photo at the beginning
 
-      if (comments) {
-        cardHTML += `<p class="card-text"><strong>Comments:</strong> ${comments}</p>`;
-      }
+            // Update display
+            updatePhotoDisplay(currentPlant);
 
-      cardHTML += `</div>`;
-      card.innerHTML = cardHTML;
+            photoForm.reset();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('pictureModal'));
+            modal?.hide();
+        };
 
-      if (noPhotoMessage) {
-        noPhotoMessage.style.display = 'none';
-      }
-
-      display.innerHTML = ''; // Clear previous content
-
-      display.append(card);
-      photoForm.reset();
-
-      const modal = bootstrap.Modal.getInstance(document.getElementById('pictureModal'));
-      modal?.hide();
-    };
-
-    reader.readAsDataURL(file);
-  });
+        reader.readAsDataURL(file);
+    });
 }
 
+// Add this new function to update photo display
+function updatePhotoDisplay(plantName) {
+    const display = document.getElementById('latestPhotoContainer');
+    const noPhotoMessage = document.getElementById('noPhotoMessage');
+    
+    if (!display) return;
+
+    const plant = globalPlants[plantName];
+    if (!plant || !plant.photos || plant.photos.length === 0) {
+        display.innerHTML = '';
+        if (noPhotoMessage) {
+            noPhotoMessage.style.display = 'block';
+        }
+        return;
+    }
+
+    if (noPhotoMessage) {
+        noPhotoMessage.style.display = 'none';
+    }
+
+    display.innerHTML = plant.photos.map(photo => `
+        <div class="card photo-card mb-3">
+            <div class="card-body">
+                <p class="card-text"><small>${photo.date}</small></p>
+                <img src="${photo.src}" class="card-img-top photo-img mb-2" alt="Plant photo">
+                ${photo.comments ? `<p class="card-text"><strong>Comments:</strong> ${photo.comments}</p>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
 
 /**
  * PLANT GROWTH TRACKING
@@ -766,18 +793,15 @@ function initializePlantGrowthTracker() {
       selectedButton.classList.add('active');
     }
   
-    // Set the date
     if (dateInput && typeof offsetDays === 'number') {
       const date = new Date();
       date.setDate(date.getDate() + offsetDays);
       dateInput.valueAsDate = date;
     }
   }
-  
-  // Button event bindings
+
   document.getElementById('todayButton').addEventListener('click', () => setDateTo(0, 'todayButton'));
   document.getElementById('yesterdayButton').addEventListener('click', () => setDateTo(-1, 'yesterdayButton'));
-  
 
   function handleGrowthDataSubmit(e) {
     e.preventDefault();
@@ -795,7 +819,6 @@ function initializePlantGrowthTracker() {
     if (!globalPlants.growthData[name]) {
       globalPlants.growthData[name] = [];
     }
-
     globalPlants.growthData[name].push({ date, height });
     globalPlants.growthData[name].sort((a, b) => new Date(a.date) - new Date(b.date));
 
@@ -806,16 +829,14 @@ function initializePlantGrowthTracker() {
     // Clear form and close modal
     form.reset();
     dateInput.valueAsDate = new Date();
-    
     const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
     if (modal) {
       modal.hide();
     }
 
+    // Update graph
     console.log(`Added growth data for ${name}:`, globalPlants.growthData[name]);
     console.log("draw graph called")
-
-    // Update graph
     drawGraph(name);
   }
 
@@ -823,7 +844,7 @@ function initializePlantGrowthTracker() {
   const plantSelector = document.getElementById('plantSelector');
   
   if (!form || !canvas || !plantSelector) return;
-  
+
   ctx = canvas.getContext('2d');
   
   // Use plant growth data from global plants dictionary
@@ -838,7 +859,6 @@ function initializePlantGrowthTracker() {
     while (plantSelector.options.length > 1) {
       plantSelector.remove(1);
     }
-    
     // Add all plants from global dictionary
     Object.keys(globalPlants).forEach(plantName => {
       if (plantName !== 'growthData') { // Skip the special growthData key
@@ -849,8 +869,6 @@ function initializePlantGrowthTracker() {
       }
     });
   }
-
-  // Add single plant to dropdown menu
 
   // Handle plant selection change
   plantSelector.addEventListener('change', () => {
@@ -875,7 +893,7 @@ function initializePlantGrowthTracker() {
       alert('Please fill in all fields correctly');
       return;
     }
-    
+
     // Initialize growth data for this plant if it doesn't exist
     if (!globalPlants.growthData[name]) {
       globalPlants.growthData[name] = [];
@@ -883,7 +901,7 @@ function initializePlantGrowthTracker() {
 
     // Add new growth data point
     globalPlants.growthData[name].push({ date, height });
-    
+
     // Sort by date
     globalPlants.growthData[name].sort((a, b) => new Date(a.date) - new Date(b.date));
     
@@ -898,7 +916,7 @@ function initializePlantGrowthTracker() {
     // Close the modal using Bootstrap's API
     const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
     modal.hide();
-
+    
     // Update the graph
     console.log("draw graph called")
     drawGraph(name);
@@ -906,8 +924,6 @@ function initializePlantGrowthTracker() {
   
   // Initial population of dropdown
   populatePlantDropdown();
-
-  
 }
 
 /**
@@ -947,7 +963,7 @@ function toggleOptions(id) {
 function toggleLightIntensity() {
   const overlay = document.getElementById("dark-overlay");
   if (!overlay) return;
-  
+
   const isOn = overlay.style.display === "block";
   overlay.style.display = isOn ? "none" : "block";
 }
