@@ -3,6 +3,103 @@
  * Helper functions used across the application
  */
 
+let canvas;
+let ctx;
+
+// Draw growth graph for selected plant
+function drawGraph(namePlant) {
+  console.log(`Drawing graph for ${namePlant}`);
+  const data = globalPlants.growthData[namePlant];
+  console.log("Retrieved data:", data);
+
+  if (!data || data.length < 2) {
+      console.log("Data is missing or too short:", data);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = "16px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(`Not enough data for ${namePlant} yet. Add at least 2 growth points.`, canvas.width/2, canvas.height/2);
+      return;
+  }
+
+  try {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    console.log("Canvas cleared");
+  } catch (e) {
+    console.error("Error clearing canvas:", e);
+  }
+  
+  
+  const padding = 70;
+  const graphWidth = canvas.width - padding * 2;
+  const graphHeight = canvas.height - padding * 2;
+
+  const dates = data.map(d => new Date(d.date));
+  const heights = data.map(d => d.height);
+
+  const minDate = Math.min(...dates.map(d => d.getTime()));
+  const maxDate = Math.max(...dates.map(d => d.getTime()));
+  const minHeight = Math.min(...heights);
+  const maxHeight = Math.max(...heights);
+  console.log("minDate", minDate);
+
+  function getX(date) {
+    return padding + ((date.getTime() - minDate) / (maxDate - minDate)) * graphWidth;
+  }
+
+  function getY(height) {
+    return canvas.height - padding - ((height - minHeight) / (maxHeight - minHeight)) * graphHeight;
+  }
+
+  // Draw axes
+  ctx.beginPath();
+  ctx.moveTo(padding, padding);
+  ctx.lineTo(padding, canvas.height - padding);
+  ctx.lineTo(canvas.width - padding, canvas.height - padding);
+  ctx.stroke();
+  console.log("axes drawn");
+
+  // Plot points and connect them
+  ctx.beginPath();
+  ctx.strokeStyle = '#28a745';
+  ctx.lineWidth = 4;
+  data.forEach((point, index) => {
+    const x = getX(new Date(point.date));
+    const y = getY(point.height);
+
+    if (index === 0){
+      ctx.moveTo(x, y);
+    }
+    else {
+      ctx.lineTo(x, y);
+    }
+
+    ctx.arc(x, y, 5, 0, 2 * Math.PI);
+  });
+  ctx.stroke();
+  console.log("points plotted");
+
+  // Y-Axis label
+  ctx.save();
+  ctx.translate(20, canvas.height / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = "center";
+  ctx.font = "14px sans-serif";
+  ctx.fillText("Height Grown", 0, 0);
+  ctx.restore();
+  console.log("y-axis label drawn");
+
+  // X-Axis label
+  ctx.font = "14px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("Time Spent Growing", canvas.width / 2, canvas.height - 10);
+  console.log("x-axis label drawn");
+
+  // Graph title
+  ctx.font = "bold 18px sans-serif";
+  ctx.fillText(`${namePlant}'s Growth Journey`, canvas.width / 2, padding - 15);
+}
+
+
 function getCurrentActivePlantName() {
   const activeTab = document.querySelector('#plantTabs .nav-link.active');
   if (!activeTab) return null;
@@ -10,7 +107,6 @@ function getCurrentActivePlantName() {
   // Find the tab's label, which matches the plant name
   return activeTab.textContent.trim();
 }
-
 
 /**
  * DOCUMENT READY EVENT HANDLER
@@ -279,6 +375,7 @@ let myPlantCount = 0;
 let selectedAvatarSrc = null;
 let currentPlantName = null;
 
+
 // Initialize plant management functionality
 function initializePlantManagement() {
   const addPlantForm = document.getElementById("addPlantForm");
@@ -510,6 +607,57 @@ function initializePlantManagement() {
       tab.show();
     });
   }
+
+  document.addEventListener('shown.bs.tab', function(event) { // Event Listener for Tab Switch
+    const activeTab = event.target; // newly activated tab
+    const previousTab = event.relatedTarget; // previous active tab
+    
+    if (activeTab && !activeTab.id.includes('add-plant')) { // checks if tab is not add-plant tab
+      const plantName = activeTab.textContent.trim();
+      const plantData = globalPlants[plantName];
+      
+      if (plantData) {
+        // Update any UI elements that depend on the current plant
+        console.log(`Switched to plant: ${plantName}`);
+        
+        // Update share content if it exists
+        const shareContent = document.getElementById("share-content");
+        if (shareContent && plantData.avatarSrc) {
+          shareContent.innerHTML = `
+            <h3 class="text-white"> Share Your Plant! </h3>
+            <img src="${plantData.avatarSrc}" class="img-fluid text-center share-avatar">
+            <div class="share-controls text-center mt-4">
+              <a class="btn btn-success btn-lg" href="shareBoard.html">
+                <i class="bi bi-share me-2"></i> Share Plant
+              </a>
+            </div>
+          `;
+        }
+
+        // Update growth graph for the current plant
+        canvas = document.getElementById('plantGrowthGraph');
+        const graphHeader = document.getElementById('graphHeader');
+        if (canvas && graphHeader) {
+          // Update the graph header with the current plant name
+          graphHeader.textContent = plantName;
+
+          // Clear and redraw the graph with current plant's data
+          ctx = canvas.getContext('2d');
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          
+          // Draw the graph if growth data exists
+          if (globalPlants.growthData && globalPlants.growthData[plantName]) {
+            drawGraph(plantName);
+          } else {
+            // Show placeholder text if no data
+            ctx.font = "16px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(`No growth data for ${plantName} yet.`, canvas.width/2, canvas.height/2);
+          }
+        }
+      }
+    }
+  });
 }
 
 /**
@@ -586,13 +734,60 @@ function initializePhotoUpload() {
 
 // Initialize plant growth tracker
 function initializePlantGrowthTracker() {
-  const form = document.getElementById('growthForm');
-  const canvas = document.getElementById('graphCanvas');
+  const form = document.getElementById('growthDataForm');
+  const submitBtn = document.getElementById('addGrowthDataBtn');
+
+  if (form && submitBtn) {
+    form.addEventListener('submit', handleGrowthDataSubmit);
+    submitBtn.addEventListener('click', handleGrowthDataSubmit);
+  }
+
+  function handleGrowthDataSubmit(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const name = getCurrentActivePlantName();
+    const date = document.getElementById('growthDate').value;
+    const height = parseFloat(document.getElementById('growthHeight').value);
+
+    if (!name || !date || isNaN(height)) {
+      alert('Please fill in all fields correctly');
+      return;
+    }
+
+    if (!globalPlants.growthData[name]) {
+      globalPlants.growthData[name] = [];
+    }
+
+    globalPlants.growthData[name].push({ date, height });
+    globalPlants.growthData[name].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    
+
+    if (globalPlants[name]) {
+      globalPlants[name].lastUpdated = new Date().toISOString();
+    }
+
+    // Clear form and close modal
+    form.reset();
+    const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
+    if (modal) {
+      modal.hide();
+    }
+
+    console.log(`Added growth data for ${name}:`, globalPlants.growthData[name]);
+    console.log("draw graph called")
+
+    // Update graph
+    drawGraph(name);
+  }
+
+  canvas = document.getElementById('plantGrowthGraph');
   const plantSelector = document.getElementById('plantSelector');
   
   if (!form || !canvas || !plantSelector) return;
   
-  const ctx = canvas.getContext('2d');
+  ctx = canvas.getContext('2d');
   
   // Use plant growth data from global plants dictionary
   // This ensures plant data persists across the application
@@ -630,6 +825,7 @@ function initializePlantGrowthTracker() {
   plantSelector.addEventListener('change', () => {
     const selectedPlant = plantSelector.value;
     if (selectedPlant) {
+      console.log("drawgraph called for", selectedPlant);
       drawGraph(selectedPlant);
     } else {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -637,29 +833,21 @@ function initializePlantGrowthTracker() {
   });
 
   // Handle form submission for new growth data
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const name = document.getElementById('namePlant').value.trim();
-    const date = document.getElementById('plantDate').value;
-    const height = parseFloat(document.getElementById('plantHeight').value);
+    const name = getCurrentActivePlantName(); // Get currently active plant name
+    const date = document.getElementById('growthDate').value;
+    const height = parseFloat(document.getElementById('growthHeight').value);
 
-    if (!name || !date || isNaN(height)) return;
-    
-    // Check if this is an existing plant in our global dictionary
-    if (!(name in globalPlants) && name !== 'growthData') {
-      alert('Please enter the name of an existing plant or add this plant first.');
+    if (!name || !date || isNaN(height)) {
+      alert('Please fill in all fields correctly');
       return;
     }
     
     // Initialize growth data for this plant if it doesn't exist
     if (!globalPlants.growthData[name]) {
       globalPlants.growthData[name] = [];
-      
-      // If not in dropdown already, add it
-      if (Array.from(plantSelector.options).findIndex(option => option.value === name) === -1) {
-        addToDropdown(name);
-      }
     }
 
     // Add new growth data point
@@ -673,93 +861,22 @@ function initializePlantGrowthTracker() {
       globalPlants[name].lastUpdated = new Date().toISOString();
     }
 
+    // Clear form
     form.reset();
-    if (plantSelector.value === name) {
-      drawGraph(name);
-    }
+
+    // Close the modal using Bootstrap's API
+    const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
+    modal.hide();
+
+    // Update the graph
+    console.log("draw graph called")
+    drawGraph(name);
   });
   
   // Initial population of dropdown
   populatePlantDropdown();
 
-  // Draw growth graph for selected plant
-  function drawGraph(namePlant) {
-    const data = globalPlants.growthData[namePlant];
-
-    if (!data || data.length < 2) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.font = "16px sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText(`Not enough data for ${namePlant} yet. Add at least 2 growth points.`, canvas.width/2, canvas.height/2);
-      return;
-    }
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const padding = 70;
-    const graphWidth = canvas.width - padding * 2;
-    const graphHeight = canvas.height - padding * 2;
-
-    const dates = data.map(d => new Date(d.date));
-    const heights = data.map(d => d.height);
-
-    const minDate = Math.min(...dates.map(d => d.getTime()));
-    const maxDate = Math.max(...dates.map(d => d.getTime()));
-    const minHeight = Math.min(...heights);
-    const maxHeight = Math.max(...heights);
-
-    function getX(date) {
-      return padding + ((date.getTime() - minDate) / (maxDate - minDate)) * graphWidth;
-    }
-
-    function getY(height) {
-      return canvas.height - padding - ((height - minHeight) / (maxHeight - minHeight)) * graphHeight;
-    }
-
-    // Draw axes
-    ctx.beginPath();
-    ctx.moveTo(padding, padding);
-    ctx.lineTo(padding, canvas.height - padding);
-    ctx.lineTo(canvas.width - padding, canvas.height - padding);
-    ctx.stroke();
-
-    // Plot points and connect them
-    ctx.beginPath();
-    ctx.strokeStyle = '#28a745';
-    ctx.lineWidth = 4;
-    data.forEach((point, index) => {
-      const x = getX(new Date(point.date));
-      const y = getY(point.height);
-
-      if (index === 0){
-        ctx.moveTo(x, y);
-      }
-      else {
-        ctx.lineTo(x, y);
-      }
-
-      ctx.arc(x, y, 5, 0, 2 * Math.PI);
-    });
-    ctx.stroke();
-
-    // Y-Axis label
-    ctx.save();
-    ctx.translate(20, canvas.height / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.textAlign = "center";
-    ctx.font = "14px sans-serif";
-    ctx.fillText("Height Grown", 0, 0);
-    ctx.restore();
-
-    // X-Axis label
-    ctx.font = "14px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("Time Spent Growing", canvas.width / 2, canvas.height - 10);
-
-    // Graph title
-    ctx.font = "bold 18px sans-serif";
-    ctx.fillText(`${namePlant}'s Growth Journey`, canvas.width / 2, padding - 15);
-  }
+  
 }
 
 /**
