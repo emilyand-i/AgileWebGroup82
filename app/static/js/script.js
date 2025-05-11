@@ -17,7 +17,7 @@ function drawGraph(namePlant) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.font = "16px sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText(`Not enough data for ${namePlant} yet. Add at least 2 growth points.`, canvas.width/2, canvas.height/2);
+      ctx.fillText(`Add at Least 2 Growth Points.`, canvas.width/2, canvas.height/2);
       return;
   }
 
@@ -489,7 +489,7 @@ function initializePlantManagement() {
       
       myPlantCount++;
       
-      // Add plant to global plants dictionary with all relevant details
+      // Add this to the plant initialization in initializePlantManagement()
       globalPlants[plantName] = {
         tabId: tabId,
         contentId: contentId,
@@ -497,7 +497,8 @@ function initializePlantManagement() {
         avatarSrc: avatarImageSrc,
         streakCount: 0,
         creationDate: new Date().toISOString(),
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
+        photos: [] // Add this line to store plant photos
       };
 
       // Create new plant tab
@@ -655,6 +656,9 @@ function initializePlantManagement() {
             ctx.fillText(`No growth data for ${plantName} yet.`, canvas.width/2, canvas.height/2);
           }
         }
+
+        // Update photo display for the selected plant
+        updatePhotoDisplay(plantName);
       }
     }
   });
@@ -667,65 +671,125 @@ function initializePlantManagement() {
 
 // Initialize photo upload functionality
 function initializePhotoUpload() {
-  const photoForm = document.getElementById('photoForm');
-  const input = document.getElementById('photoInput');
-  const display = document.getElementById('display');
-  
-  if (!photoForm || !input || !display) return;
+    const photoForm = document.getElementById('photoForm');
+    const input = document.getElementById('photoInput');
+    const display = document.getElementById('latestPhotoContainer');
+    const noPhotoMessage = document.getElementById('noPhotoMessage');
 
-  photoForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    e.stopPropagation();
+    if (!photoForm || !input || !display) return;
 
-    const file = input.files[0];
-    if (!file) return;
+    photoForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
 
-    const plant_name = document.getElementById('plant_name').value;
-    const comments = document.getElementById('comments').value;
+        const file = input.files[0];
+        if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      const imgSrc = event.target.result;
-      const date = new Date().toLocaleString(undefined, {
-        hour: 'numeric',
-        minute: 'numeric',
-        day: '2-digit',
-        month: '2-digit',
-        year: '2-digit',
-      });
+        const currentPlant = getCurrentActivePlantName();
+        if (!currentPlant || !globalPlants[currentPlant]) {
+            alert('Please select a plant first');
+            return;
+        }
 
-      // Create a new card for the photo
-      const card = document.createElement('div');
-      card.className = 'card photo-card';
+        const comments = document.getElementById('comments')?.value;
 
-      let cardHTML = `
-      <p class="card-text">${date}</p>
-      <div class="card-body">
-        <img src="${imgSrc}" class="card-img-top photo-img" alt="Uploaded photo">
-      `;
-      
-      // Add plant name if provided
-      if (plant_name) {
-        cardHTML += `<p class="card-text"><strong>Plant Name:</strong> ${plant_name}</p>`;
-      }
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            const imgSrc = event.target.result;
+            const date = new Date().toLocaleString(undefined, {
+                hour: 'numeric',
+                minute: 'numeric',
+                day: '2-digit',
+                month: '2-digit',
+                year: '2-digit',
+            });
 
-      // Add comments if provided
-      if (comments) {
-        cardHTML += `<p class="card-text"><strong>Comments:</strong> ${comments}</p>`;
-      }
+            // Create photo object
+            const photoData = {
+                src: imgSrc,
+                date: date,
+                comments: comments || '',
+            };
 
-      cardHTML += `</div>`;
-      card.innerHTML = cardHTML;
+            // Add to plant's photos array
+            if (!globalPlants[currentPlant].photos) {
+                globalPlants[currentPlant].photos = [];
+            }
+            globalPlants[currentPlant].photos.push(photoData); // Add new photo at the beginning
 
-      // Add newest photo to the beginning
-      display.prepend(card);
-      
-      photoForm.reset();
-    };
+            // Update display
+            updatePhotoDisplay(currentPlant);
 
-    reader.readAsDataURL(file);
-  });
+            photoForm.reset();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('pictureModal'));
+            modal?.hide();
+        };
+
+        reader.readAsDataURL(file);
+    });
 }
+
+// Add this new function to update photo display
+function updatePhotoDisplay(plantName) {
+  const display = document.getElementById('latestPhotoContainer');
+  const noPhotoMessage = document.getElementById('noPhotoMessage');
+  
+  if (!display) return;
+
+  const plant = globalPlants[plantName];
+  if (!plant || !plant.photos || plant.photos.length === 0) {
+      display.innerHTML = '';
+      if (noPhotoMessage) {
+          noPhotoMessage.style.display = 'block';
+      }
+      return;
+  }
+
+  if (noPhotoMessage) {
+      noPhotoMessage.style.display = 'none';
+  }
+
+  const latestPhoto = plant.photos[plant.photos.length - 1];
+
+  display.innerHTML = `
+      <div class="card photo-card mb-3">
+          <div class="card-body">
+              <p class="card-text"><small>${latestPhoto.date}</small></p>
+              <img src="${latestPhoto.src}" class="card-img-top photo-img mb-2" alt="Plant photo">
+              ${latestPhoto.comments ? `<p class="card-text"><strong>Comments:</strong> ${latestPhoto.comments}</p>` : ''}
+          </div>
+      </div>
+  `;
+}
+
+
+function updatePicGrid(showAll = false) {
+  console.log("updatePicGrid called");
+  const picDiv = document.getElementById('picDiv');
+  console.log("picDiv", picDiv);
+  if (!picDiv) return;
+  currentPlantName = getCurrentActivePlantName();
+  console.log("currentPlantName", currentPlantName);
+
+  console.log("currentPlantName", currentPlantName);
+  
+  
+  const photosToShow = globalPlants[currentPlantName].photos.reverse(); // Most recent first
+  
+  const grid = document.createElement('div');
+  grid.className = 'row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3';
+
+  photosToShow.forEach(card => {
+    const col = document.createElement('div');
+    col.className = 'col';
+    col.appendChild(card.cloneNode(true)); // Clone to avoid DOM reuse issues
+    grid.appendChild(col);
+  });
+
+  picDiv.appendChild(grid);
+
+}
+
 
 /**
  * PLANT GROWTH TRACKING
@@ -736,11 +800,39 @@ function initializePhotoUpload() {
 function initializePlantGrowthTracker() {
   const form = document.getElementById('growthDataForm');
   const submitBtn = document.getElementById('addGrowthDataBtn');
+  const dateInput = document.getElementById('growthDate');
+
+  if (dateInput) {
+    dateInput.valueAsDate = new Date();
+  }
 
   if (form && submitBtn) {
     form.addEventListener('submit', handleGrowthDataSubmit);
     submitBtn.addEventListener('click', handleGrowthDataSubmit);
   }
+
+  function setDateTo(offsetDays, buttonId) {
+    const dateInput = document.getElementById('growthDate');
+    const buttons = document.querySelectorAll('.date-select-button');
+  
+    // Remove active class from all buttons
+    buttons.forEach(btn => btn.classList.remove('active'));
+  
+    // Add active class to the clicked button
+    const selectedButton = document.getElementById(buttonId);
+    if (selectedButton) {
+      selectedButton.classList.add('active');
+    }
+  
+    if (dateInput && typeof offsetDays === 'number') {
+      const date = new Date();
+      date.setDate(date.getDate() + offsetDays);
+      dateInput.valueAsDate = date;
+    }
+  }
+
+  document.getElementById('todayButton').addEventListener('click', () => setDateTo(0, 'todayButton'));
+  document.getElementById('yesterdayButton').addEventListener('click', () => setDateTo(-1, 'yesterdayButton'));
 
   function handleGrowthDataSubmit(e) {
     e.preventDefault();
@@ -758,11 +850,8 @@ function initializePlantGrowthTracker() {
     if (!globalPlants.growthData[name]) {
       globalPlants.growthData[name] = [];
     }
-
     globalPlants.growthData[name].push({ date, height });
     globalPlants.growthData[name].sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    
 
     if (globalPlants[name]) {
       globalPlants[name].lastUpdated = new Date().toISOString();
@@ -770,15 +859,15 @@ function initializePlantGrowthTracker() {
 
     // Clear form and close modal
     form.reset();
+    dateInput.valueAsDate = new Date();
     const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
     if (modal) {
       modal.hide();
     }
 
+    // Update graph
     console.log(`Added growth data for ${name}:`, globalPlants.growthData[name]);
     console.log("draw graph called")
-
-    // Update graph
     drawGraph(name);
   }
 
@@ -786,7 +875,7 @@ function initializePlantGrowthTracker() {
   const plantSelector = document.getElementById('plantSelector');
   
   if (!form || !canvas || !plantSelector) return;
-  
+
   ctx = canvas.getContext('2d');
   
   // Use plant growth data from global plants dictionary
@@ -801,7 +890,6 @@ function initializePlantGrowthTracker() {
     while (plantSelector.options.length > 1) {
       plantSelector.remove(1);
     }
-    
     // Add all plants from global dictionary
     Object.keys(globalPlants).forEach(plantName => {
       if (plantName !== 'growthData') { // Skip the special growthData key
@@ -811,14 +899,6 @@ function initializePlantGrowthTracker() {
         plantSelector.appendChild(option);
       }
     });
-  }
-
-  // Add single plant to dropdown menu
-  function addToDropdown(name) {
-    const option = document.createElement('option');
-    option.value = name;
-    option.textContent = name;
-    plantSelector.appendChild(option);
   }
 
   // Handle plant selection change
@@ -844,7 +924,7 @@ function initializePlantGrowthTracker() {
       alert('Please fill in all fields correctly');
       return;
     }
-    
+
     // Initialize growth data for this plant if it doesn't exist
     if (!globalPlants.growthData[name]) {
       globalPlants.growthData[name] = [];
@@ -852,7 +932,7 @@ function initializePlantGrowthTracker() {
 
     // Add new growth data point
     globalPlants.growthData[name].push({ date, height });
-    
+
     // Sort by date
     globalPlants.growthData[name].sort((a, b) => new Date(a.date) - new Date(b.date));
     
@@ -867,7 +947,7 @@ function initializePlantGrowthTracker() {
     // Close the modal using Bootstrap's API
     const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
     modal.hide();
-
+    
     // Update the graph
     console.log("draw graph called")
     drawGraph(name);
@@ -875,8 +955,6 @@ function initializePlantGrowthTracker() {
   
   // Initial population of dropdown
   populatePlantDropdown();
-
-  
 }
 
 /**
@@ -916,7 +994,7 @@ function toggleOptions(id) {
 function toggleLightIntensity() {
   const overlay = document.getElementById("dark-overlay");
   if (!overlay) return;
-  
+
   const isOn = overlay.style.display === "block";
   overlay.style.display = isOn ? "none" : "block";
 }
@@ -936,18 +1014,31 @@ function initializeDimming() {
 
 // Toggle fullscreen mode
 function toggleFullscreen() {
+  const picsAndGraphs = document.getElementById('picsAndGraphs');
   const leftCol = document.querySelector('.left_col');
   const rightCol = document.querySelector('.right_col');
+  const picDiv = document.getElementById('picDiv');
   
   if (!leftCol || !rightCol) return;
 
   const isExpanded = leftCol.classList.contains('col-12');
 
-  if (!isExpanded) {
+  if (!isExpanded) { // if left column is not expanded
+    picsAndGraphs.classList.remove('flex-column');
+    picsAndGraphs.classList.add('gap-5');
+    picsAndGraphs.classList.add('p-5');
+
     leftCol.classList.remove('col-3');
     leftCol.classList.add('col-12', 'vh-100');
     rightCol.classList.add('d-none');
-  } else {
+
+    // updatePicGrid();
+
+  } else { // if left column is expanded
+    picsAndGraphs.classList.add('flex-column');
+    picsAndGraphs.classList.remove('gap-5');
+    picsAndGraphs.classList.remove('p-5');
+    
     leftCol.classList.remove('col-12', 'vh-100');
     leftCol.classList.add('col-3');
     rightCol.classList.remove('d-none');

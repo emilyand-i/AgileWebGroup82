@@ -38,12 +38,6 @@ body {
   padding: 0;
 }
 
-.display-2 {
-  padding:0;
-  font-size: 3.5rem;
-}
-
-
 .content {
   gap: 40px;
   display: flex;
@@ -400,7 +394,7 @@ main.main-info {
 
 .photo-card {
   flex: 0 0 auto;
-  width: 300px;
+  width: 80%;
   margin: 15px;
   border: 2px solid rgb(80, 163, 71);
   padding: 5px;
@@ -585,8 +579,9 @@ main.main-info {
     justify-content: center;
     align-items: center;
     margin-bottom: 10px;
-    background-color: white;
+    background-color: rgb(106, 139, 124);
     border-radius: 1rem;
+    color: white;
 }
 
 .graphHeader {
@@ -594,4 +589,56 @@ main.main-info {
     font-weight: bold;
     color: #00c24a;
     margin: 0;
+}
+
+.date-select-button {
+  background-color: #729566;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 1rem;
+  cursor: pointer;
+  font-size: 1rem;
+  margin: 0.5rem;
+}
+
+.date-select-button.active {
+  background-color: #45b470;
+  color: white;
+  border-color: #45b470;
+}
+
+.left_col {
+  height: 100vh; /* full height of viewport */
+  overflow: hidden; /* prevent the entire column from scrolling */
+}
+
+#picsAndGraphs {
+  overflow-y: auto;
+  flex-grow: 1;
+  width: 100%;
+  padding-right: 6px;
+  scrollbar-width: thin;            /* Firefox */
+  scrollbar-color: rgb(255, 255, 255) transparent; /* Firefox */
+}
+
+/* Chrome, Edge, Safari */
+#picsAndGraphs::-webkit-scrollbar {
+  width: 6px;
+}
+
+#picsAndGraphs::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#picsAndGraphs::-webkit-scrollbar-thumb {
+  background-color: green;
+  border-radius: 4px;
+}
+
+
+.carousel-item img {
+  height: 15rem;
+  width: 100%;
+  object-fit: cover;
 }

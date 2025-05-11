@@ -26,55 +26,42 @@
           </button>
           
           <header class="about-info-dash px-2">
-              <h1 class="display-2 column-title mt-5 mb-4">Stats</h1>
+              <h1 class="display-6 column-title mt-3 mb-4">Stats</h1>
           </header>
 
           <!--User photo diary section-->
-          <div class="text-center d-flex justify-content-between gap-2"> 
-            <button class="btn btn-success btn-lg mt-3 add_stat" data-bs-toggle="modal" data-bs-target="#pictureModal">
-              <i class="bi bi-plus-circle me-2"></i> Add Picture
-            </button>
-            <button class="btn btn-success btn-lg mt-3 add_stat" data-bs-toggle="modal" data-bs-target="#graphModal">
-              <i class="bi bi-plus-circle me-2"></i> Add Graph
-            </button>
-          </div>
+          
 
           <!-- Recent Updates Section -->
-          <div class="container mt-4">
-            <!-- Latest Photo -->
-            <div class="recent-photo mb-4">
-              <h3 class="plantheader">Latest Photo</h3>
-              <div id="latestPhotoContainer" class="text-center">
-                <p class="text-white text-center" id="noPhotoMessage">No photos yet</p>
-              </div>
-            </div>
-
-            <!-- Quick Graph View -->
-            <!-- <div class="recent-graph">
-              <h3 class="plantheader">Growth Progress</h3>
-              <div class="graph-preview">
-                <div class="graph-canvas-wrapper">
-                  <canvas id="quickGraphCanvas" width="300" height="200"></canvas>
+           <div id="picsAndGraphs" class="d-flex flex-column align-items-center justify-content-evenly">
+            <div class="container mt-1" id="picDiv">
+              <!-- Latest Photo -->
+              <div class="recent-photo mb-1">
+                <h3 class="plantheader">Latest Photo</h3>
+                <div id="latestPhotoContainer" class="text-center d-flex justify-content-center">
+                  <p class="text-white text-center" id="noPhotoMessage">No photos yet</p>
                 </div>
               </div>
-            </div> -->
-          </div>
-
-          <!-- Plant Growth Graph Display -->
-          <div class="container mt-4">
-            <div class="graph-section">
-                <h3 class="plantheader">Growth Progress Graph</h3>
-                <div class="graphHeaderBox">
-                      <div value="" id="graphHeader">Current Growth Data</div>
-                </div>
-                <div class="graph-container">
-                    <canvas id="plantGrowthGraph" width="300" height="200"></canvas>
-                </div>
-                <div class="graph-legend mt-2 text-white">
-                    <small>X-axis: Time | Y-axis: Growth Value</small>
-                </div>
             </div>
-          </div>
+  
+            <!-- Plant Growth Graph Display -->
+            <div class="container mt-4" id="graphDiv">
+              <div class="graph-section">
+                  <h3 class="plantheader">Growth Progress Graph</h3>
+                  <div class="graphHeaderBox">
+                        <div value="" id="graphHeader"></div>
+                  </div>
+                  <div class="graph-container">
+                      <canvas id="plantGrowthGraph" width="300" height="200"></canvas>
+                  </div>
+                  <div class="graph-legend mt-2 text-white">
+                      <small>X-axis: Time | Y-axis: Growth Value</small>
+                  </div>
+              </div>
+            </div>
+            
+           </div>
+          
 
           <!-- user settings modal dialog -->
           <div class="mt-auto w-100 px-3 pb-4">
@@ -82,7 +69,6 @@
                     data-bs-toggle="modal" data-bs-target="#User-Settings-Modal">
               <i class="bi bi-gear me-2"></i> Settings
             </button>
-            
           </div>
         </div>
 
@@ -230,7 +216,7 @@
         <!-- Right Column -->
         <div class="col-3 bckgrnd border-start border-success d-flex flex-column align-items-center justify-content-start right_col">
             <header class="about-info-dash px-2">
-              <h1 class="display-2 column-title mt-5 mb-4">Share</h1>
+              <h1 class="display-6 column-title mt-3 mb-4">Share</h1>
             </header>
             <div id="share-content" class="text-center">
               <h3 class="text-center text-white mt-5">Create A Plant First In Order To Share It!</h3>
@@ -274,14 +260,6 @@
                   <input type="file" id="photoInput" accept="image/*" class="form-control" required>
                 </div>
 
-                <!-- Plant selection -->
-                <div class="mb-3">
-                  <label for="photoPlantSelect" class="form-label plantheader">Select Plant</label>
-                  <select id="photoPlantSelect" class="form-select" required>
-                    <option value="">-- Choose a Plant --</option>
-                  </select>
-                </div>
-
                 <!-- Comments -->
                 <div class="mb-3">
                   <label for="comments" class="form-label plantheader">Comments</label>
@@ -290,7 +268,7 @@
 
                 <div class="d-flex justify-content-end">
                   <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
-                  <button type="submit" class="btn add_stat">Upload Photo</button>
+                  <button type="submit" class="btn add_stat btn-success">Upload Photo</button>
                 </div>
               </form>
 
@@ -305,37 +283,6 @@
       </div>
     </div>
 
-    <!-- Graph Modal -->
-    <!-- Graph Modal -->
-    <!-- <div class="modal fade" id="graphModal" tabindex="-1" aria-labelledby="graphModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content modal-style">
-          <div class="modal-header">
-            <h5 class="modal-title" id="graphModalLabel">Add Plant Growth Graph</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <p class="mb-3 plantheader">Track your plant's growth over time with a custom graph.</p> -->
-            <!-- Add your graph input form or canvas here -->
-            <!-- <form id="graphForm">
-              <div class="mb-3">
-                <label for="graphPlantSelect" class="form-label">Select Plant</label>
-                <select id="graphPlantSelect" class="form-select" required>
-                  <option value="">-- Choose a Plant --</option> -->
-                  <!-- JavaScript should populate this dynamically -->
-                <!-- </select>
-              </div>
-              <div class="mb-3">
-                <label for="growthValue" class="form-label">Growth Value</label>
-                <input type="number" class="form-control" id="growthValue" required>
-              </div>
-              <button type="submit" class="btn btn-success">Add Data Point</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div> -->
-
     <!-- Add Growth Data Modal -->
     <div class="modal fade" id="graphModal" tabindex="-1" aria-labelledby="addGrowthModalLabel" aria-hidden="true">
       <div class="modal-dialog">
@@ -348,7 +295,13 @@
             <form id="growthDataForm" onsubmit="return false;">
               <div class="mb-3">
                 <label for="growthDate" class="form-label">Date</label>
-                <input type="date" class="form-control" id="growthDate" required>
+                <input type="date" id="growthDate" class="form-control mb-3">
+
+                <div class="btn-group" role="group">
+                  <button type="button" id="todayButton" class="btn btn-outline-primary date-select-button">Today</button>
+                  <button type="button" id="yesterdayButton" class="btn btn-outline-primary date-select-button">Yesterday</button>
+                </div>
+
               </div>
               <div class="mb-3">
                 <label for="growthHeight" class="form-label">Height (cm)</label>
