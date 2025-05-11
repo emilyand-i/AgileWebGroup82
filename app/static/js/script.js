@@ -961,6 +961,7 @@ function initializeDimming() {
 
 // Toggle fullscreen mode
 function toggleFullscreen() {
+  const picsAndGraphs = document.getElementById('picsAndGraphs');
   const leftCol = document.querySelector('.left_col');
   const rightCol = document.querySelector('.right_col');
   
@@ -968,11 +969,13 @@ function toggleFullscreen() {
 
   const isExpanded = leftCol.classList.contains('col-12');
 
-  if (!isExpanded) {
+  if (!isExpanded) { // if left column is not expanded
+    picsAndGraphs.classList.remove('flex-column');
     leftCol.classList.remove('col-3');
     leftCol.classList.add('col-12', 'vh-100');
     rightCol.classList.add('d-none');
-  } else {
+  } else { // if left column is expanded
+    picsAndGraphs.classList.add('flex-column');
     leftCol.classList.remove('col-12', 'vh-100');
     leftCol.classList.add('col-3');
     rightCol.classList.remove('d-none');

@@ -33,31 +33,35 @@
           
 
           <!-- Recent Updates Section -->
-          <div class="container mt-4">
-            <!-- Latest Photo -->
-            <div class="recent-photo mb-4">
-              <h3 class="plantheader">Latest Photo</h3>
-              <div id="latestPhotoContainer" class="text-center">
-                <p class="text-white text-center" id="noPhotoMessage">No photos yet</p>
+           <div id="picsAndGraphs" class="d-flex flex-column align-items-center justify-content-center">
+            <div class="container mt-1">
+              <!-- Latest Photo -->
+              <div class="recent-photo mb-1">
+                <h3 class="plantheader">Latest Photo</h3>
+                <div id="latestPhotoContainer" class="text-center">
+                  <p class="text-white text-center" id="noPhotoMessage">No photos yet</p>
+                </div>
               </div>
             </div>
-          </div>
-
-          <!-- Plant Growth Graph Display -->
-          <div class="container mt-4">
-            <div class="graph-section">
-                <h3 class="plantheader">Growth Progress Graph</h3>
-                <div class="graphHeaderBox">
-                      <div value="" id="graphHeader"></div>
-                </div>
-                <div class="graph-container">
-                    <canvas id="plantGrowthGraph" width="300" height="200"></canvas>
-                </div>
-                <div class="graph-legend mt-2 text-white">
-                    <small>X-axis: Time | Y-axis: Growth Value</small>
-                </div>
+  
+            <!-- Plant Growth Graph Display -->
+            <div class="container mt-4">
+              <div class="graph-section">
+                  <h3 class="plantheader">Growth Progress Graph</h3>
+                  <div class="graphHeaderBox">
+                        <div value="" id="graphHeader"></div>
+                  </div>
+                  <div class="graph-container">
+                      <canvas id="plantGrowthGraph" width="300" height="200"></canvas>
+                  </div>
+                  <div class="graph-legend mt-2 text-white">
+                      <small>X-axis: Time | Y-axis: Growth Value</small>
+                  </div>
+              </div>
             </div>
-          </div>
+            
+           </div>
+          
 
           <!-- user settings modal dialog -->
           <div class="mt-auto w-100 px-3 pb-4">
