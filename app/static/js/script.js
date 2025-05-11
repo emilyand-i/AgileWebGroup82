@@ -719,7 +719,9 @@ function initializePhotoUpload() {
         noPhotoMessage.style.display = 'none';
       }
 
-      display.prepend(card);
+      display.innerHTML = ''; // Clear previous content
+
+      display.append(card);
       photoForm.reset();
 
       const modal = bootstrap.Modal.getInstance(document.getElementById('pictureModal'));
@@ -976,12 +978,16 @@ function toggleFullscreen() {
   if (!isExpanded) { // if left column is not expanded
     picsAndGraphs.classList.remove('flex-column');
     picsAndGraphs.classList.add('gap-5');
+    picsAndGraphs.classList.add('p-5');
+
     leftCol.classList.remove('col-3');
     leftCol.classList.add('col-12', 'vh-100');
     rightCol.classList.add('d-none');
   } else { // if left column is expanded
     picsAndGraphs.classList.add('flex-column');
     picsAndGraphs.classList.remove('gap-5');
+    picsAndGraphs.classList.remove('p-5');
+    
     leftCol.classList.remove('col-12', 'vh-100');
     leftCol.classList.add('col-3');
     rightCol.classList.remove('d-none');

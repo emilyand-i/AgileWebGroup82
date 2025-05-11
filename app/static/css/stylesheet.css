@@ -394,7 +394,7 @@ main.main-info {
 
 .photo-card {
   flex: 0 0 auto;
-  width: 300px;
+  width: 80%;
   margin: 15px;
   border: 2px solid rgb(80, 163, 71);
   padding: 5px;
