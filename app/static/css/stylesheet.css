@@ -601,9 +601,39 @@ main.main-info {
   font-size: 1rem;
   margin: 0.5rem;
 }
-  
+
 .date-select-button.active {
   background-color: #45b470;
   color: white;
   border-color: #45b470;
 }
+
+.left_col {
+  height: 100vh; /* full height of viewport */
+  overflow: hidden; /* prevent the entire column from scrolling */
+}
+
+#picsAndGraphs {
+  overflow-y: auto;
+  flex-grow: 1;
+  width: 100%;
+  padding-right: 6px;
+  scrollbar-width: thin;            /* Firefox */
+  scrollbar-color: rgb(255, 255, 255) transparent; /* Firefox */
+}
+
+/* Chrome, Edge, Safari */
+#picsAndGraphs::-webkit-scrollbar {
+  width: 6px;
+}
+
+#picsAndGraphs::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#picsAndGraphs::-webkit-scrollbar-thumb {
+  background-color: green;
+  border-radius: 4px;
+}
+
+
