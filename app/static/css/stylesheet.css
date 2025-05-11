@@ -590,3 +590,20 @@ main.main-info {
     color: #00c24a;
     margin: 0;
 }
+
+.date-select-button {
+  background-color: #729566;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 1rem;
+  cursor: pointer;
+  font-size: 1rem;
+  margin: 0.5rem;
+}
+  
+.date-select-button.active {
+  background-color: #45b470;
+  color: white;
+  border-color: #45b470;
+}

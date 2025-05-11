@@ -747,6 +747,32 @@ function initializePlantGrowthTracker() {
     submitBtn.addEventListener('click', handleGrowthDataSubmit);
   }
 
+  function setDateTo(offsetDays, buttonId) {
+    const dateInput = document.getElementById('growthDate');
+    const buttons = document.querySelectorAll('.date-select-button');
+  
+    // Remove active class from all buttons
+    buttons.forEach(btn => btn.classList.remove('active'));
+  
+    // Add active class to the clicked button
+    const selectedButton = document.getElementById(buttonId);
+    if (selectedButton) {
+      selectedButton.classList.add('active');
+    }
+  
+    // Set the date
+    if (dateInput && typeof offsetDays === 'number') {
+      const date = new Date();
+      date.setDate(date.getDate() + offsetDays);
+      dateInput.valueAsDate = date;
+    }
+  }
+  
+  // Button event bindings
+  document.getElementById('todayButton').addEventListener('click', () => setDateTo(0, 'todayButton'));
+  document.getElementById('yesterdayButton').addEventListener('click', () => setDateTo(-1, 'yesterdayButton'));
+  
+
   function handleGrowthDataSubmit(e) {
     e.preventDefault();
     e.stopPropagation();

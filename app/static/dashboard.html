@@ -330,7 +330,13 @@
             <form id="growthDataForm" onsubmit="return false;">
               <div class="mb-3">
                 <label for="growthDate" class="form-label">Date</label>
-                <input type="date" class="form-control" id="growthDate" required>
+                <input type="date" id="growthDate" class="form-control mb-3">
+
+                <div class="btn-group" role="group">
+                  <button type="button" id="todayButton" class="btn btn-outline-primary date-select-button">Today</button>
+                  <button type="button" id="yesterdayButton" class="btn btn-outline-primary date-select-button">Yesterday</button>
+                </div>
+
               </div>
               <div class="mb-3">
                 <label for="growthHeight" class="form-label">Height (cm)</label>
