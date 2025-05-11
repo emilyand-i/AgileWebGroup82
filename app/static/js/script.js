@@ -715,7 +715,7 @@ function initializePhotoUpload() {
             if (!globalPlants[currentPlant].photos) {
                 globalPlants[currentPlant].photos = [];
             }
-            globalPlants[currentPlant].photos.unshift(photoData); // Add new photo at the beginning
+            globalPlants[currentPlant].photos.push(photoData); // Add new photo at the beginning
 
             // Update display
             updatePhotoDisplay(currentPlant);
@@ -731,34 +731,72 @@ function initializePhotoUpload() {
 
 // Add this new function to update photo display
 function updatePhotoDisplay(plantName) {
-    const display = document.getElementById('latestPhotoContainer');
-    const noPhotoMessage = document.getElementById('noPhotoMessage');
-    
-    if (!display) return;
+  const display = document.getElementById('latestPhotoContainer');
+  const noPhotoMessage = document.getElementById('noPhotoMessage');
+  
+  if (!display) return;
 
-    const plant = globalPlants[plantName];
-    if (!plant || !plant.photos || plant.photos.length === 0) {
-        display.innerHTML = '';
-        if (noPhotoMessage) {
-            noPhotoMessage.style.display = 'block';
-        }
-        return;
-    }
+  const plant = globalPlants[plantName];
+  if (!plant || !plant.photos || plant.photos.length === 0) {
+      display.innerHTML = '';
+      if (noPhotoMessage) {
+          noPhotoMessage.style.display = 'block';
+      }
+      return;
+  }
 
-    if (noPhotoMessage) {
-        noPhotoMessage.style.display = 'none';
-    }
+  if (noPhotoMessage) {
+      noPhotoMessage.style.display = 'none';
+  }
 
-    display.innerHTML = plant.photos.map(photo => `
-        <div class="card photo-card mb-3">
-            <div class="card-body">
-                <p class="card-text"><small>${photo.date}</small></p>
-                <img src="${photo.src}" class="card-img-top photo-img mb-2" alt="Plant photo">
-                ${photo.comments ? `<p class="card-text"><strong>Comments:</strong> ${photo.comments}</p>` : ''}
-            </div>
-        </div>
-    `).join('');
+  const latestPhoto = plant.photos[plant.photos.length - 1];
+
+  display.innerHTML = `
+      <div class="card photo-card mb-3">
+          <div class="card-body">
+              <p class="card-text"><small>${latestPhoto.date}</small></p>
+              <img src="${latestPhoto.src}" class="card-img-top photo-img mb-2" alt="Plant photo">
+              ${latestPhoto.comments ? `<p class="card-text"><strong>Comments:</strong> ${latestPhoto.comments}</p>` : ''}
+          </div>
+      </div>
+  `;
 }
+
+
+function updatePicGrid(showAll = false) {
+  console.log("updatePicGrid called");
+  const picDiv = document.getElementById('picDiv');
+  if (!picDiv) return;
+  currentPlantName = getCurrentActivePlantName();
+  console.log("currentPlantName", currentPlantName);
+  
+  // const photosToShow = showAll ? photoCards : photoCards.slice(-9).reverse(); // Most recent first
+  const photosToShow = globalPlants[currentPlantName].photos.slice(-9).reverse(); // Most recent first
+
+  picDiv.innerHTML = ''; // Clear the grid
+  
+
+  const grid = document.createElement('div');
+  grid.className = 'row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3';
+
+  photosToShow.forEach(card => {
+    const col = document.createElement('div');
+    col.className = 'col';
+    col.appendChild(card.cloneNode(true)); // Clone to avoid DOM reuse issues
+    grid.appendChild(col);
+  });
+
+  picDiv.appendChild(grid);
+
+  if (!showAll && photoCards.length > 9) {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-primary mt-3';
+    btn.textContent = 'View More';
+    btn.onclick = () => updatePicGrid(true);
+    picDiv.appendChild(btn);
+  }
+}
+
 
 /**
  * PLANT GROWTH TRACKING
@@ -986,6 +1024,7 @@ function toggleFullscreen() {
   const picsAndGraphs = document.getElementById('picsAndGraphs');
   const leftCol = document.querySelector('.left_col');
   const rightCol = document.querySelector('.right_col');
+  const picDiv = document.getElementById('picDiv');
   
   if (!leftCol || !rightCol) return;
 
@@ -999,6 +1038,9 @@ function toggleFullscreen() {
     leftCol.classList.remove('col-3');
     leftCol.classList.add('col-12', 'vh-100');
     rightCol.classList.add('d-none');
+
+    updatePicGrid();
+
   } else { // if left column is expanded
     picsAndGraphs.classList.add('flex-column');
     picsAndGraphs.classList.remove('gap-5');

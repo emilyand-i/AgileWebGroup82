@@ -637,3 +637,8 @@ main.main-info {
 }
 
 
+.carousel-item img {
+  height: 15rem;
+  width: 100%;
+  object-fit: cover;
+}
