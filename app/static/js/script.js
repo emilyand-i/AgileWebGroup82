@@ -536,6 +536,28 @@ function initializePlantManagement() {
             </div>
           `;
         }
+
+        // Update growth graph for the current plant
+        const canvas = document.getElementById('plantGrowthGraph');
+        const graphHeader = document.getElementById('graphHeader');
+        if (canvas && graphHeader) {
+          // Update the graph header with the current plant name
+          graphHeader.textContent = plantName;
+
+          // Clear and redraw the graph with current plant's data
+          const ctx = canvas.getContext('2d');
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          
+          // Draw the graph if growth data exists
+          if (globalPlants.growthData && globalPlants.growthData[plantName]) {
+            drawGraph(plantName);
+          } else {
+            // Show placeholder text if no data
+            ctx.font = "16px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(`No growth data for ${plantName} yet.`, canvas.width/2, canvas.height/2);
+          }
+        }
       }
     }
   });

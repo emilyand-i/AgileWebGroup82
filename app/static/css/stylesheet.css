@@ -579,3 +579,19 @@ main.main-info {
     font-style: italic;
     opacity: 0.8;
 }
+
+.graphHeaderBox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+    background-color: white;
+    border-radius: 1rem;
+}
+
+.graphHeader {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #00c24a;
+    margin: 0;
+}
