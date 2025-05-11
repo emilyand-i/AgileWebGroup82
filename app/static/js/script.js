@@ -669,8 +669,9 @@ function initializePlantManagement() {
 function initializePhotoUpload() {
   const photoForm = document.getElementById('photoForm');
   const input = document.getElementById('photoInput');
-  const display = document.getElementById('display');
-  
+  const display = document.getElementById('latestPhotoContainer');
+  const noPhotoMessage = document.getElementById('noPhotoMessage');
+
   if (!photoForm || !input || !display) return;
 
   photoForm.addEventListener('submit', function (e) {
@@ -680,8 +681,8 @@ function initializePhotoUpload() {
     const file = input.files[0];
     if (!file) return;
 
-    const plant_name = document.getElementById('plant_name').value;
-    const comments = document.getElementById('comments').value;
+    const plant_name = document.getElementById('plant_name')?.value;
+    const comments = document.getElementById('comments')?.value;
 
     const reader = new FileReader();
     reader.onload = function (event) {
@@ -694,22 +695,19 @@ function initializePhotoUpload() {
         year: '2-digit',
       });
 
-      // Create a new card for the photo
       const card = document.createElement('div');
-      card.className = 'card photo-card';
+      card.className = 'card photo-card mb-3';
 
       let cardHTML = `
-      <p class="card-text">${date}</p>
-      <div class="card-body">
-        <img src="${imgSrc}" class="card-img-top photo-img" alt="Uploaded photo">
+        <div class="card-body">
+          <p class="card-text"><small>${date}</small></p>
+          <img src="${imgSrc}" class="card-img-top photo-img mb-2" alt="Uploaded photo">
       `;
-      
-      // Add plant name if provided
+
       if (plant_name) {
         cardHTML += `<p class="card-text"><strong>Plant Name:</strong> ${plant_name}</p>`;
       }
 
-      // Add comments if provided
       if (comments) {
         cardHTML += `<p class="card-text"><strong>Comments:</strong> ${comments}</p>`;
       }
@@ -717,15 +715,21 @@ function initializePhotoUpload() {
       cardHTML += `</div>`;
       card.innerHTML = cardHTML;
 
-      // Add newest photo to the beginning
+      if (noPhotoMessage) {
+        noPhotoMessage.style.display = 'none';
+      }
+
       display.prepend(card);
-      
       photoForm.reset();
+
+      const modal = bootstrap.Modal.getInstance(document.getElementById('pictureModal'));
+      modal?.hide();
     };
 
     reader.readAsDataURL(file);
   });
 }
+
 
 /**
  * PLANT GROWTH TRACKING
@@ -971,11 +975,13 @@ function toggleFullscreen() {
 
   if (!isExpanded) { // if left column is not expanded
     picsAndGraphs.classList.remove('flex-column');
+    picsAndGraphs.classList.add('gap-5');
     leftCol.classList.remove('col-3');
     leftCol.classList.add('col-12', 'vh-100');
     rightCol.classList.add('d-none');
   } else { // if left column is expanded
     picsAndGraphs.classList.add('flex-column');
+    picsAndGraphs.classList.remove('gap-5');
     leftCol.classList.remove('col-12', 'vh-100');
     leftCol.classList.add('col-3');
     rightCol.classList.remove('d-none');
