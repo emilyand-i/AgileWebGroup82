@@ -552,3 +552,30 @@ main.main-info {
   border-radius: 5px;
   cursor: pointer;
 }
+
+.graph-section {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    max-width: 100%;
+}
+
+.graph-container {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    padding: 10px;
+    margin-top: 10px;
+    max-width: 100%;
+}
+
+#plantGrowthGraph {
+    max-width: 100%;
+    height: auto;
+}
+
+.graph-legend {
+    text-align: center;
+    font-style: italic;
+    opacity: 0.8;
+}
