@@ -17,7 +17,7 @@ function drawGraph(namePlant) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.font = "16px sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText(`Not enough data for ${namePlant} yet. Add at least 2 growth points.`, canvas.width/2, canvas.height/2);
+      ctx.fillText(`Add at Least 2 Growth Points.`, canvas.width/2, canvas.height/2);
       return;
   }
 
