@@ -766,16 +766,16 @@ function updatePhotoDisplay(plantName) {
 function updatePicGrid(showAll = false) {
   console.log("updatePicGrid called");
   const picDiv = document.getElementById('picDiv');
+  console.log("picDiv", picDiv);
   if (!picDiv) return;
   currentPlantName = getCurrentActivePlantName();
   console.log("currentPlantName", currentPlantName);
-  
-  // const photosToShow = showAll ? photoCards : photoCards.slice(-9).reverse(); // Most recent first
-  const photosToShow = globalPlants[currentPlantName].photos.slice(-9).reverse(); // Most recent first
 
-  picDiv.innerHTML = ''; // Clear the grid
+  console.log("currentPlantName", currentPlantName);
   
-
+  
+  const photosToShow = globalPlants[currentPlantName].photos.reverse(); // Most recent first
+  
   const grid = document.createElement('div');
   grid.className = 'row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3';
 
@@ -788,13 +788,6 @@ function updatePicGrid(showAll = false) {
 
   picDiv.appendChild(grid);
 
-  if (!showAll && photoCards.length > 9) {
-    const btn = document.createElement('button');
-    btn.className = 'btn btn-primary mt-3';
-    btn.textContent = 'View More';
-    btn.onclick = () => updatePicGrid(true);
-    picDiv.appendChild(btn);
-  }
 }
 
 
@@ -1039,7 +1032,7 @@ function toggleFullscreen() {
     leftCol.classList.add('col-12', 'vh-100');
     rightCol.classList.add('d-none');
 
-    updatePicGrid();
+    // updatePicGrid();
 
   } else { // if left column is expanded
     picsAndGraphs.classList.add('flex-column');
