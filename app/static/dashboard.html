@@ -132,14 +132,25 @@
                   </div>
                   <p id="uniqueNameError" class="text-danger d-none">This plant name already exists!</p>
                   <div class="mb-1">
-                    <select class="form-control" id="plantType" required> <!-- PLANT INPUT FORM -->
-                      <option value="">Select Plant Type</option>
-                      <option value="flower">Flower</option>
-                      <option value="herb">Herb</option>
-                      <option value="succulent">Succulent</option>
-                      <option value="tree">Tree</option>
+                    <!-- First dropdown: Categories -->
+                    <select class="form-control" id="plantCategory" required>
+                      <option value="">Select Plant Category</option>
+                      <option value="flowers">Flowers</option>
+                      <option value="herbs">Herbs</option>
+                      <option value="succulents">Succulents</option>
+                      <option value="trees">Trees</option>
+                      <option value="natives">Australian Natives</option>
+                      <option value="grasses">Grasses</option>
                     </select>
                   </div>
+
+                  <div class="mb-1">
+                    <!-- Second dropdown: Specific plant options -->
+                    <select class="form-control" id="plantType" required disabled>
+                      <option value="">Select Plant Type</option>
+                    </select>
+                  </div>
+
                   <button type="submit" class="btn btn-success btn-lg">
                     <i class="bi bi-plus-circle me-2"></i>Create New Plant!
                   </button>
@@ -157,17 +168,34 @@
                   </div>
             
                   <div class="modal-body">
-                    <form id="settingsForm">
-                      <div class="mb-3">
-                        <label for="plantName" class="form-label">Name of Plant</label>
-                        <input type="text" class="form-control" id="username" placeholder="Username">
+                    <!-- Plant Name -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Plant Name</label>
+                      <p class="form-control-plaintext border rounded px-3 py-2 text-white" id="infoPlantNameDisplay">Sunny</p>
+                    </div>
+
+                    <!-- Category and Type -->
+                    <div class="mb-3">
+                      <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+                        <div class="w-100">
+                          <label class="form-label fw-semibold">Plant Category</label>
+                          <p class="form-control-plaintext border rounded px-3 py-2 text-white" id="infoPlantCategory">Succulent</p>
+                        </div>
+                        <div class="w-100">
+                          <label class="form-label fw-semibold">Plant Type</label>
+                          <p class="form-control-plaintext border rounded px-3 py-2 text-white" id="infoPlantType">Aloe Vera</p>
+                        </div>
                       </div>
-                      <div class="mb-3">
-                        <label for="birthday" class="form-label">Birthday</label>
-                        <input type="date" class="form-control" id="birthday" placeholder="Enter birthday">
-                      </div>
-                    </form>
+                    </div>
+
+                    <!-- Birthday -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Birthday</label>
+                      <p class="form-control-plaintext border rounded px-3 py-2 text-white" id="plantBirthday">2022-08-15</p>
+                    </div>
                   </div>
+
+
             
                   <div class="modal-footer d-flex justify-content-between w-100">
                     <button type="button" class="btn btn-secondary delete-plant bi bi-trash" id="delete-plant-button" data-bs-dismiss="modal">
