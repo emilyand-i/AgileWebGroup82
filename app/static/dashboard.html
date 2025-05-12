@@ -168,17 +168,21 @@
                   </div>
             
                   <div class="modal-body">
-                    <form id="settingsForm">
-                      <div class="mb-3">
-                        <label for="plantName" class="form-label">Name of Plant</label>
-                        <input type="text" class="form-control" id="username" placeholder="Username">
-                      </div>
-                      <div class="mb-3">
-                        <label for="birthday" class="form-label">Birthday</label>
-                        <input type="date" class="form-control" id="birthday" placeholder="Enter birthday">
-                      </div>
-                    </form>
+                    <div id="categoryAndType" class="d-flex justify-content-evenly">
+                      <p id="infoPlantCategory">Plant Category: cactus</p> 
+                      <p id="infoPlantType">Plant Type: agave</p>
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label">Name of Plant</label>
+                      <p class="form-control-plaintext" id="infoPlantNameDisplay">Username</p>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">Birthday</label>
+                      <p class="form-control-plaintext" id="plantBirthday">2023-05-10</p>
+                    </div>
                   </div>
+
             
                   <div class="modal-footer d-flex justify-content-between w-100">
                     <button type="button" class="btn btn-secondary delete-plant bi bi-trash" id="delete-plant-button" data-bs-dismiss="modal">
