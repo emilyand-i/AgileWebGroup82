@@ -126,10 +126,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Login form
-  LoginForm();
+  loginForm();
   
   // Signup form
-  SignupForm();
+  signupForm();
   
   // Load dashboard
   loadDashboard();
@@ -191,7 +191,7 @@ function scrollToAbout() {
  * Functions for user login, registration and logout
  */
 
-function LoginForm() {
+function loginForm() {
   const loginForm = document.getElementById('login-form');
   if (!loginForm) return;
   
@@ -217,7 +217,7 @@ function LoginForm() {
 }
 
 // Registration form
-function SignupForm() {
+function signupForm() {
   const signupForm = document.getElementById('signup-form');
   if (!signupForm) return;
   
