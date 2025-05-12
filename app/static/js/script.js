@@ -485,6 +485,8 @@ function initializePlantManagement() {
       const tabId = `plant${myPlantCount}-tab`;
       const contentId = `plant${myPlantCount}`;
       const avatarImageSrc = selectedAvatarSrc;
+      const plantCategory = document.getElementById('plantCategory').value;
+      const plantType = document.getElementById('plantType').value;
 
       // Check if plant name already exists in the global plants dictionary
       if (plantName in globalPlants) {
@@ -506,6 +508,8 @@ function initializePlantManagement() {
         contentId: contentId,
         name: plantName,
         avatarSrc: avatarImageSrc,
+        plantCategory: plantCategory,
+        plantType: plantType,
         streakCount: 0,
         creationDate: new Date().toISOString(),
         lastUpdated: new Date().toISOString(),
@@ -527,24 +531,28 @@ function initializePlantManagement() {
       newTabContent.id = contentId;
       newTabContent.role = "tabpanel";
       newTabContent.innerHTML = `
+         
         <div class="text-center flower-avatar-container">
           <img src="${avatarImageSrc}" class="img-fluid text-center avatar">
+          <div class="input-group input-group-sm justify-content-center">
+        <span class="input-group-text mt-2 text-light bg-success">${plantCategory}: ${plantType}</span>
+          </div>
         </div>
-        <div class="daily-streak text-center mt-4">
+        <div class="daily-streak text-center">
           <h2 class="streak">Daily Streak: 0🔥</h2>
           <div class="plant-info-buttons">
-            <div class="nav-link bi bi-info-circle fs-3" 
-              role="button"
-              data-bs-toggle="modal"
-              data-bs-target="#infoModal"
-              data-plant-name="${plantName}">
-            </div>
-            <div class="nav-link bi bi-plus-circle fs-3" 
-              role="button"
-              data-bs-toggle="modal"
-              data-bs-target="#addInfoModal"
-              data-plant-name="${plantName}">
-            </div>
+        <div class="nav-link bi bi-info-circle fs-3" 
+          role="button"
+          data-bs-toggle="modal"
+          data-bs-target="#infoModal"
+          data-plant-name="${plantName}">
+        </div>
+        <div class="nav-link bi bi-plus-circle fs-3" 
+          role="button"
+          data-bs-toggle="modal"
+          data-bs-target="#addInfoModal"
+          data-plant-name="${plantName}">
+        </div>
           </div>
         </div>`;
 
