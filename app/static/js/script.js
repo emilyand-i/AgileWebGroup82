@@ -1055,3 +1055,83 @@ function toggleFullscreen() {
     rightCol.classList.remove('d-none');
   }
 }
+
+  const plantOptions = {
+    flowers: [
+      { value: "lavender", text: "Lavender" },
+      { value: "daisy", text: "Daisy" },
+      { value: "marigold", text: "Marigold" },
+      { value: "petunia", text: "Petunia" },
+      { value: "snapdragon", text: "Snapdragon" },
+      { value: "geranium", text: "Geranium" },
+      { value: "pansy", text: "Pansy" }
+    ],
+    herbs: [
+      { value: "basil", text: "Basil" },
+      { value: "parsley", text: "Parsley" },
+      { value: "mint", text: "Mint" },
+      { value: "oregano", text: "Oregano" },
+      { value: "rosemary", text: "Rosemary" },
+      { value: "thyme", text: "Thyme" },
+      { value: "chives", text: "Chives" },
+      { value: "coriander", text: "Coriander (Cilantro)" }
+    ],
+    succulents: [
+      { value: "aloe", text: "Aloe Vera" },
+      { value: "jade", text: "Jade Plant" },
+      { value: "echeveria", text: "Echeveria" },
+      { value: "sedum", text: "Sedum" },
+      { value: "haworthia", text: "Haworthia" },
+      { value: "crassula", text: "Crassula" },
+      { value: "agave", text: "Agave" }
+    ],
+    trees: [
+      { value: "jacaranda", text: "Jacaranda" },
+      { value: "paperbark", text: "Paperbark Tree (Melaleuca)" },
+      { value: "pine", text: "Pine Tree" },
+      { value: "maple", text: "Maple Tree" },
+      { value: "oak", text: "Oak Tree" },
+      { value: "lemon", text: "Lemon Tree" },
+      { value: "fig", text: "Fig Tree" },
+      { value: "olive", text: "Olive Tree" }
+    ],
+    natives: [
+      { value: "wattle", text: "Golden Wattle (Acacia pycnantha)" },
+      { value: "grevillea", text: "Grevillea" },
+      { value: "banksia", text: "Banksia" },
+      { value: "kangaroo_paw", text: "Kangaroo Paw" },
+      { value: "eucalyptus", text: "Eucalyptus (Gum Tree)" },
+      { value: "waratah", text: "Waratah" },
+      { value: "lilly_pilly", text: "Lilly Pilly" },
+      { value: "callistemon", text: "Callistemon (Bottlebrush)" },
+      { value: "melaleuca", text: "Melaleuca (Tea Tree)" }
+    ],
+    grasses: [
+      { value: "kangaroo_grass", text: "Kangaroo Grass (Themeda triandra)" },
+      { value: "wallaby_grass", text: "Wallaby Grass (Rytidosperma spp.)" },
+      { value: "lomandra", text: "Lomandra" },
+      { value: "buffalo", text: "Buffalo Grass" },
+      { value: "zoysia", text: "Zoysia Grass" },
+      { value: "couch", text: "Couch Grass" },
+      { value: "fescue", text: "Tall Fescue" }
+    ]
+  };
+
+  document.getElementById("plantCategory").addEventListener("change", function () {
+    const category = this.value;
+    const plantTypeSelect = document.getElementById("plantType");
+
+    plantTypeSelect.innerHTML = '<option value="">Select Plant Type</option>';
+
+    if (plantOptions[category]) {
+      plantOptions[category].forEach(option => {
+        const opt = document.createElement("option");
+        opt.value = option.value;
+        opt.textContent = option.text;
+        plantTypeSelect.appendChild(opt);
+      });
+      plantTypeSelect.disabled = false;
+    } else {
+      plantTypeSelect.disabled = true;
+    }
+  });

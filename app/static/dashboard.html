@@ -132,14 +132,25 @@
                   </div>
                   <p id="uniqueNameError" class="text-danger d-none">This plant name already exists!</p>
                   <div class="mb-1">
-                    <select class="form-control" id="plantType" required> <!-- PLANT INPUT FORM -->
-                      <option value="">Select Plant Type</option>
-                      <option value="flower">Flower</option>
-                      <option value="herb">Herb</option>
-                      <option value="succulent">Succulent</option>
-                      <option value="tree">Tree</option>
+                    <!-- First dropdown: Categories -->
+                    <select class="form-control" id="plantCategory" required>
+                      <option value="">Select Plant Category</option>
+                      <option value="flowers">Flowers</option>
+                      <option value="herbs">Herbs</option>
+                      <option value="succulents">Succulents</option>
+                      <option value="trees">Trees</option>
+                      <option value="natives">Australian Natives</option>
+                      <option value="grasses">Grasses</option>
                     </select>
                   </div>
+
+                  <div class="mb-1">
+                    <!-- Second dropdown: Specific plant options -->
+                    <select class="form-control" id="plantType" required disabled>
+                      <option value="">Select Plant Type</option>
+                    </select>
+                  </div>
+
                   <button type="submit" class="btn btn-success btn-lg">
                     <i class="bi bi-plus-circle me-2"></i>Create New Plant!
                   </button>
