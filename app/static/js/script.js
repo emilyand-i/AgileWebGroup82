@@ -1,4 +1,11 @@
 /**
+ * Import 
+ */
+
+import {SignupForm, LoginForm} from './auth.js'
+
+
+/**
  * UTILITY FUNCTIONS
  * Helper functions used across the application
  */
@@ -119,11 +126,11 @@ document.addEventListener('DOMContentLoaded', () => {
     signinBtn.addEventListener('click', flipForm);
   }
 
-  // Initialize login form
-  initializeLoginForm();
+  // Login form
+  LoginForm();
   
-  // Initialize signup form
-  initializeSignupForm();
+  // Signup form
+  SignupForm();
   
   // Load dashboard
   loadDashboard();

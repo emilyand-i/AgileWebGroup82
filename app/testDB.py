@@ -11,7 +11,7 @@ with app.app_context():
 
     # Create a test user
     if not User.query.filter_by(username='Emily').first():
-        emily = User(username='Emily', password='AgileWeb123')
+        emily = User(username='Emily',email='emily@agile.com', password='AgileWeb123')
         user_db.session.add(emily)
         user_db.session.commit()
         print("user 'Emily' created.")
