@@ -5,4 +5,4 @@ instance/
 users.db
 .env
 
-.DS_Store
+.DS_Store.DS_Store

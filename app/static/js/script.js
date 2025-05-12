@@ -1,4 +1,10 @@
 /**
+ * Import 
+ */
+
+
+
+/**
  * UTILITY FUNCTIONS
  * Helper functions used across the application
  */
@@ -119,11 +125,11 @@ document.addEventListener('DOMContentLoaded', () => {
     signinBtn.addEventListener('click', flipForm);
   }
 
-  // Initialize login form
-  initializeLoginForm();
+  // Login form
+  LoginForm();
   
-  // Initialize signup form
-  initializeSignupForm();
+  // Signup form
+  SignupForm();
   
   // Load dashboard
   loadDashboard();
@@ -179,13 +185,13 @@ function scrollToAbout() {
   }
 }
 
+
 /**
  * AUTHENTICATION & USER MANAGEMENT
  * Functions for user login, registration and logout
  */
 
-// Initialize login form submission handler
-function initializeLoginForm() {
+function LoginForm() {
   const loginForm = document.getElementById('login-form');
   if (!loginForm) return;
   
@@ -210,15 +216,16 @@ function initializeLoginForm() {
   });
 }
 
-// Initialize registration form submission handler
-function initializeSignupForm() {
+// Registration form
+function SignupForm() {
   const signupForm = document.getElementById('signup-form');
   if (!signupForm) return;
   
   signupForm.addEventListener('submit', async function(e) {
     e.preventDefault();
 
-    const email = document.getElementById('signup-user').value;
+    const username = document.getElementById('signup-username').value;
+    const email = document.getElementById('signup-email').value;
     const password = document.getElementById('signup-password').value;
     const pass_confirm = document.getElementById('confirm-password').value;
     
@@ -230,7 +237,7 @@ function initializeSignupForm() {
     const fetch_signup = await fetch('/api/register', {
       method: 'POST', 
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({username: email, password})
+      body: JSON.stringify({username, email, password})
     });
     
     const signup_data = await fetch_signup.json();
@@ -238,10 +245,14 @@ function initializeSignupForm() {
       alert('Account created! Please log in.');
       flipForm();
     } else {
-      alert(signup_data.error || 'Signup error. Please use valid email.')
+      alert(signup_data.error || 'Signup error. Please check details.')
     }
   });
 }
+
+
+
+
 
 // Logout function
 async function logout() {

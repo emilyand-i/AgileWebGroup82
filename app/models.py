@@ -12,6 +12,7 @@ class User(user_db.Model):
   __tablename__ = 'user'
   id = user_db.Column(user_db.Integer, primary_key = True) # new users get an id from 1 onwards, unique identifiers for each user
   username = user_db.Column(user_db.String(80), unique = True, nullable = False) # no two users can have the same username, cant be left blank
+  email = user_db.Column(user_db.String(120), unique = True, nullable = False)
   password = user_db.Column(user_db.String(120), nullable = False) # cant be left blank, also.
 
 #User Settings: table in user_dbase
