@@ -417,15 +417,18 @@ function initializePlantManagement() {
       const plantName = trigger.getAttribute('data-plant-name');
       const plantCategory = globalPlants[plantName].plantCategory;
       const plantType = globalPlants[plantName].plantType;
+      const birthday = globalPlants[plantName].creationDate;
 
       currentPlantName = plantName;
       if (plantName) {
         document.getElementById('infoPlantNameDisplay').textContent = plantName;
         document.getElementById('infoPlantCategory').textContent = plantCategory;
         document.getElementById('infoPlantType').textContent = plantType;
+        document.getElementById('plantBirthday').textContent = new Date(birthday).toDateString();
       }
     });
   }
+
 
   // Set up delete button functionality
   const deleteButton = document.getElementById('delete-plant-button');
