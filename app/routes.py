@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from .models import *
 from flask import session
+from flask_login import login_required, current_user
 
 routes_bp = Blueprint('routes', __name__) # connect all related routes for later
 
@@ -157,3 +158,76 @@ def update_font_size():
     user_db.session.commit()
 
     return jsonify({'message': 'Font size updated'}), 200
+
+
+    #routes for friends list
+@app.route('/api/friends')
+@login_required
+def api_friends():
+    # Users you've accepted OR have accepted you
+    accepted_entries = user_db.session.query(FriendsList).filter(
+        (
+            (FriendsList.user_id == current_user.id) |
+            (FriendsList.friend_id == current_user.id)
+        ),
+        FriendsList.status == 'accepted'
+    ).all()
+
+    accepted_ids = set()
+    for entry in accepted_entries:
+        if entry.user_id == current_user.id:
+            accepted_ids.add(entry.friend_id)
+        else:
+            accepted_ids.add(entry.user_id)
+
+    accepted_users = user_db.session.query(User).filter(User.id.in_(accepted_ids)).all()
+
+    # Pending friend requests *to you*
+    pending_entries = user_db.session.query(FriendsList).filter_by(
+        friend_id=current_user.id,
+        status='pending'
+    ).all()
+
+    pending_user_ids = [entry.user_id for entry in pending_entries]
+    pending_users = user_db.session.query(User).filter(User.id.in_(pending_user_ids)).all()
+
+    return jsonify({
+        "accepted": [{"id": u.id, "username": u.username} for u in accepted_users],
+        "pending": [{"id": u.id, "username": u.username} for u in pending_users]
+    })
+#add post endpoints for accept/ decline and remove friends
+@app.route('/api/friends')
+@login_required
+def api_friends():
+    # Users you've accepted OR have accepted you
+    accepted_entries = user_db.session.query(FriendsList).filter(
+        (
+            (FriendsList.user_id == current_user.id) |
+            (FriendsList.friend_id == current_user.id)
+        ),
+        FriendsList.status == 'accepted'
+    ).all()
+
+    accepted_ids = set()
+    for entry in accepted_entries:
+        if entry.user_id == current_user.id:
+            accepted_ids.add(entry.friend_id)
+        else:
+            accepted_ids.add(entry.user_id)
+
+    accepted_users = user_db.session.query(User).filter(User.id.in_(accepted_ids)).all()
+
+    # Pending friend requests *to you*
+    pending_entries = user_db.session.query(FriendsList).filter_by(
+        friend_id=current_user.id,
+        status='pending'
+    ).all()
+
+    pending_user_ids = [entry.user_id for entry in pending_entries]
+    pending_users = user_db.session.query(User).filter(User.id.in_(pending_user_ids)).all()
+
+    return jsonify({
+        "accepted": [{"id": u.id, "username": u.username} for u in accepted_users],
+        "pending": [{"id": u.id, "username": u.username} for u in pending_users]
+    })
+

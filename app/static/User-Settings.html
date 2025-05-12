@@ -88,14 +88,54 @@
   </div> 
 
   <div id="Friends" class="tabcontent">
-    <!--  Friends List  -->
     <h2>Friends List</h2>
-  
-    <ul>
-      <li>John Doe <button>Remove</button></li>
-      <li>Pending: Jane Smith <button>Accept</button> <button>Decline</button></li>
-    </ul>
+    <ul id="friends-list"></ul>
   </div>
+  </div>
+  <script>
+    function loadFriendsList() {
+      fetch("/api/friends")
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById("friends-list");
+          list.innerHTML = ""; // Clear list
+    
+          // Accepted friends
+          data.accepted.forEach(friend => {
+            const li = document.createElement("li");
+            li.innerHTML = `${friend.username} <button onclick="removeFriend(${friend.id})">Remove</button>`;
+            list.appendChild(li);
+          });
+    
+          // Pending requests
+          data.pending.forEach(request => {
+            const li = document.createElement("li");
+            li.innerHTML = `Pending: ${request.username} 
+              <button onclick="acceptRequest(${request.id})">Accept</button>
+              <button onclick="declineRequest(${request.id})">Decline</button>`;
+            list.appendChild(li);
+          });
+        });
+    }
+    
+    function acceptRequest(userId) {
+      fetch(`/api/friends/accept/${userId}`, { method: "POST" })
+        .then(() => loadFriendsList());
+    }
+    
+    function declineRequest(userId) {
+      fetch(`/api/friends/decline/${userId}`, { method: "POST" })
+        .then(() => loadFriendsList());
+    }
+    
+    function removeFriend(userId) {
+      fetch(`/api/friends/remove/${userId}`, { method: "POST" })
+        .then(() => loadFriendsList());
+    }
+    
+    // Load list when the tab is shown
+    document.addEventListener("DOMContentLoaded", loadFriendsList);
+    </script>
 
   <script>
     function openTab(evt, tabName) {
