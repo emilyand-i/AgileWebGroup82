@@ -8,15 +8,19 @@ routes_bp = Blueprint('routes', __name__) # connect all related routes for later
 def register(): # run once fetch request added, once POST to /api/register
     data = request.get_json()
     username = data.get('username')
+    email = data.get('email')
     password = data.get('password')
     
-    if not username or not password:
+    if not username or not password or not email:
         return jsonify({'error': 'Please enter username and password'})
 
     if User.query.filter_by(username=username).first(): # check if username already exists
         return jsonify({'error': 'Username already exists'}), 409 # we can use this to send a message back to user that the username is taken
 
-    new_user = User(username=username, password=password) # user is added to our 'user.db' database
+    if User.query.filter_by(email = email).first():
+        return jsonify({'error': 'Email already registered'})
+
+    new_user = User(username=username, email=email, password=password) # user is added to our 'user.db' database
     user_db.session.add(new_user)
     user_db.session.commit()
 
