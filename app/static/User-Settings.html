@@ -4,6 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <title>User Settings</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
   <style>
     body {
       background-color: rgb(69, 97, 71);
@@ -72,16 +74,38 @@
   </div>
 
   <div id="Friends" class="tabcontent">
-    <!--  Friends List  -->
-    <h2>Friends List</h2>
-  
-    <ul>
-      <li>John Doe <button>Remove</button></li>
-      <li>Pending: Jane Smith <button>Accept</button> <button>Decline</button></li>
-    </ul>
+    <h2>Friends</h2>
+
+    <div style="display: flex; justify-content: space-between;">
+      <!-- Current Friends -->
+      <div style="flex: 1; margin: 10px;">
+        <h3>Current Friends</h3>
+        <ul>
+          <li>John Doe <button>Remove</button></li>
+          <!-- USE JINJA - TO give this html USER AND THEN CURRENT LIST FRIENDS -->
+          <!-- Remove should delete that friend connection from db -->
+           <!-- AIM FOR MAX OF 5 -->
+        </ul>
+      </div>
+
+      <!-- Look Up Friends -->
+      <div style="flex: 1; margin: 10px;">
+        <h3>Look Up Friends</h3>
+        <input type="text" placeholder="Search for a friend..." />
+        <ul>
+          <li>Emily Johnson <button>Add</button></li>
+          <!-- Look up and add friends -->
+          <!-- USE JINJA and also link to user db to search through user names -->
+           <!--If possible add filter out friends already added-->
+        </ul>
+      </div>
+    </div>
   </div>
 
+
   <script>
+
+    // JavaScript to handle tab switching
     function openTab(evt, tabName) {
       const tabcontents = document.querySelectorAll('.tabcontent');
       const tablinks = document.querySelectorAll('.tablinks');
