@@ -115,14 +115,12 @@
       <!-- Look Up Friends -->
       <div style="flex: 1; margin: 10px;">
         <h3>Look Up Friends</h3>
-        <input type="text" placeholder="Search for a friend..." />
-        <ul>
-          <li>Emily Johnson <button>Add</button></li>
-          <!-- Look up and add friends -->
-          <!-- USE JINJA and also link to user db to search through user names -->
-           <!--If possible add filter out friends already added-->
-        </ul>
-      </div>
+        <form id="add-friend-form" style="margin-bottom: 10px;">
+          <input type="text" id="friend-username" name="username" placeholder="Search for a friend..." required />
+          <button type="submit">Add Friend</button>
+        </form>
+        
+        <div id="add-friend-message" style="margin-top: 10px; color: #fff;"></div>
     </div>
   </div>
   </div>
