@@ -972,6 +972,8 @@ function initializeSettingsModal() {
       .then(response => response.text())
       .then(html => {
         document.getElementById("SettingsModalContent").innerHTML = html;
+
+        attachFontScaleControls();
       })
       .catch(error => {
         document.getElementById("SettingsModalContent").innerHTML = `
@@ -1057,19 +1059,36 @@ function toggleFullscreen() {
 // slecting font size settings
 
 // setting font size 
-function setFontScale(scale) {
-  const html = document.documentElement;
-  html.classList.remove('font-small', 'font-normal', 'font-large');
-  html.classList.add(`font-${scale}`);
-  localStorage.setItem('fontScale', scale);
+// Apply saved font scale immediately on page load
+function attachFontScaleControls() {
+  const saved = localStorage.getItem('fontScale') || 'normal';
+  document.documentElement.classList.remove('font-small', 'font-normal', 'font-large');
+  document.documentElement.classList.add(`font-${saved}`);
 
-  //hide the dropdown after choosing
-  const dropdown = document.getElementById('font-size-options');
-  if (dropdown) dropdown.classList.add('hidden');
+  const radios = document.querySelectorAll('input[name="font-size"]');
+  if (!radios.length) return;
+
+  radios.forEach((radio) => {
+    radio.addEventListener('change', () => {
+      const scale = radio.value;
+
+      // Apply font size
+      document.documentElement.classList.remove('font-small', 'font-normal', 'font-large');
+      document.documentElement.classList.add(`font-${scale}`);
+      localStorage.setItem('fontScale', scale);
+
+      // Save to backend
+      fetch('/api/update-font-size', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ font_size: scale })
+      });
+    });
+  });
 }
 
-// Restore font scale on page load
-document.addEventListener('DOMContentLoaded', function () {
+// Automatically apply saved font size on page load
+document.addEventListener('DOMContentLoaded', () => {
   const saved = localStorage.getItem('fontScale') || 'normal';
   document.documentElement.classList.add(`font-${saved}`);
 });

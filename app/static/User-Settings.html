@@ -8,7 +8,7 @@
     body {
       background-color: rgb(69, 97, 71);
       font-family: Arial, sans-serif;
-      color: #fff;
+      color: #39e653;
       margin: 0;
       padding: 0;
     }
@@ -57,9 +57,8 @@
   </div>
 
   <div id="Settings" class="tabcontent active">
-    <!-- Account Settings  -->
+    <!-- Account Settings -->
     <h2>Account Settings</h2>
-
     <form>
       <label>
         <input type="checkbox" checked> Profile Public
@@ -69,7 +68,24 @@
         <input type="checkbox" checked> Allow Friend Requests
       </label>
     </form>
-  </div>
+
+    <!-- Display Settings -->
+    <h2>Display Settings</h2>
+    <div id="display-settings">
+      <form id="font-size-form">
+        <fieldset>
+          <legend>Font Size</legend>
+          <label><input type="radio" name="font-size" value="small"> Small</label><br>
+          <label><input type="radio" name="font-size" value="normal" checked> Default</label><br>
+          <label><input type="radio" name="font-size" value="large"> Large</label>
+        </fieldset>
+      </form>
+
+      <form>
+        <label><input type="checkbox" id="dark-mode-toggle"> Dark Mode</label>
+      </form>
+    </div>
+  </div> 
 
   <div id="Friends" class="tabcontent">
     <!--  Friends List  -->

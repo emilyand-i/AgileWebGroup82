@@ -24,6 +24,7 @@ class UserSettings(user_db.Model):
   user_id = user_db.Column(user_db.Integer, user_db.ForeignKey('user.id'), primary_key=True, nullable=False)
   is_profile_public = user_db.Column(user_db.Boolean, default=True)
   allow_friend_requests = user_db.Column(user_db.Boolean, default=True)
+  font_size = user_db.Column(user_db.String(10), default='normal')
 
 #Friends List: table in user_dbase
 # user_id: foreign key to User table, links to the id of the user who sent the friend request

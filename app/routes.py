@@ -90,6 +90,7 @@ def login():
         settings_data = {
             'is_profile_public': settings.is_profile_public if settings else True,
             'allow_friend_requests': settings.allow_friend_requests if settings else True
+            'font_size': settings.font_size if settings else 'normal'
         }
 
 
@@ -98,7 +99,8 @@ def login():
             'username': user.username,
             'user_id': user.id,
             'plants': plant_data,
-            'growth_entries': growth_data
+            'growth_entries': growth_data,
+            'settings': settings_data
         }), 200
     else:
         return jsonify({'error': 'Invalid credentials'}), 401
@@ -132,3 +134,26 @@ def add_plant():
     user_db.session.commit()
 
     return jsonify({'message': 'Plant added successfully'}), 201
+
+
+#routes for user settings font size
+@routes_bp.route('/api/update-font-size', methods=['POST'])
+def update_font_size():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    data = request.get_json()
+    new_font_size = data.get('font_size')
+
+    if new_font_size not in ['small', 'normal', 'large']:
+        return jsonify({'error': 'Invalid font size'}), 400
+
+    settings = UserSettings.query.filter_by(user_id=user_id).first()
+    if not settings:
+        return jsonify({'error': 'Settings not found'}), 404
+
+    settings.font_size = new_font_size
+    user_db.session.commit()
+
+    return jsonify({'message': 'Font size updated'}), 200
