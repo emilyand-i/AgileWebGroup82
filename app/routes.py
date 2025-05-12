@@ -1,8 +1,12 @@
 from flask import Blueprint, request, jsonify
 from .models import *
 from flask import session
+from werkzeug.security import generate_password_hash, check_password_hash
+
+
 
 routes_bp = Blueprint('routes', __name__) # connect all related routes for later
+
 
 @routes_bp.route('/api/register', methods=['POST']) #post route to /api/register - user sending user and pass data
 def register(): # run once fetch request added, once POST to /api/register
@@ -20,7 +24,10 @@ def register(): # run once fetch request added, once POST to /api/register
     if User.query.filter_by(email = email).first():
         return jsonify({'error': 'Email already registered'})
 
-    new_user = User(username=username, email=email, password=password) # user is added to our 'user.db' database
+    hashed_pass = generate_password_hash(password)
+
+
+    new_user = User(username=username, email=email, password=hashed_pass) # user is added to our 'user.db' database
     user_db.session.add(new_user)
     user_db.session.commit()
 
@@ -42,9 +49,10 @@ def login():
     
     if not username or not password:
         return jsonify({'error': 'Please enter username and password'})
+    
+    user = User.query.filter_by(username=username).first()
 
-    user = User.query.filter_by(username=username, password=password).first()
-    if user:
+    if user and check_password_hash(user.password, password):
         # store session info
         session['user_id'] = user.id
         session['username'] = user.username
