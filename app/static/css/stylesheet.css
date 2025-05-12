@@ -54,7 +54,7 @@ body {
 
 .about-info{
   position: relative;
-  top: 5rem;
+  top: 3rem;
   width: 48%;
   color:aliceblue;
   height: 90dvh;
@@ -63,6 +63,11 @@ body {
   align-items: center;
   text-align: center;
 }
+
+.logo {
+  max-width: 30rem;
+}
+
 
 .center-bottom-text {
   margin-top: 2rem;
