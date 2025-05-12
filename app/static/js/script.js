@@ -191,6 +191,8 @@ function scrollToAbout() {
  * Functions for user login, registration and logout
  */
 
+const csrfToken = document.querySelector('meta[name= "csrf-token"]').content;
+
 function loginForm() {
   const loginForm = document.getElementById('login-form');
   if (!loginForm) return;
@@ -203,7 +205,8 @@ function loginForm() {
 
     const fetch_login = await fetch('/api/login', {
       method: 'POST', 
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+      credentials: 'include',
       body: JSON.stringify({username, password})
     });
     
@@ -236,7 +239,8 @@ function signupForm() {
 
     const fetch_signup = await fetch('/api/register', {
       method: 'POST', 
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+      credentials: 'include', 
       body: JSON.stringify({username, email, password})
     });
     
@@ -258,6 +262,7 @@ function signupForm() {
 async function logout() {
   await fetch('/api/logout', {
     method: 'POST',
+    headers: { 'X-CSRFToken': csrfToken},
     credentials: 'include'
   });
   window.location.href = 'index.html';
