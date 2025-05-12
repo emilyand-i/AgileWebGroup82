@@ -415,9 +415,14 @@ function initializePlantManagement() {
     infoModal.addEventListener('show.bs.modal', function (event) {
       const trigger = event.relatedTarget;
       const plantName = trigger.getAttribute('data-plant-name');
+      const plantCategory = globalPlants[plantName].plantCategory;
+      const plantType = globalPlants[plantName].plantType;
+
       currentPlantName = plantName;
       if (plantName) {
-        document.getElementById('username').placeholder = plantName;
+        document.getElementById('infoPlantNameDisplay').textContent = plantName;
+        document.getElementById('infoPlantCategory').textContent = plantCategory;
+        document.getElementById('infoPlantType').textContent = plantType;
       }
     });
   }
