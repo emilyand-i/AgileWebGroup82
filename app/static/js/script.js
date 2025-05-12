@@ -211,14 +211,15 @@ function initializeLoginForm() {
 }
 
 // Initialize registration form submission handler
-function initializeSignupForm() {
+function SignupForm() {
   const signupForm = document.getElementById('signup-form');
   if (!signupForm) return;
   
   signupForm.addEventListener('submit', async function(e) {
     e.preventDefault();
 
-    const email = document.getElementById('signup-user').value;
+    const username = document.getElementById('signup-username').value;
+    const email = document.getElementById('signup-email').value;
     const password = document.getElementById('signup-password').value;
     const pass_confirm = document.getElementById('confirm-password').value;
     
@@ -230,7 +231,7 @@ function initializeSignupForm() {
     const fetch_signup = await fetch('/api/register', {
       method: 'POST', 
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({username: email, password})
+      body: JSON.stringify({username, email, password})
     });
     
     const signup_data = await fetch_signup.json();
@@ -238,7 +239,7 @@ function initializeSignupForm() {
       alert('Account created! Please log in.');
       flipForm();
     } else {
-      alert(signup_data.error || 'Signup error. Please use valid email.')
+      alert(signup_data.error || 'Signup error. Please check details.')
     }
   });
 }
