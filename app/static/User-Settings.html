@@ -1,59 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+  <meta charset="UTF-8">
+  <title>User Settings</title>
+  <style>
+    body {
+      background-color: rgb(69, 97, 71);
+      font-family: Arial, sans-serif;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
 
+    .tab {
+      display: flex;
+      background-color: #4b6b4d;
+    }
 
-<!-- Settings Modal -->
+    .tab button {
+      background-color: inherit;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      transition: 0.3s;
+      font-size: 17px;
+      color: white;
+      flex: 1;
+    }
 
-      <div class="modal-header">
-        <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="settings-container">
-          <div class="section">
-            <button class="section-toggle" onclick="toggleOptions('account')">Account Settings</button>
-            <div class="options" id="account">
-              <button>Email</button>
-              <button>Username/Password</button>
-              <button>Forgot Password</button>
-              <button>Delete Account</button>
-            </div>
-          </div>
+    .tab button:hover {
+      background-color: #5d8460;
+    }
 
-          <div class="section">
-            <button class="section-toggle" onclick="toggleOptions('appearance')">Appearance</button>
-            <div class="options" id="appearance">
-              <button onclick="toggleLightIntensity()">Toggle Dark Mode</button>
-              
-              <div class="font-size-dropdown">
-                <button type="button" onclick="document.getElementById('font-size-options').classList.toggle('hidden')">
-                  Change Font Size ▼
-                </button>
-                <div id="font-size-options" class="dropdown hidden">
-                  <button data-font-scale="small" onclick="setFontScale('small')">Small</button>
-                  <button data-font-scale="normal" onclick="setFontScale('normal')">Default</button>
-                  <button data-font-scale="large" onclick="setFontScale('large')">Large</button>
-                </div>
-              </div>
-            </div>
-          </div>
+    .tab button.active {
+      background-color: #6c9b6d;
+    }
 
-          <div class="section">
-            <button class="section-toggle" onclick="toggleOptions('notifications')">Notification Settings</button>
-            <div class="options" id="notifications">
-              <button>Email Notifications</button>
-            </div>
-          </div>
+    .tabcontent {
+      display: none;
+      padding: 20px;
+    }
 
-          <div class="section">
-            <button class="section-toggle" onclick="toggleOptions('privacy')">Privacy Settings</button>
-            <div class="options" id="privacy">
-              <button>Profile Visibility</button>
-              <button>Blocked Users</button>
-            </div>
-          </div>
-        </div>
-      </div>
+    .tabcontent.active {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="tab">
+    <button class="tablinks active" onclick="openTab(event, 'Settings')">User Settings</button>
+    <button class="tablinks" onclick="openTab(event, 'Friends')">Friends List</button>
+  </div>
+
+  <div id="Settings" class="tabcontent active">
+    <!-- Account Settings  -->
+    <h2>Account Settings</h2>
+
+    <form>
+      <label>
+        <input type="checkbox" checked> Profile Public
+      </label>
+      <br>
+      <label>
+        <input type="checkbox" checked> Allow Friend Requests
+      </label>
+    </form>
+  </div>
+
+  <div id="Friends" class="tabcontent">
+    <!--  Friends List  -->
+    <h2>Friends List</h2>
   
+    <ul>
+      <li>John Doe <button>Remove</button></li>
+      <li>Pending: Jane Smith <button>Accept</button> <button>Decline</button></li>
+    </ul>
+  </div>
+
+  <script>
+    function openTab(evt, tabName) {
+      const tabcontents = document.querySelectorAll('.tabcontent');
+      const tablinks = document.querySelectorAll('.tablinks');
+
+      tabcontents.forEach(content => content.classList.remove('active'));
+      tablinks.forEach(link => link.classList.remove('active'));
+
+      document.getElementById(tabName).classList.add('active');
+      evt.currentTarget.classList.add('active');
+    }
+  </script>
+
+</body>
+
+</html>
+
 
 
 

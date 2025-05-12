@@ -1,7 +1,155 @@
+/**
+ * UTILITY FUNCTIONS
+ * Helper functions used across the application
+ */
+
+let canvas;
+let ctx;
+
+// Draw growth graph for selected plant
+function drawGraph(namePlant) {
+  console.log(`Drawing graph for ${namePlant}`);
+  const data = globalPlants.growthData[namePlant];
+  console.log("Retrieved data:", data);
+
+  if (!data || data.length < 2) {
+      console.log("Data is missing or too short:", data);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = "16px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(`Add at Least 2 Growth Points.`, canvas.width/2, canvas.height/2);
+      return;
+  }
+
+  try {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    console.log("Canvas cleared");
+  } catch (e) {
+    console.error("Error clearing canvas:", e);
+  }
+  
+  
+  const padding = 70;
+  const graphWidth = canvas.width - padding * 2;
+  const graphHeight = canvas.height - padding * 2;
+
+  const dates = data.map(d => new Date(d.date));
+  const heights = data.map(d => d.height);
+
+  const minDate = Math.min(...dates.map(d => d.getTime()));
+  const maxDate = Math.max(...dates.map(d => d.getTime()));
+  const minHeight = Math.min(...heights);
+  const maxHeight = Math.max(...heights);
+  console.log("minDate", minDate);
+
+  function getX(date) {
+    return padding + ((date.getTime() - minDate) / (maxDate - minDate)) * graphWidth;
+  }
+
+  function getY(height) {
+    return canvas.height - padding - ((height - minHeight) / (maxHeight - minHeight)) * graphHeight;
+  }
+
+  // Draw axes
+  ctx.beginPath();
+  ctx.moveTo(padding, padding);
+  ctx.lineTo(padding, canvas.height - padding);
+  ctx.lineTo(canvas.width - padding, canvas.height - padding);
+  ctx.stroke();
+  console.log("axes drawn");
+
+  // Plot points and connect them
+  ctx.beginPath();
+  ctx.strokeStyle = '#28a745';
+  ctx.lineWidth = 4;
+  data.forEach((point, index) => {
+    const x = getX(new Date(point.date));
+    const y = getY(point.height);
+
+    if (index === 0){
+      ctx.moveTo(x, y);
+    }
+    else {
+      ctx.lineTo(x, y);
+    }
+
+    ctx.arc(x, y, 5, 0, 2 * Math.PI);
+  });
+  ctx.stroke();
+  console.log("points plotted");
+
+  // Y-Axis label
+  ctx.save();
+  ctx.translate(20, canvas.height / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = "center";
+  ctx.font = "14px sans-serif";
+  ctx.fillText("Height Grown", 0, 0);
+  ctx.restore();
+  console.log("y-axis label drawn");
+
+  // X-Axis label
+  ctx.font = "14px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("Time Spent Growing", canvas.width / 2, canvas.height - 10);
+  console.log("x-axis label drawn");
+
+  // Graph title
+  ctx.font = "bold 18px sans-serif";
+  ctx.fillText(`${namePlant}'s Growth Journey`, canvas.width / 2, padding - 15);
+}
 
 
-// allow scroll of main-info from anywhere on the page
+function getCurrentActivePlantName() {
+  const activeTab = document.querySelector('#plantTabs .nav-link.active');
+  if (!activeTab) return null;
 
+  // Find the tab's label, which matches the plant name
+  return activeTab.textContent.trim();
+}
+
+/**
+ * DOCUMENT READY EVENT HANDLER
+ * Main initialization when DOM is fully loaded
+ */
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize signin button event listener
+  const signinBtn = document.querySelector('.signin-btn');
+  if (signinBtn) {
+    signinBtn.addEventListener('click', flipForm);
+  }
+
+  // Initialize login form
+  initializeLoginForm();
+  
+  // Initialize signup form
+  initializeSignupForm();
+  
+  // Load dashboard
+  loadDashboard();
+  
+  // Initialize plant management
+  initializePlantManagement();
+  
+  // Initialize photo upload functionality
+  initializePhotoUpload();
+  
+  // Initialize plant growth tracker
+  initializePlantGrowthTracker();
+  
+  // Initialize settings modal
+  initializeSettingsModal();
+  
+  // Initialize dimming feature
+  initializeDimming();
+});
+
+/**
+ * PAGE NAVIGATION & SCROLLING
+ * Functions for page navigation and scroll behavior
+ */
+
+// Allow scrolling of main-info from anywhere on the page
 document.addEventListener('wheel', function(e) {
   e.preventDefault();
   const scroll_content = document.querySelector('.main-info');
@@ -10,11 +158,12 @@ document.addEventListener('wheel', function(e) {
   }
 }, {passive:false});
 
+// Flip the form between login and register
 function flipForm() {
   document.getElementById("form-wrapper").classList.toggle("flip");
 }
 
-
+// Smooth scroll to signin section
 function scrollToSignin() {
   const form = document.getElementById('form-wrapper');
   if (form) {
@@ -22,6 +171,7 @@ function scrollToSignin() {
   }
 }
 
+// Smooth scroll to about section
 function scrollToAbout() {
   const about = document.getElementById('welcome');
   if (about) {
@@ -29,18 +179,17 @@ function scrollToAbout() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelector('.signin-btn').addEventListener('click', flipForm);
-});
+/**
+ * AUTHENTICATION & USER MANAGEMENT
+ * Functions for user login, registration and logout
+ */
 
-//--------------------------------------------------------------------------------------------
-
-// Sign in && Register forms
-
-
-// sign in
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('login-form').addEventListener('submit', async function(e) {
+// Initialize login form submission handler
+function initializeLoginForm() {
+  const loginForm = document.getElementById('login-form');
+  if (!loginForm) return;
+  
+  loginForm.addEventListener('submit', async function(e) {
     e.preventDefault();
 
     const username = document.getElementById('login-username').value;
@@ -52,21 +201,21 @@ document.addEventListener('DOMContentLoaded', () => {
       body: JSON.stringify({username, password})
     });
     
-
     const login_data = await fetch_login.json();
     if (fetch_login.ok) {
-      localStorage.setItem('user_profile', JSON.stringify(login_data));
       window.location.href = 'dashboard.html';
     } else {
       alert(login_data.error || 'Login failed');
     }
   });
-});
+}
 
-
-//Register
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('signup-form').addEventListener('submit', async function(e) {
+// Initialize registration form submission handler
+function initializeSignupForm() {
+  const signupForm = document.getElementById('signup-form');
+  if (!signupForm) return;
+  
+  signupForm.addEventListener('submit', async function(e) {
     e.preventDefault();
 
     const email = document.getElementById('signup-user').value;
@@ -83,6 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({username: email, password})
     });
+    
     const signup_data = await fetch_signup.json();
     if (fetch_signup.ok) {
       alert('Account created! Please log in.');
@@ -91,24 +241,26 @@ document.addEventListener('DOMContentLoaded', () => {
       alert(signup_data.error || 'Signup error. Please use valid email.')
     }
   });
-});
+}
 
-
-// logout
+// Logout function
 async function logout() {
   await fetch('/api/logout', {
     method: 'POST',
     credentials: 'include'
   });
-  localStorage.removeItem('user_profile');
   window.location.href = 'index.html';
 }
 
+/**
+ * DASHBOARD FUNCTIONALITY
+ * Functions to load and handle dashboard content
+ */
 
-// Load Dash
-
-document.addEventListener('DOMContentLoaded', () => {
+// Load dashboard content based on user profile
+function loadDashboard() {
   if (!window.location.pathname.includes('dashboard.html')) return;
+  
   const profile = JSON.parse(localStorage.getItem('user_profile'));
   if (!profile) return;
 
@@ -116,29 +268,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const plantTabs = document.getElementById("plantTabs");
   const plantTabsContent = document.getElementById("plantTabsContent");
-  let myPlantCount = 0;
+  
+  // Reset plant count when loading dashboard
+  myPlantCount = 0;
+  
+  // Clear global plants dictionary to rebuild it from profile data
+  globalPlants = {};
 
-  profile.plants.forEach((plant, index) => {
+  profile.plants.forEach((plant) => {
     myPlantCount++;
     const tabId = `plant${myPlantCount}`;
+    const contentId = tabId;
+    
+    // Add plant to global plants dictionary
+    globalPlants[plant.plant_name] = {
+      tabId: tabId,
+      contentId: contentId,
+      name: plant.plant_name,
+      avatarSrc: plant.chosen_image_url,
+      streakCount: plant.streak || 0,
+      creationDate: plant.creation_date || new Date().toISOString(),
+      lastUpdated: plant.last_updated || new Date().toISOString()
+    };
 
     const newTab = document.createElement("li");
     newTab.className = "nav-item";
     newTab.innerHTML = `
-      <button class="nav-link" id="${tabId}-tab" data-bs-toggle="tab" data-bs-target="#${tabId}" type="button" role="tab">
+      <button class="nav-link" id="${tabId}-tab" data-bs-toggle="tab" data-bs-target="#${contentId}" type="button" role="tab">
         ${plant.plant_name}
       </button>`;
 
     const newContent = document.createElement("div");
     newContent.className = "tab-pane fade";
-    newContent.id = tabId;
+    newContent.id = contentId;
     newContent.role = "tabpanel";
     newContent.innerHTML = `
       <div class="text-center flower-avatar-container">
         <img src="${plant.chosen_image_url}" class="img-fluid text-center avatar">
       </div>
       <div class="daily-streak text-center mt-4">
-        <h2 class="streak">Daily Streak: 0🔥</h2>
+        <h2 class="streak">Daily Streak: ${globalPlants[plant.plant_name].streakCount}🔥</h2>
         <div class="nav-link bi bi-gear fs-3" 
           role="button"
           data-bs-toggle="modal"
@@ -151,11 +320,16 @@ document.addEventListener('DOMContentLoaded', () => {
     plantTabs.insertBefore(newTab, addPlantTab);
     plantTabsContent.appendChild(newContent);
   });
-});
-//--------------------------------------------------------------------------------------------
+  
+  console.log('Loaded plants:', Object.keys(globalPlants));
+}
 
+/**
+ * PLANT VISUALIZATION TOGGLES
+ * Functions to toggle between different plant visualizations
+ */
 
-//Plant Graph Dropdown
+// Show/hide growth graph
 function graph_show() {
   const graph_section = document.getElementById('growth_graph');
   const pic_diary = document.getElementById('user_diary');
@@ -165,11 +339,11 @@ function graph_show() {
     graph_section.style.display = 'block';
     pic_diary.style.display = 'none';
   } else {
-    graph_section.style.display = 'none'
+    graph_section.style.display = 'none';
   }
 }
 
-//Picture show Dropdown
+// Show/hide picture diary
 function pic_show() {
   const pic_diary = document.getElementById('user_diary');
   const graph_section = document.getElementById('growth_graph');
@@ -179,27 +353,40 @@ function pic_show() {
     pic_diary.style.display = 'block';
     graph_section.style.display = 'none';
   } else {
-    pic_diary.style.display = 'none'
+    pic_diary.style.display = 'none';
   }
 }
 
+/**
+ * GLOBAL VARIABLES
+ * Global variables used across different functions
+ */
 
-//--------------------------------------------------------------------------------------------
+// Global plants dictionary to track all plants
+// Structure: { plantName: { tabId, contentId, avatarSrc, streakCount, creationDate, etc. } }
+let globalPlants = {};
 
-// adding/removing plant:
+/**
+ * PLANT MANAGEMENT
+ * Functions to add, remove, and manage plants
+ */
 
 let myPlantCount = 0;
-let plants = {};
 let selectedAvatarSrc = null;
 let currentPlantName = null;
 
-document.addEventListener('DOMContentLoaded', function() {
+
+// Initialize plant management functionality
+function initializePlantManagement() {
   const addPlantForm = document.getElementById("addPlantForm");
   const plantTabs = document.getElementById("plantTabs");
   const plantTabsContent = document.getElementById('plantTabsContent');
   const container = document.getElementById('avatar-container');
+  
+  if (!container) return;
 
-  container.addEventListener("click", function(e) { // MAKES IMAGE THAT IS SELECTED IN ADD PLANT SECTION BIGGER
+  // Add click event for avatar selection
+  container.addEventListener("click", function(e) {
     if (e.target && e.target.classList.contains("avatar-choice")) {
       container.querySelectorAll(".avatar-choice").forEach(img => img.classList.remove("selected"));
       e.target.classList.add("selected");
@@ -211,366 +398,574 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  document.getElementById('infoModal').addEventListener('show.bs.modal', function (event) { // MAKES PLACEHOLDER IN POPUP THE NAME OF PLANT
-    const trigger = event.relatedTarget;
-    const plantName = trigger.getAttribute('data-plant-name');
-    currentPlantName = plantName;
-    if (plantName) {
-      document.getElementById('username').placeholder = plantName;
-    }
-  });
-
-  const deleteButton = document.getElementById('delete-plant-button'); // DELETES PLANTS
-  deleteButton.addEventListener("click", function() {
-    const plant = plants[currentPlantName];
-    if (!plant) return;
-  
-    const tab = document.getElementById(plant.tabId);
-    const tabContent = document.getElementById(plant.contentId);
-  
-    tab.remove(); // REMOVE TAB ELEMENT
-    tabContent.remove();
-  
-    delete plants[currentPlantName]; // DELETE PLANT FROM PLANT DICTIONARY
-    currentPlantName = null;
-    myPlantCount--;
-
-    if (myPlantCount > 0) { // Switches to first plant after a plant is deleted
-      const remainingTabs = document.querySelectorAll(".nav-link");
-      const firstTab = remainingTabs[1];
-      const bootstrapTab = new bootstrap.Tab(firstTab);
-      bootstrapTab.show();
-    }
-    else { // Switches to home page after a plant is deleted if no more plants
-      const remainingTabs = document.querySelectorAll(".nav-link");
-      const firstTab = remainingTabs[0];
-      const bootstrapTab = new bootstrap.Tab(firstTab);
-      bootstrapTab.show();
-    }
-  });
-
-  addPlantForm.addEventListener('submit', function(e) { // WHEN ADD PLANT FORM IS SUBMITTED...
-    e.preventDefault();
-
-    
-    const plantName = document.getElementById('plantName').value.trim();
-    const plantNameInput = document.getElementById('plantName');
-    const tabId = `plant${myPlantCount}-tab`;
-    const contentId = `plant${myPlantCount}`;
-    const avatarImageSrc = selectedAvatarSrc;
-
-    if (plantName in plants) {
-      document.getElementById('uniqueNameError').classList.remove('d-none');
-      plantNameInput.classList.add('is-invalid');
-
-      plantNameInput.addEventListener('input', function() {
-        document.getElementById('uniqueNameError').classList.add('d-none');
-        plantNameInput.classList.remove('is-invalid');
-      });
-      return;
-    }
-    
-    myPlantCount++;
-    plants[plantName] = {
-      tabId: tabId,
-      contentId: contentId,
-      name: plantName,
-    };
-
-    const newTab = document.createElement("li"); // CREATES NEW PLANT TAB
-    newTab.role = "presentation";
-    newTab.className = "nav-item";
-    newTab.innerHTML = `
-      <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${contentId}" type="button" role="tab"> 
-        ${plantName}
-      </button>`;
-
-    const newTabContent = document.createElement("div"); // CREATES NEW PLANT TAB CONTENT
-    newTabContent.className = "tab-pane fade";
-    newTabContent.id = contentId;
-    newTabContent.role = "tabpanel";
-    newTabContent.innerHTML = `
-      <div class="text-center flower-avatar-container">
-        <img src="${avatarImageSrc}" class="img-fluid text-center avatar">
-      </div>
-      <div class="daily-streak text-center mt-4">
-        <h2 class="streak">Daily Streak: 0🔥</h2>
-        <div class="plant-info-buttons">
-          <div class="nav-link bi bi-info-circle fs-3" 
-            role="button"
-            data-bs-toggle="modal"
-            data-bs-target="#infoModal"
-            data-plant-name="${plantName}">
-          </div>
-          <div class="nav-link bi bi-plus-circle fs-3" 
-            role="button"
-            data-bs-toggle="modal"
-            data-bs-target="#addInfoModal"
-            data-plant-name="${plantName}">
-          </div>
-        </div>
-      </div>`;
-
-    const shareContent = document.getElementById("share-content"); // POPULATES SHARE COLUMN
-
-    shareContent.innerHTML = `
-      <h3 class="text-white"> Share Your Plant! </h3>
-      <img src="${avatarImageSrc}" class="img-fluid text-center share-avatar">
-      <div class="share-controls text-center mt-4">
-        <button class="btn btn-success share-btn">
-          <i class="bi bi-share"></i> Share Plant
-        </button>
-      </div>
-    `;
-
-    const addPlantTab = document.getElementById("add-plant-tab").parentNode; // INSERTS NEW PLANT BEFORE THE "ADD PLAN" TAB
-    plantTabs.insertBefore(newTab, addPlantTab);
-    plantTabsContent.appendChild(newTabContent);
-
-    addPlantForm.reset();
-
-    selectedAvatarSrc = null;
-
-    // RESETS AVATAR CHOICES
-    container.innerHTML = ` 
-      <div id="avatar-choices" class="avatar-grid">
-        <img src="assets/Flower_Avatars/bush.jpg" alt="Bush" class="avatar-choice">
-        <img src="assets/Flower_Avatars/cactus 3.jpg" alt="Cactus" class="avatar-choice">
-        <img src="assets/Flower_Avatars/cactus.jpg" alt="Cactus" class="avatar-choice">
-        <img src="assets/Flower_Avatars/cactus2.jpg" alt="Cactus" class="avatar-choice">
-        <img src="assets/Flower_Avatars/flower.jpg" alt="Flower" class="avatar-choice">
-        <img src="assets/Flower_Avatars/leaves.jpg" alt="Leaves" class="avatar-choice">
-        <img src="assets/Flower_Avatars/leaves 2.jpg" alt="leaves" class="avatar-choice">
-        <img src="assets/Flower_Avatars/tree.jpg" alt="Tree" class="avatar-choice">
-        <img src="assets/Flower_Avatars/sapling.jpg" alt="Sapling" class="avatar-choice">
-        <img src="assets/Flower_Avatars/houseplant.jpg" alt="houseplant" class="avatar-choice">
-      </div>
-    `;
-    
-    // Reattach the click listener for avatar selection
-    document.getElementById("avatar-choices").addEventListener("click", function(e) {
-      if (e.target && e.target.classList.contains("avatar-choice")) {
-        document.querySelectorAll(".avatar-choice").forEach(img => img.classList.remove("selected"));
-        e.target.classList.add("selected");
-        selectedAvatarSrc = e.target.getAttribute("src");
+  // Set up info modal for plant settings
+  const infoModal = document.getElementById('infoModal');
+  if (infoModal) {
+    infoModal.addEventListener('show.bs.modal', function (event) {
+      const trigger = event.relatedTarget;
+      const plantName = trigger.getAttribute('data-plant-name');
+      currentPlantName = plantName;
+      if (plantName) {
+        document.getElementById('username').placeholder = plantName;
       }
     });
-
-    const newTabButton = document.getElementById(tabId);
-    const tab = new bootstrap.Tab(newTabButton);
-    tab.show();
-  });
-});
-
-
-
-//JAVASCRIPT FOR THE IMAGE HANDLING
-//collect references of form, input and the display
-document.addEventListener('DOMContentLoaded', function() {
-  const photoForm = document.getElementById('photoForm');
-  const input = document.getElementById('photoInput');
-  const display = document.getElementById('display');
-
-  photoForm.addEventListener('submit', function (e) {
-    e.preventDefault(); //USE THIS TO STOP PAGE REFRESHING ON SUBMITS!
-    e.stopPropagation();
-
-
-    const file = input.files[0];
-    if (!file) return; //Get the file uploaded by the user
-
-    const plant_name = document.getElementById('plant_name').value
-    const comments = document.getElementById('comments').value
-
-
-    const reader = new FileReader(); // convert image so our site can use it
-    reader.onload = function (event) {
-      const imgSrc = event.target.result;
-      const date = new Date().toLocaleString(undefined, {
-        hour: 'numeric',
-        minute: 'numeric',
-        day: '2-digit',
-        month: '2-digit',
-        year: '2-digit',
-      }); //Neater display without seconds
-
-      // Create a new card element for the photo
-      // all photos will be displayed seperately and uniformly
-      const card = document.createElement('div');
-      card.className = 'card photo-card';
-
-      cardHTML = `
-      <p class="card-text">${date}</p>
-      <div class="card-body">
-        <img src="${imgSrc}" class="card-img-top photo-img" alt="Uploaded photo">
-      `;
-        // Only add Plant Name if user wrote it
-      if (plant_name) {
-        cardHTML += `<p class="card-text"><strong>Plant Name:</strong> ${plant_name}</p>`;
-      }
-
-        // Only add Comments if user wrote it
-      if (comments) {
-        cardHTML += `<p class="card-text"><strong>Comments:</strong> ${comments}</p>`;
-      }
-
-      // finalise the body card 
-      cardHTML += `</div>`;
-      card.innerHTML = cardHTML;
-
-      display.prepend(card); // Newest first
-      //to make it start with the oldests first we just need to append it
-      //Not sure if we would like to consider option of switch photos apparance later
-      // ie) By newest, By oldest toggle for the user to press
-
-      //REMOVE WHEN IMPLEMENTING INTO OTHER FILES/FUNCTIONS
-      console.log('image added to diary');
-      photoForm.reset();
-    };
-
-    reader.readAsDataURL(file);
-  });
-});
-
-
-// JavaScript for the Plant Growth Tracker
-document.addEventListener('DOMContentLoaded', function() {
-  const form = document.getElementById('growthForm');
-  const canvas = document.getElementById('graphCanvas');
-  const ctx = canvas.getContext('2d');
-  const plantSelector = document.getElementById('plantSelector');
-
-  function addToDropdown(name) {
-    // Make new option for the plant in the dropdown menu
-    const option = document.createElement('option');
-    option.value = name;
-    option.textContent = name;
-    plantSelector.appendChild(option);
   }
 
+  // Set up delete button functionality
+  const deleteButton = document.getElementById('delete-plant-button');
+  if (deleteButton) {
+    deleteButton.addEventListener("click", function() {
+      const plant = globalPlants[currentPlantName];
+      if (!plant) return;
+    
+      const tab = document.getElementById(plant.tabId);
+      const tabContent = document.getElementById(plant.contentId);
+    
+      tab.remove();
+      tabContent.remove();
+    
+      // Remove plant from global plants dictionary
+      delete globalPlants[currentPlantName];
+      
+      // Also remove plant's growth data if it exists
+      if (globalPlants.growthData && globalPlants.growthData[currentPlantName]) {
+        delete globalPlants.growthData[currentPlantName];
+      }
+      
+      console.log(`Plant "${currentPlantName}" deleted from global registry`);
+      console.log('Current plants:', Object.keys(globalPlants));
+      
+      // Update growth tracking dropdown by removing the plant
+      const plantSelector = document.getElementById('plantSelector');
+      if (plantSelector) {
+        for (let i = 0; i < plantSelector.options.length; i++) {
+          if (plantSelector.options[i].value === currentPlantName) {
+            plantSelector.remove(i);
+            break;
+          }
+        }
+      }
+      
+      currentPlantName = null;
+      myPlantCount--;
+
+      if (myPlantCount > 0) {
+        const remainingTabs = document.querySelectorAll(".nav-link");
+        const firstTab = remainingTabs[1];
+        const bootstrapTab = new bootstrap.Tab(firstTab);
+        bootstrapTab.show();
+      }
+      else {
+        const remainingTabs = document.querySelectorAll(".nav-link");
+        const firstTab = remainingTabs[0];
+        const bootstrapTab = new bootstrap.Tab(firstTab);
+        bootstrapTab.show();
+      }
+    });
+  }
+
+  // Set up add plant form submission
+  if (addPlantForm) {
+    addPlantForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const plantName = document.getElementById('plantName').value.trim();
+      const plantNameInput = document.getElementById('plantName');
+      const tabId = `plant${myPlantCount}-tab`;
+      const contentId = `plant${myPlantCount}`;
+      const avatarImageSrc = selectedAvatarSrc;
+
+      // Check if plant name already exists in the global plants dictionary
+      if (plantName in globalPlants) {
+        document.getElementById('uniqueNameError').classList.remove('d-none');
+        plantNameInput.classList.add('is-invalid');
+
+        plantNameInput.addEventListener('input', function() {
+          document.getElementById('uniqueNameError').classList.add('d-none');
+          plantNameInput.classList.remove('is-invalid');
+        });
+        return;
+      }
+      
+      myPlantCount++;
+      
+      // Add this to the plant initialization in initializePlantManagement()
+      globalPlants[plantName] = {
+        tabId: tabId,
+        contentId: contentId,
+        name: plantName,
+        avatarSrc: avatarImageSrc,
+        streakCount: 0,
+        creationDate: new Date().toISOString(),
+        lastUpdated: new Date().toISOString(),
+        photos: [] // Add this line to store plant photos
+      };
+
+      // Create new plant tab
+      const newTab = document.createElement("li");
+      newTab.role = "presentation";
+      newTab.className = "nav-item";
+      newTab.innerHTML = `
+        <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${contentId}" type="button" role="tab"> 
+          ${plantName}
+        </button>`;
+
+      // Create new plant tab content
+      const newTabContent = document.createElement("div");
+      newTabContent.className = "tab-pane fade";
+      newTabContent.id = contentId;
+      newTabContent.role = "tabpanel";
+      newTabContent.innerHTML = `
+        <div class="text-center flower-avatar-container">
+          <img src="${avatarImageSrc}" class="img-fluid text-center avatar">
+        </div>
+        <div class="daily-streak text-center mt-4">
+          <h2 class="streak">Daily Streak: 0🔥</h2>
+          <div class="plant-info-buttons">
+            <div class="nav-link bi bi-info-circle fs-3" 
+              role="button"
+              data-bs-toggle="modal"
+              data-bs-target="#infoModal"
+              data-plant-name="${plantName}">
+            </div>
+            <div class="nav-link bi bi-plus-circle fs-3" 
+              role="button"
+              data-bs-toggle="modal"
+              data-bs-target="#addInfoModal"
+              data-plant-name="${plantName}">
+            </div>
+          </div>
+        </div>`;
+
+      // Update share column content
+      const shareContent = document.getElementById("share-content");
+      if (shareContent) {
+        shareContent.innerHTML = `
+          <h3 class="text-white"> Share Your Plant! </h3>
+          <img src="${avatarImageSrc}" class="img-fluid text-center share-avatar">
+          <div class="share-controls text-center mt-4">
+              <a class="btn btn-success btn-lg" href="shareBoard.html">
+                <i class="bi bi-share me-2"></i> Share Plant
+              </a>
+          </div>
+        `;
+      }
+
+      // Insert new plant before "Add Plant" tab
+      const addPlantTab = document.getElementById("add-plant-tab").parentNode;
+      plantTabs.insertBefore(newTab, addPlantTab);
+      plantTabsContent.appendChild(newTabContent);
+      
+      // Update growth tracking dropdown with new plant
+      const plantSelector = document.getElementById('plantSelector');
+      if (plantSelector) {
+        const option = document.createElement('option');
+        option.value = plantName;
+        option.textContent = plantName;
+        plantSelector.appendChild(option);
+      }
+      
+      // Initialize empty growth data for this plant
+      if (!globalPlants.growthData) {
+        globalPlants.growthData = {};
+      }
+      globalPlants.growthData[plantName] = [];
+      
+      addPlantForm.reset();
+      selectedAvatarSrc = null;
+
+      // Reset avatar choices
+      container.innerHTML = ` 
+        <div id="avatar-choices" class="avatar-grid">
+          <img src="assets/Flower_Avatars/bush.jpg" alt="Bush" class="avatar-choice">
+          <img src="assets/Flower_Avatars/cactus 3.jpg" alt="Cactus" class="avatar-choice">
+          <img src="assets/Flower_Avatars/cactus.jpg" alt="Cactus" class="avatar-choice">
+          <img src="assets/Flower_Avatars/cactus2.jpg" alt="Cactus" class="avatar-choice">
+          <img src="assets/Flower_Avatars/flower.jpg" alt="Flower" class="avatar-choice">
+          <img src="assets/Flower_Avatars/leaves.jpg" alt="Leaves" class="avatar-choice">
+          <img src="assets/Flower_Avatars/leaves 2.jpg" alt="leaves" class="avatar-choice">
+          <img src="assets/Flower_Avatars/tree.jpg" alt="Tree" class="avatar-choice">
+          <img src="assets/Flower_Avatars/sapling.jpg" alt="Sapling" class="avatar-choice">
+          <img src="assets/Flower_Avatars/houseplant.jpg" alt="houseplant" class="avatar-choice">
+        </div>
+      `;
+      
+      // Reattach avatar selection event listener
+      const avatarChoices = document.getElementById("avatar-choices");
+      if (avatarChoices) {
+        avatarChoices.addEventListener("click", function(e) {
+          if (e.target && e.target.classList.contains("avatar-choice")) {
+            document.querySelectorAll(".avatar-choice").forEach(img => img.classList.remove("selected"));
+            e.target.classList.add("selected");
+            selectedAvatarSrc = e.target.getAttribute("src");
+          }
+        });
+      }
+
+      // Show the new plant tab
+      const newTabButton = document.getElementById(tabId);
+      const tab = new bootstrap.Tab(newTabButton);
+      tab.show();
+    });
+  }
+
+  document.addEventListener('shown.bs.tab', function(event) { // Event Listener for Tab Switch
+    const activeTab = event.target; // newly activated tab
+    const previousTab = event.relatedTarget; // previous active tab
+    
+    if (activeTab && !activeTab.id.includes('add-plant')) { // checks if tab is not add-plant tab
+      const plantName = activeTab.textContent.trim();
+      const plantData = globalPlants[plantName];
+      
+      if (plantData) {
+        // Update any UI elements that depend on the current plant
+        console.log(`Switched to plant: ${plantName}`);
+        
+        // Update share content if it exists
+        const shareContent = document.getElementById("share-content");
+        if (shareContent && plantData.avatarSrc) {
+          shareContent.innerHTML = `
+            <h3 class="text-white"> Share Your Plant! </h3>
+            <img src="${plantData.avatarSrc}" class="img-fluid text-center share-avatar">
+            <div class="share-controls text-center mt-4">
+              <a class="btn btn-success btn-lg" href="shareBoard.html">
+                <i class="bi bi-share me-2"></i> Share Plant
+              </a>
+            </div>
+          `;
+        }
+
+        // Update growth graph for the current plant
+        canvas = document.getElementById('plantGrowthGraph');
+        const graphHeader = document.getElementById('graphHeader');
+        if (canvas && graphHeader) {
+          // Update the graph header with the current plant name
+          graphHeader.textContent = plantName;
+
+          // Clear and redraw the graph with current plant's data
+          ctx = canvas.getContext('2d');
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          
+          // Draw the graph if growth data exists
+          if (globalPlants.growthData && globalPlants.growthData[plantName]) {
+            drawGraph(plantName);
+          } else {
+            // Show placeholder text if no data
+            ctx.font = "16px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(`No growth data for ${plantName} yet.`, canvas.width/2, canvas.height/2);
+          }
+        }
+
+        // Update photo display for the selected plant
+        updatePhotoDisplay(plantName);
+      }
+    }
+  });
+}
+
+/**
+ * PHOTO UPLOAD & DISPLAY
+ * Functions to handle photo uploads and display in diary
+ */
+
+// Initialize photo upload functionality
+function initializePhotoUpload() {
+    const photoForm = document.getElementById('photoForm');
+    const input = document.getElementById('photoInput');
+    const display = document.getElementById('latestPhotoContainer');
+    const noPhotoMessage = document.getElementById('noPhotoMessage');
+
+    if (!photoForm || !input || !display) return;
+
+    photoForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const file = input.files[0];
+        if (!file) return;
+
+        const currentPlant = getCurrentActivePlantName();
+        if (!currentPlant || !globalPlants[currentPlant]) {
+            alert('Please select a plant first');
+            return;
+        }
+
+        const comments = document.getElementById('comments')?.value;
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            const imgSrc = event.target.result;
+            const date = new Date().toLocaleString(undefined, {
+                hour: 'numeric',
+                minute: 'numeric',
+                day: '2-digit',
+                month: '2-digit',
+                year: '2-digit',
+            });
+
+            // Create photo object
+            const photoData = {
+                src: imgSrc,
+                date: date,
+                comments: comments || '',
+            };
+
+            // Add to plant's photos array
+            if (!globalPlants[currentPlant].photos) {
+                globalPlants[currentPlant].photos = [];
+            }
+            globalPlants[currentPlant].photos.push(photoData); // Add new photo at the beginning
+
+            // Update display
+            updatePhotoDisplay(currentPlant);
+
+            photoForm.reset();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('pictureModal'));
+            modal?.hide();
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+
+// Add this new function to update photo display
+function updatePhotoDisplay(plantName) {
+  const display = document.getElementById('latestPhotoContainer');
+  const noPhotoMessage = document.getElementById('noPhotoMessage');
+  
+  if (!display) return;
+
+  const plant = globalPlants[plantName];
+  if (!plant || !plant.photos || plant.photos.length === 0) {
+      display.innerHTML = '';
+      if (noPhotoMessage) {
+          noPhotoMessage.style.display = 'block';
+      }
+      return;
+  }
+
+  if (noPhotoMessage) {
+      noPhotoMessage.style.display = 'none';
+  }
+
+  const latestPhoto = plant.photos[plant.photos.length - 1];
+
+  display.innerHTML = `
+      <div class="card photo-card mb-3">
+          <div class="card-body">
+              <p class="card-text"><small>${latestPhoto.date}</small></p>
+              <img src="${latestPhoto.src}" class="card-img-top photo-img mb-2" alt="Plant photo">
+              ${latestPhoto.comments ? `<p class="card-text"><strong>Comments:</strong> ${latestPhoto.comments}</p>` : ''}
+          </div>
+      </div>
+  `;
+}
+
+
+function updatePicGrid(showAll = false) {
+  console.log("updatePicGrid called");
+  const picDiv = document.getElementById('picDiv');
+  console.log("picDiv", picDiv);
+  if (!picDiv) return;
+  currentPlantName = getCurrentActivePlantName();
+  console.log("currentPlantName", currentPlantName);
+
+  console.log("currentPlantName", currentPlantName);
+  
+  
+  const photosToShow = globalPlants[currentPlantName].photos.reverse(); // Most recent first
+  
+  const grid = document.createElement('div');
+  grid.className = 'row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3';
+
+  photosToShow.forEach(card => {
+    const col = document.createElement('div');
+    col.className = 'col';
+    col.appendChild(card.cloneNode(true)); // Clone to avoid DOM reuse issues
+    grid.appendChild(col);
+  });
+
+  picDiv.appendChild(grid);
+
+}
+
+
+/**
+ * PLANT GROWTH TRACKING
+ * Functions to track and visualize plant growth
+ */
+
+// Initialize plant growth tracker
+function initializePlantGrowthTracker() {
+  const form = document.getElementById('growthDataForm');
+  const submitBtn = document.getElementById('addGrowthDataBtn');
+  const dateInput = document.getElementById('growthDate');
+
+  if (dateInput) {
+    dateInput.valueAsDate = new Date();
+  }
+
+  if (form && submitBtn) {
+    form.addEventListener('submit', handleGrowthDataSubmit);
+    submitBtn.addEventListener('click', handleGrowthDataSubmit);
+  }
+
+  function setDateTo(offsetDays, buttonId) {
+    const dateInput = document.getElementById('growthDate');
+    const buttons = document.querySelectorAll('.date-select-button');
+  
+    // Remove active class from all buttons
+    buttons.forEach(btn => btn.classList.remove('active'));
+  
+    // Add active class to the clicked button
+    const selectedButton = document.getElementById(buttonId);
+    if (selectedButton) {
+      selectedButton.classList.add('active');
+    }
+  
+    if (dateInput && typeof offsetDays === 'number') {
+      const date = new Date();
+      date.setDate(date.getDate() + offsetDays);
+      dateInput.valueAsDate = date;
+    }
+  }
+
+  document.getElementById('todayButton').addEventListener('click', () => setDateTo(0, 'todayButton'));
+  document.getElementById('yesterdayButton').addEventListener('click', () => setDateTo(-1, 'yesterdayButton'));
+
+  function handleGrowthDataSubmit(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const name = getCurrentActivePlantName();
+    const date = document.getElementById('growthDate').value;
+    const height = parseFloat(document.getElementById('growthHeight').value);
+
+    if (!name || !date || isNaN(height)) {
+      alert('Please fill in all fields correctly');
+      return;
+    }
+
+    if (!globalPlants.growthData[name]) {
+      globalPlants.growthData[name] = [];
+    }
+    globalPlants.growthData[name].push({ date, height });
+    globalPlants.growthData[name].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    if (globalPlants[name]) {
+      globalPlants[name].lastUpdated = new Date().toISOString();
+    }
+
+    // Clear form and close modal
+    form.reset();
+    dateInput.valueAsDate = new Date();
+    const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
+    if (modal) {
+      modal.hide();
+    }
+
+    // Update graph
+    console.log(`Added growth data for ${name}:`, globalPlants.growthData[name]);
+    console.log("draw graph called")
+    drawGraph(name);
+  }
+
+  canvas = document.getElementById('plantGrowthGraph');
+  const plantSelector = document.getElementById('plantSelector');
+  
+  if (!form || !canvas || !plantSelector) return;
+
+  ctx = canvas.getContext('2d');
+  
+  // Use plant growth data from global plants dictionary
+  // This ensures plant data persists across the application
+  if (!globalPlants.growthData) {
+    globalPlants.growthData = {};
+  }
+
+  // Populate dropdown with plants from global dictionary
+  function populatePlantDropdown() {
+    // Clear existing options first
+    while (plantSelector.options.length > 1) {
+      plantSelector.remove(1);
+    }
+    // Add all plants from global dictionary
+    Object.keys(globalPlants).forEach(plantName => {
+      if (plantName !== 'growthData') { // Skip the special growthData key
+        const option = document.createElement('option');
+        option.value = plantName;
+        option.textContent = plantName;
+        plantSelector.appendChild(option);
+      }
+    });
+  }
+
+  // Handle plant selection change
   plantSelector.addEventListener('change', () => {
     const selectedPlant = plantSelector.value;
     if (selectedPlant) {
+      console.log("drawgraph called for", selectedPlant);
       drawGraph(selectedPlant);
     } else {
-      // Clear the canvas if no plant is selected
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
   });
 
-  const plantData = {}; 
-  // Store plant data in an object; Keys are plant names, values are arrays of dates & growth 
-  // Example: { Plant42: [{date: ..., height: ...}], Bulbasaur: [...] }
-
-  form.addEventListener('submit', (e) => {
+  // Handle form submission for new growth data
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const name = document.getElementById('namePlant').value.trim();
-    const date = document.getElementById('plantDate').value;
-    const height = parseFloat(document.getElementById('plantHeight').value);
+    const name = getCurrentActivePlantName(); // Get currently active plant name
+    const date = document.getElementById('growthDate').value;
+    const height = parseFloat(document.getElementById('growthHeight').value);
 
-    //Don't add data if any field is empty or invalid
-    if (!name || !date || isNaN(height)) return;
+    if (!name || !date || isNaN(height)) {
+      alert('Please fill in all fields correctly');
+      return;
+    }
+
+    // Initialize growth data for this plant if it doesn't exist
+    if (!globalPlants.growthData[name]) {
+      globalPlants.growthData[name] = [];
+    }
+
+    // Add new growth data point
+    globalPlants.growthData[name].push({ date, height });
+
+    // Sort by date
+    globalPlants.growthData[name].sort((a, b) => new Date(a.date) - new Date(b.date));
     
-    // Create a new entry for the plant if it doesn't exist
-    if (!plantData[name]) {
-      plantData[name] = [];
-      addToDropdown(name);
+    // Update last updated timestamp for the plant
+    if (globalPlants[name]) {
+      globalPlants[name].lastUpdated = new Date().toISOString();
     }
 
-    // Add the new info to plant's data array
-    plantData[name].push({ date, height });
-
-    // Sort the data by date
-    // Therefore if older data is added, graph will still be correct
-    plantData[name].sort((a, b) => new Date(a.date) - new Date(b.date));
-
+    // Clear form
     form.reset();
-    if (plantSelector.value === name) {
-      drawGraph(name); // Redraw if it's currently selected by our user
-    }
+
+    // Close the modal using Bootstrap's API
+    const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
+    modal.hide();
+    
+    // Update the graph
+    console.log("draw graph called")
+    drawGraph(name);
   });
+  
+  // Initial population of dropdown
+  populatePlantDropdown();
+}
 
+/**
+ * SETTINGS & PREFERENCES
+ * Functions to handle user settings and preferences
+ */
 
-  function drawGraph(namePlant) {
-    const data = plantData[namePlant];
-
-    // we can only draw the graph if we have at least 2 data points
-    if (!data || data.length < 2) return;
-
-    // Clear current canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const padding = 70;
-    const graphWidth = canvas.width - padding * 2;
-    const graphHeight = canvas.height - padding * 2;
-
-    const dates = data.map(d => new Date(d.date));
-    const heights = data.map(d => d.height);
-
-
-    // scale our graph based on the min and max values of our data
-    const minDate = Math.min(...dates.map(d => d.getTime()));
-    const maxDate = Math.max(...dates.map(d => d.getTime()));
-    const minHeight = Math.min(...heights);
-    const maxHeight = Math.max(...heights);
-
-    function getX(date) {
-      return padding + ((date.getTime() - minDate) / (maxDate - minDate)) * graphWidth;
-    }
-
-    function getY(height) {
-      return canvas.height - padding - ((height - minHeight) / (maxHeight - minHeight)) * graphHeight;
-    }
-
-    ctx.beginPath();
-    ctx.moveTo(padding, padding);
-    ctx.lineTo(padding, canvas.height - padding); //draw y-axis
-    ctx.lineTo(canvas.width - padding, canvas.height - padding); //draw x-axis
-    ctx.stroke(); //apply these lines to canvas
-
-    // Plot points and connect them
-    ctx.beginPath();
-    ctx.strokeStyle = '#28a745';
-    ctx.lineWidth = 4;
-    data.forEach((point, index) => {
-      const x = getX(new Date(point.date));
-      const y = getY(point.height);
-
-      if (index === 0){
-        ctx.moveTo(x, y);
-      }
-      else {
-        ctx.lineTo(x, y);
-      }
-
-      ctx.arc(x, y, 5, 0, 2 * Math.PI); // Draw point
-    });
-    ctx.stroke();
-
-    // Y-Axis label
-    ctx.save(); // Save current state
-    ctx.translate(20, canvas.height / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.textAlign = "center";
-    ctx.font = "14px sans-serif";
-    ctx.fillText("Height Grown", 0, 0);
-    ctx.restore(); // Restore back to normal
-
-    // X-Axis label
-    ctx.font = "14px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("Time Spent Growing", canvas.width / 2, canvas.height - 10);
-
-    // Write Title linked to the plant name
-    ctx.font = "bold 18px sans-serif";
-    ctx.fillText(`${namePlant}'s Growth Journey`, canvas.width / 2, padding - 15);
-  }
-});
-
-// function to load the setting modal
-document.addEventListener("DOMContentLoaded", () => {
+// Initialize settings modal loading
+function initializeSettingsModal() {
   const modal = document.getElementById("User-Settings-Modal");
+  if (!modal) return;
 
   modal.addEventListener("show.bs.modal", () => {
     fetch("User-Settings.html")
@@ -585,26 +980,75 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("Error loading settings:", error);
       });
   });
-});
+}
 
-// function to toggle the options in the settings modal
+// Toggle options in settings modal
 function toggleOptions(id) {
   const el = document.getElementById(id);
-  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+  if (el) {
+    el.style.display = el.style.display === 'block' ? 'none' : 'block';
+  }
 }
 // dark mode functions
 
 // function to toggle dark mode
+// Toggle light intensity (dimming feature)
 function toggleLightIntensity() {
   const overlay = document.getElementById("dark-overlay");
+  if (!overlay) return;
+
   const isOn = overlay.style.display === "block";
   overlay.style.display = isOn ? "none" : "block";
-  localStorage.setItem("dimmed", !isOn);
 }
 // event handler to set darkmode on page load
 document.addEventListener("DOMContentLoaded", () => {
   const saved = localStorage.getItem("dimmed") === "true";
+
+// Initialize dimming from localStorage
+function initializeDimming() {
   const overlay = document.getElementById("dark-overlay");
+  if (overlay) {
+    overlay.style.display = "none";
+  }
+}
+
+/**
+ * UI LAYOUT CONTROLS
+ * Functions to control UI layout
+ */
+
+// Toggle fullscreen mode
+function toggleFullscreen() {
+  const picsAndGraphs = document.getElementById('picsAndGraphs');
+  const leftCol = document.querySelector('.left_col');
+  const rightCol = document.querySelector('.right_col');
+  const picDiv = document.getElementById('picDiv');
+  
+  if (!leftCol || !rightCol) return;
+
+  const isExpanded = leftCol.classList.contains('col-12');
+
+  if (!isExpanded) { // if left column is not expanded
+    picsAndGraphs.classList.remove('flex-column');
+    picsAndGraphs.classList.add('gap-5');
+    picsAndGraphs.classList.add('p-5');
+
+    leftCol.classList.remove('col-3');
+    leftCol.classList.add('col-12', 'vh-100');
+    rightCol.classList.add('d-none');
+
+    // updatePicGrid();
+
+  } else { // if left column is expanded
+    picsAndGraphs.classList.add('flex-column');
+    picsAndGraphs.classList.remove('gap-5');
+    picsAndGraphs.classList.remove('p-5');
+    
+    leftCol.classList.remove('col-12', 'vh-100');
+    leftCol.classList.add('col-3');
+    rightCol.classList.remove('d-none');
+  }
+}
   if (overlay && saved) {
     overlay.style.display = "block";
   }
