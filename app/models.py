@@ -30,6 +30,8 @@ class UserSettings(user_db.Model):
 # friend_id: foreign key to User table, links to the id of the user who received the friend request
 # status: string, can be 'pending' or 'accepted', by default 'pending' until accepted
 
+
+#IMPORTANT NOTE: THIS SHOULD WORK LIKE FOLLOWERS - SHOULDN"T HAVE PENDING REQUESTS!
 class FriendsList(user_db.Model):
   __tablename__ = 'friends_list'
   user_id = user_db.Column(user_db.Integer, user_db.ForeignKey('user.id'), primary_key=True)
