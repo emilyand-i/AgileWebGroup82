@@ -924,57 +924,105 @@ function updatePicGrid(showAll = false) {
 
 
 // Initialize plant growth tracker
-function initializePlantGrowthTracker() {
+
+function initialisePlantGrowthTracker() {
   const growthForm = document.getElementById('growthDataForm');
   const waterForm = document.getElementById('waterForm');
-  const waterSubmitBtn = document.getElementById('waterBtn');
-  const growthSubmitBtn = document.getElementById('addGrowthDataBtn');
   const growthDateInput = document.getElementById('growthDate');
   const waterDateInput = document.getElementById('waterDate');
 
+  console.log("Initializing plant growth tracker...");
+
   if (growthDateInput) {
-  growthDateInput.valueAsDate = new Date();
+    growthDateInput.valueAsDate = new Date();
   }
   if (waterDateInput) {
     waterDateInput.valueAsDate = new Date();
   }
 
-  if (growthForm && growthSubmitBtn) {
+  if (growthForm) {
+    console.log("Growth form found");
     growthForm.addEventListener('submit', handleGrowthDataSubmit);
-    growthSubmitBtn.addEventListener('click', handleGrowthDataSubmit);
   }
 
-  if (waterForm && waterSubmitBtn) {
+  if (waterForm) {
+    console.log("Water form found");
     waterForm.addEventListener('submit', handleWaterDataSubmit);
-    waterSubmitBtn.addEventListener('click', handleWaterDataSubmit);
   }
 
-  function setDateTo(offsetDays, buttonId) {
-    const growthDateInput = document.getElementById('growthDate');
-    const waterDateInput = document.getElementById('waterDate');
+  function setDateTo(offsetDays, buttonId, inputId) {
+    console.log(`🔁 setDateTo called with offsetDays=${offsetDays}, buttonId=${buttonId}, inputId=${inputId}`);
+
     const buttons = document.querySelectorAll('.date-select-button');
+    console.log(`🎯 Found ${buttons.length} buttons`);
 
     // Remove active class from all buttons
-    buttons.forEach(btn => btn.classList.remove('active'));
+    buttons.forEach(btn => {
+      btn.classList.remove('active');
+      console.log(`✂️ Removed active from button: ${btn.id}`);
+    });
 
-    // Add active class to the clicked button
     const selectedButton = document.getElementById(buttonId);
     if (selectedButton) {
       selectedButton.classList.add('active');
+      console.log(`✅ Added active to button: ${buttonId}`);
+    } else {
+      console.warn(`❌ Button not found: ${buttonId}`);
     }
 
     const date = new Date();
     date.setDate(date.getDate() + offsetDays);
+    console.log(`📅 New date: ${date.toDateString()}`);
 
-    if (growthDateInput) growthDateInput.valueAsDate = date;
-    if (waterDateInput) waterDateInput.valueAsDate = date;
+    const input = document.getElementById(inputId);
+    if (input) {
+      input.valueAsDate = date;
+      console.log(`📝 Set date for input ${inputId} to ${input.value}`);
+    } else {
+      console.warn(`❌ Input not found: ${inputId}`);
+    }
   }
 
+  window.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 DOM fully loaded. Setting initial date values...');
+    const today = new Date();
 
-  document.getElementById('todayButton').addEventListener('click', () => setDateTo(0, 'todayButton'));
-  document.getElementById('yesterdayButton').addEventListener('click', () => setDateTo(-1, 'yesterdayButton'));
-  document.getElementById('waterTodayButton').addEventListener('click', () => setDateTo(0, 'waterTodayButton'));
-  document.getElementById('waterYesterdayButton').addEventListener('click', () => setDateTo(-1, 'waterYesterdayButton'));
+    const growthDateInput = document.getElementById('growthDate');
+    const waterDateInput = document.getElementById('waterDate');
+
+    if (growthDateInput) {
+      growthDateInput.valueAsDate = today;
+      console.log(`📥 Set initial growthDate to ${growthDateInput.value}`);
+    } else {
+      console.warn('❌ growthDate input not found.');
+    }
+
+    if (waterDateInput) {
+      waterDateInput.valueAsDate = today;
+      console.log(`📥 Set initial waterDate to ${waterDateInput.value}`);
+    } else {
+      console.warn('❌ waterDate input not found.');
+    }
+  });
+
+  document.getElementById('todayButton')?.addEventListener('click', () =>
+    setDateTo(0, 'todayButton', 'growthDate')
+  );
+
+  document.getElementById('yesterdayButton')?.addEventListener('click', () =>
+    setDateTo(-1, 'yesterdayButton', 'growthDate')
+  );
+
+  document.getElementById('waterTodayButton')?.addEventListener('click', () =>
+    setDateTo(0, 'waterTodayButton', 'waterDate')
+  );
+
+  document.getElementById('waterYesterdayButton')?.addEventListener('click', () =>
+    setDateTo(-1, 'waterYesterdayButton', 'waterDate')
+  );
+
+
+
 
   function handleWaterDataSubmit(e) {
     e.preventDefault();
