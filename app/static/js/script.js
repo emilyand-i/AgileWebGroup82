@@ -415,7 +415,7 @@ async function savePlantinDB(plant_name, plant_type, chosen_image_url) {
     const load = await fetch('/api/add-plant', {
       method: 'POST',
       headers: {
-        'Conent-Type': 'application/json',
+        'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken
       },
       credentials: 'include', 
