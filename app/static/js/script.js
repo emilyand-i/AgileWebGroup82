@@ -509,51 +509,50 @@ function initialisePlantManagement() {
   const deleteButton = document.getElementById('delete-plant-button');
   if (deleteButton) {
     deleteButton.addEventListener("click", function() {
+      if (!currentPlantName || !globalPlants[currentPlantName]) return;
+
       const plant = globalPlants[currentPlantName];
       if (!plant) return;
     
       const tab = document.getElementById(plant.tabId);
       const tabContent = document.getElementById(plant.contentId);
-    
-      tab.remove();
-      tabContent.remove();
+      if (tab) tab.remove();
+      if (tabContent) tabContent.remove();
     
       // Remove plant from global plants dictionary
       delete globalPlants[currentPlantName];
       
       // Also remove plant's growth data if it exists
-      if (globalPlants.growthData && globalPlants.growthData[currentPlantName]) {
+      if (globalPlants.growthData) {
         delete globalPlants.growthData[currentPlantName];
       }
       
+      // Update growth tracking dropdown by removing the plant
+      const selector = document.getElementById('plantSelector');
+      if (selector) {
+        const option = Array.from(selector.options).find(opt => opt.value === currentPlantName);
+        if (option) selector.removeChild(option);
+      }
+
       console.log(`Plant "${currentPlantName}" deleted from global registry`);
       console.log('Current plants:', Object.keys(globalPlants));
-      
-      // Update growth tracking dropdown by removing the plant
-      const plantSelector = document.getElementById('plantSelector');
-      if (plantSelector) {
-        for (let i = 0; i < plantSelector.options.length; i++) {
-          if (plantSelector.options[i].value === currentPlantName) {
-            plantSelector.remove(i);
-            break;
-          }
-        }
-      }
+  
       
       currentPlantName = null;
       myPlantCount--;
+      
+      // No check for remaining tabs length before accessing remainingTabs[1] or [0] could cause error in plant deleteion section
+      // so fixed with new implementation 
 
-      if (myPlantCount > 0) {
-        const remainingTabs = document.querySelectorAll(".nav-link");
-        const firstTab = remainingTabs[1];
-        const bsTab = new bootstrap.Tab(firstTab);
-        bsTab.show();
-      }
-      else {
-        const remainingTabs = document.querySelectorAll(".nav-link");
+      const remainingTabs = Array.from(document.querySelectorAll(".nav-link")).filter(tab => 
+        !tab.id.includes('add-plant')
+      );
+      if (remainingTabs.length > 0) {
         const firstTab = remainingTabs[0];
         const bsTab = new bootstrap.Tab(firstTab);
         bsTab.show();
+      } else {
+        console.log("No plants left")
       }
     });
   }

@@ -203,3 +203,25 @@ def add_plant():
     user_db.session.commit()
 
     return jsonify({'message': 'Plant added successfully'}), 201
+
+@routes_bp.route('/api/delete-plant', methods = ['POST'])
+def delete_plant():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    plant_name = data.get('plant_name')
+    
+    if not plant_name:
+        return jsonify({'error': "Need plant name"}), 404
+    
+    plant = Plants.query.filter_by(user_id = user_id, plant_name = plant_name).first()
+    if not plant:
+        return jsonify({'error': "Plant not found"}), 404
+    
+    user_db.session.delete(plant)
+    user_db.session.commit()
+    
+    return jsonify({'message': "Plant has been deleted successfully"}), 200
+
