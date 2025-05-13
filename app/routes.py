@@ -120,8 +120,7 @@ def login():
             'growth_entries': growth_data,
             'friends': friends_data,
             'photos': photo_data,
-            'settings': settings_data,
-            'user': session.get('user')
+            'settings': settings_data
             
         }), 200
     else:

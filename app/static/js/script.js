@@ -203,12 +203,13 @@ function loginForm() {
         body: JSON.stringify({username, password})
       });
       
-      const login_data = await fetch_login.json();
+      const data = await fetch_login.json();
+      console.log("Storing user profile:", data);
       if (fetch_login.ok) {
-        localStorage.setItem('user_profile', JSON.stringify(login_data.user || {}));
+        localStorage.setItem('user_profile', JSON.stringify(data));
         window.location.href = 'dashboard.html';
       } else {
-        alert(login_data.error || 'Login failed');
+        alert(data.error || 'Login failed');
       }
     } catch (err) {
       console.log('Login error:', err);
@@ -276,7 +277,7 @@ async function loadSession() {
   const load = await fetch('/api/session', {
     method: 'GET',
     headers: {
-      'X-CSRFToken': CsrfToken
+      'X-CSRFToken': csrfToken
     },
     credentials: 'include'
   });
@@ -302,7 +303,7 @@ function loadDashboard() {
   const profile = JSON.parse(localStorage.getItem('user_profile'));
   if (!profile) return;
 
-  document.querySelector('.welcome_to').textContent = `${profile.username}'s Garden`;
+  document.querySelector('.welcome_to').textContent = `Welcome to ${profile.username}'s Garden`;
 
   const plantTabs = document.getElementById("plantTabs");
   const plantTabsContent = document.getElementById("plantTabsContent");
@@ -409,6 +410,31 @@ let globalPlants = {};
  * Functions to add, remove, and manage plants
  */
 
+async function savePlantinDB(plant_name, plant_type, chosen_image_url) {
+  try {
+    const load = await fetch('/api/add-plant', {
+      method: 'POST',
+      headers: {
+        'Conent-Type': 'application/json',
+        'X-CSRFToken': csrfToken
+      },
+      credentials: 'include', 
+      body: JSON.stringify({plant_name, plant_type, chosen_image_url})
+    });
+
+    const data = await load.json();
+    if (load.ok) {
+      console.log("Plant saved");
+      await loadSession();
+    } else {
+      console.warn('Plant save failed:', data.error);
+    }
+  } catch (err) {
+    console.error("couldnt save plant", err);
+  }
+}
+
+
 let myPlantCount = 0;
 let selectedAvatarSrc = null;
 let currentPlantName = null;
@@ -512,7 +538,7 @@ function initializePlantManagement() {
 
   // Set up add plant form submission
   if (addPlantForm) {
-    addPlantForm.addEventListener('submit', function(e) {
+    addPlantForm.addEventListener('submit', async function(e) {
       e.preventDefault();
       
       const plantName = document.getElementById('plantName').value.trim();
@@ -537,7 +563,7 @@ function initializePlantManagement() {
       
       myPlantCount++;
       
-      // Add this to the plant initialization in initializePlantManagement()
+      
       globalPlants[plantName] = {
         tabId: tabId,
         contentId: contentId,
@@ -548,8 +574,10 @@ function initializePlantManagement() {
         streakCount: 0,
         creationDate: new Date().toISOString(),
         lastUpdated: new Date().toISOString(),
-        photos: [] // Add this line to store plant photos
+        photos: [] 
       };
+
+      await savePlantinDB(plantName, plantType, avatarImageSrc);
 
       // Create new plant tab
       const newTab = document.createElement("li");
@@ -717,6 +745,8 @@ function initializePlantManagement() {
     }
   });
 }
+
+
 
 /**
  * PHOTO UPLOAD & DISPLAY
