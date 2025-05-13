@@ -1,10 +1,4 @@
 /**
- * Import 
- */
-
-
-
-/**
  * UTILITY FUNCTIONS
  * Helper functions used across the application
  */
@@ -119,18 +113,6 @@ function getCurrentActivePlantName() {
  * Main initialization when DOM is fully loaded
  */
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize signin button event listener
-  const signinBtn = document.querySelector('.signin-btn');
-  if (signinBtn) {
-    signinBtn.addEventListener('click', flipForm);
-  }
-
-  // Login form
-  loginForm();
-  
-  // Signup form
-  signupForm();
-  
   // Load dashboard
   loadDashboard();
   
@@ -191,7 +173,17 @@ function scrollToAbout() {
  * Functions for user login, registration and logout
  */
 
-const csrfToken = document.querySelector('meta[name= "csrf-token"]').content;
+// csrf Token call
+ 
+let csrfToken = '';
+// fetch token from flask
+async function CsrfToken() {
+  const get = await fetch('/api/csrf-token', {
+    credentials: 'include'
+  });
+  const data = await get.json();
+  csrfToken = data.csrf_token;
+}
 
 function loginForm() {
   const loginForm = document.getElementById('login-form');
@@ -203,20 +195,27 @@ function loginForm() {
     const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
 
-    const fetch_login = await fetch('/api/login', {
-      method: 'POST', 
-      headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
-      credentials: 'include',
-      body: JSON.stringify({username, password})
-    });
-    
-    const login_data = await fetch_login.json();
-    if (fetch_login.ok) {
-      window.location.href = 'dashboard.html';
-    } else {
-      alert(login_data.error || 'Login failed');
+    try {
+      const fetch_login = await fetch('/api/login', {
+        method: 'POST', 
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+        credentials: 'include',
+        body: JSON.stringify({username, password})
+      });
+      
+      const login_data = await fetch_login.json();
+      if (fetch_login.ok) {
+        localStorage.setItem('user_profile', JSON.stringify(login_data.user || {}));
+        window.location.href = 'dashboard.html';
+      } else {
+        alert(login_data.error || 'Login failed');
+      }
+    } catch (err) {
+      console.log('Login error:', err);
+      alert('server error')
     }
   });
+
 }
 
 // Registration form
@@ -254,10 +253,6 @@ function signupForm() {
   });
 }
 
-
-
-
-
 // Logout function
 async function logout() {
   await fetch('/api/logout', {
@@ -265,7 +260,34 @@ async function logout() {
     headers: { 'X-CSRFToken': csrfToken},
     credentials: 'include'
   });
+  localStorage.removeItem('user_profile');
   window.location.href = 'index.html';
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  await CsrfToken();
+  loginForm();
+  signupForm();
+});
+
+
+// load user sessions 
+async function loadSession() {
+  const load = await fetch('/api/session', {
+    method: 'GET',
+    headers: {
+      'X-CSRFToken': CsrfToken
+    },
+    credentials: 'include'
+  });
+  if (load.ok) {
+    const user = await load.json();
+    localStorage.setItem('user_profile', JSON.stringify(user));
+    return user;
+  } else {
+    console.error('Session fetch failure');
+    return null;
+  }
 }
 
 /**
@@ -476,13 +498,13 @@ function initializePlantManagement() {
       if (myPlantCount > 0) {
         const remainingTabs = document.querySelectorAll(".nav-link");
         const firstTab = remainingTabs[1];
-        const bootstrapTab = new bootstrap.Tab(firstTab);
+        const bootstrapTab = new bootstrapTab(firstTab);
         bootstrapTab.show();
       }
       else {
         const remainingTabs = document.querySelectorAll(".nav-link");
         const firstTab = remainingTabs[0];
-        const bootstrapTab = new bootstrap.Tab(firstTab);
+        const bootstrapTab = new bootstrapTab(firstTab);
         bootstrapTab.show();
       }
     });
