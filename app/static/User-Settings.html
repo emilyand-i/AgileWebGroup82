@@ -119,7 +119,7 @@
           <input type="text" id="friend-username" name="username" placeholder="Search for a friend..." required />
           <button type="submit">Add Friend</button>
         </form>
-        
+        <ul id="search-results" style="margin-top: 10px;"></ul>
         <div id="add-friend-message" style="margin-top: 10px; color: #fff;"></div>
     </div>
   </div>
@@ -173,16 +173,90 @@
   <script>
 
     // JavaScript to handle tab switching
+    
     function openTab(evt, tabName) {
-      const tabcontents = document.querySelectorAll('.tabcontent');
-      const tablinks = document.querySelectorAll('.tablinks');
+    // Hide all tab contents
+    const tabContents = document.querySelectorAll('.tabcontent');
+    tabContents.forEach(tc => tc.classList.remove('active'));
 
-      tabcontents.forEach(content => content.classList.remove('active'));
-      tablinks.forEach(link => link.classList.remove('active'));
+    // Remove active class from all tab buttons
+    const tabButtons = document.querySelectorAll('.tab button.tablinks');
+    tabButtons.forEach(btn => btn.classList.remove('active'));
 
-      document.getElementById(tabName).classList.add('active');
+    // Show the selected tab content
+    const selectedContent = document.getElementById(tabName);
+    if (selectedContent) {
+      selectedContent.classList.add('active');
+    }
+
+    // Add active class to the clicked button
+    if (evt && evt.currentTarget) {
       evt.currentTarget.classList.add('active');
     }
+
+    // Optional: reload the friends list if we switched to that tab
+    if (tabName === 'Friends') {
+      loadFriendsList();
+    }
+  }
+
+
+
+
+   // javascript to handle submitting the form to add a friend
+  document.getElementById("add-friend-form").addEventListener("submit", function (event) {
+  event.preventDefault(); // prevent page reload
+
+  const username = document.getElementById("friend-username").value;
+  const messageEl = document.getElementById("add-friend-message");
+
+  fetch("/api/friend-request", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ username: username })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        messageEl.textContent = "Friend request sent to " + username + "!";
+        document.getElementById("friend-username").value = ""; // clear input
+        loadFriendsList(); // update friend list UI
+      } else {
+        messageEl.textContent = "Error: " + data.error;
+      }
+    })
+    .catch(() => {
+      messageEl.textContent = "An unexpected error occurred.";
+    });
+});
+document.getElementById("friend-username").addEventListener("input", function () {
+  const query = this.value;
+  fetch(`/api/search-users?q=${encodeURIComponent(query)}`)
+    .then(res => res.json())
+    .then(users => {
+      const resultsContainer = document.getElementById("search-results");
+      resultsContainer.innerHTML = "";
+      users.forEach(user => {
+        const li = document.createElement("li");
+        li.innerHTML = `${user.username} <button onclick="sendFriendRequest('${user.username}')">Add</button>`;
+        resultsContainer.appendChild(li);
+      });
+    });
+});
+
+function sendFriendRequest(username) {
+  fetch("/api/friend-request", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ username })
+  })
+  .then(res => res.json())
+  .then(data => alert(data.message || data.error));
+}
   </script>
 
 </body>

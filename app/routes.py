@@ -1,13 +1,13 @@
 from flask import Blueprint, request, jsonify
 from .models import *
 from flask import session
-<<<<<<< HEAD
+
 from flask_login import login_required, current_user
-=======
+
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
->>>>>>> origin/main
+
 
 routes_bp = Blueprint('routes', __name__) # connect all related routes for later
 
@@ -105,7 +105,7 @@ def login():
 
         settings_data = {
             'is_profile_public': settings.is_profile_public if settings else True,
-            'allow_friend_requests': settings.allow_friend_requests if settings else True
+            'allow_friend_requests': settings.allow_friend_requests if settings else True,
             'font_size': settings.font_size if settings else 'normal'
         }
 
@@ -176,8 +176,8 @@ def update_font_size():
 
 
     #routes for friends list
-@app.route('/api/friends')
-@login_required
+@routes_bp.route('/api/friends')
+#@login_required
 def api_friends():
     # Users you've accepted OR have accepted you
     accepted_entries = user_db.session.query(FriendsList).filter(
@@ -211,38 +211,110 @@ def api_friends():
         "pending": [{"id": u.id, "username": u.username} for u in pending_users]
     })
 #add post endpoints for accept/ decline and remove friends
-@app.route('/api/friends')
-@login_required
-def api_friends():
-    # Users you've accepted OR have accepted you
-    accepted_entries = user_db.session.query(FriendsList).filter(
-        (
-            (FriendsList.user_id == current_user.id) |
-            (FriendsList.friend_id == current_user.id)
-        ),
-        FriendsList.status == 'accepted'
-    ).all()
 
-    accepted_ids = set()
-    for entry in accepted_entries:
-        if entry.user_id == current_user.id:
-            accepted_ids.add(entry.friend_id)
-        else:
-            accepted_ids.add(entry.user_id)
+#send friend request 
+@routes_bp.route('/api/friend-request', methods=['POST'])
+#@login_required
+def send_friend_request():
+    data = request.get_json()
+    target_username = data.get("username", "").strip()
 
-    accepted_users = user_db.session.query(User).filter(User.id.in_(accepted_ids)).all()
+    if not target_username:
+        return jsonify({"success": False, "error": "Username is required"}), 400
 
-    # Pending friend requests *to you*
-    pending_entries = user_db.session.query(FriendsList).filter_by(
+    if target_username == current_user.username:
+        return jsonify({"success": False, "error": "You can't friend yourself"}), 400
+
+    target_user = User.query.filter_by(username=target_username).first()
+    if not target_user:
+        return jsonify({"success": False, "error": "User not found"}), 404
+
+    settings = UserSettings.query.filter_by(user_id=target_user.id).first()
+    if settings and not settings.allow_friend_requests:
+        return jsonify({"success": False, "error": "User is not accepting friend requests"}), 403
+
+    existing = FriendsList.query.filter(
+        ((FriendsList.user_id == current_user.id) & (FriendsList.friend_id == target_user.id)) |
+        ((FriendsList.user_id == target_user.id) & (FriendsList.friend_id == current_user.id))
+    ).first()
+
+    if existing:
+        return jsonify({"success": False, "error": f"Friend status already exists: {existing.status}"}), 409
+
+    new_request = FriendsList(
+        user_id=current_user.id,
+        friend_id=target_user.id,
+        status='pending'
+    )
+
+    user_db.session.add(new_request)
+    user_db.session.commit()
+
+    return jsonify({"success": True, "message": "Friend request sent"}), 201
+#accept friend request
+@routes_bp.route('/api/friends/accept/<int:user_id>', methods=['POST'])
+#@login_required
+def accept_friend(user_id):
+    request_entry = FriendsList.query.filter_by(
+        user_id=user_id,
         friend_id=current_user.id,
         status='pending'
-    ).all()
+    ).first()
 
-    pending_user_ids = [entry.user_id for entry in pending_entries]
-    pending_users = user_db.session.query(User).filter(User.id.in_(pending_user_ids)).all()
+    if not request_entry:
+        return jsonify({'error': 'Friend request not found'}), 404
 
-    return jsonify({
-        "accepted": [{"id": u.id, "username": u.username} for u in accepted_users],
-        "pending": [{"id": u.id, "username": u.username} for u in pending_users]
-    })
+    request_entry.status = 'accepted'
+    user_db.session.commit()
+
+    return jsonify({'message': 'Friend request accepted'}), 200
+#decline friend request
+@routes_bp.route('/api/friends/decline/<int:user_id>', methods=['POST'])
+#@login_required
+def decline_friend(user_id):
+    request_entry = FriendsList.query.filter_by(
+        user_id=user_id,
+        friend_id=current_user.id,
+        status='pending'
+    ).first()
+
+    if not request_entry:
+        return jsonify({'error': 'Friend request not found'}), 404
+
+    user_db.session.delete(request_entry)
+    user_db.session.commit()
+
+    return jsonify({'message': 'Friend request declined'}), 200
+#remove friend
+@routes_bp.route('/api/friends/remove/<int:user_id>', methods=['POST'])
+#@login_required
+def remove_friend(user_id):
+    entry = FriendsList.query.filter(
+        ((FriendsList.user_id == current_user.id) & (FriendsList.friend_id == user_id)) |
+        ((FriendsList.user_id == user_id) & (FriendsList.friend_id == current_user.id)),
+        FriendsList.status == 'accepted'
+    ).first()
+
+    if not entry:
+        return jsonify({'error': 'Friendship not found'}), 404
+
+    user_db.session.delete(entry)
+    user_db.session.commit()
+
+    return jsonify({'message': 'Friend removed'}), 200
+#serch for users 
+@routes_bp.route('/api/search-users')
+#@login_required
+def search_users():
+    query = request.args.get('q', '').strip()
+    if not query:
+        return jsonify([])
+
+    current_id = current_user.id
+    results = User.query.filter(
+        User.username.ilike(f'%{query}%'),
+        User.id != current_id
+    ).limit(10).all()
+
+    return jsonify([{'id': user.id, 'username': user.username} for user in results])
 

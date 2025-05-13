@@ -1,7 +1,7 @@
 # testDB.py
 
 from app import routes  # ensures routes (and models) are loaded
-from app.models import user_db, User, Plants, PlantGrowthEntry
+from app.models import user_db, User, Plants, PlantGrowthEntry, FriendsList, UserSettings
 from run import app
 from datetime import date
 
@@ -15,6 +15,25 @@ with app.app_context():
         user_db.session.add(emily)
         user_db.session.commit()
         print("user 'Emily' created.")
+    #test user
+    if not UserSettings.query.filter_by(user_id=emily.id).first():
+        user_db.session.add(UserSettings(user_id=emily.id))
+        user_db.session.commit()
+        print("⚙️ Added settings for Emily")
+    
+        # ✅ 3. Create James (other searchable user)
+    james = User.query.filter_by(username='James').first()
+    if not james:
+        james = User(username='James', email='james@agile.com', password='AgileWeb456')
+        user_db.session.add(james)
+        user_db.session.commit()
+        print("👤 Created user: James")
+
+    # ✅ 4. Add UserSettings for James too
+    if not UserSettings.query.filter_by(user_id=james.id).first():
+        user_db.session.add(UserSettings(user_id=james.id))
+        user_db.session.commit()
+        print("⚙️ Added settings for James")
 
     #Add plant to Emily
     emily = User.query.filter_by(username='Emily').first()
