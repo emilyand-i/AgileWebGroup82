@@ -551,7 +551,8 @@ function initializePlantManagement() {
         streakCount: 0,
         creationDate: new Date().toISOString(),
         lastUpdated: new Date().toISOString(),
-        photos: [] // Add this line to store plant photos
+        photos: [], // Add this line to store plant photos
+        waterData: [] // Add this line to store water data
       };
 
       // Create new plant tab
@@ -863,7 +864,7 @@ function updatePicGrid(showAll = false) {
 // Initialize plant growth tracker
 function initializePlantGrowthTracker() {
   const growthForm = document.getElementById('growthDataForm');
-  const waterForm = document.getElementById('waterDataForm');
+  const waterForm = document.getElementById('waterForm');
   const waterSubmitBtn = document.getElementById('waterBtn');
   const growthSubmitBtn = document.getElementById('addGrowthDataBtn');
   const growthDateInput = document.getElementById('growthDate');
@@ -875,7 +876,6 @@ function initializePlantGrowthTracker() {
   if (waterDateInput) {
     waterDateInput.valueAsDate = new Date();
   }
-
 
   if (growthForm && growthSubmitBtn) {
     growthForm.addEventListener('submit', handleGrowthDataSubmit);
@@ -917,29 +917,29 @@ function initializePlantGrowthTracker() {
   function handleWaterDataSubmit(e) {
     e.preventDefault();
 
+    console.log("Water data submission triggered.");
+
     const name = getCurrentActivePlantName();
     const date = document.getElementById('waterDate').value;
 
+    console.log(`Selected plant: ${name}`);
+    console.log(`Selected date: ${date}`);
+
     if (!name || !date) {
-      alert('Please select a date');
-      return;
+        console.warn('Submission failed: Missing plant name or date');
+        alert('Please select a date');
+        return;
     }
+    globalPlants[name].waterData.push(date);
+    
+    console.log(`waterData for ${name}`, globalPlants[name]?.waterData);
 
-    if (!globalPlants.waterData[name]) {
-      globalPlants.waterData[name] = [];
+    waterForm.reset();
+    waterDateInput.valueAsDate = new Date();
+    const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
+    if (modal) {
+      modal.hide();
     }
-
-    if (!globalPlants.waterData[name].includes(date)) {
-      globalPlants.waterData[name].push(date);
-      globalPlants.waterData[name].sort((a, b) => new Date(a) - new Date(b));
-    }
-
-    if (globalPlants[name]) {
-      globalPlants[name].lastWatered = date;
-    }
-
-    console.log(`Watered ${name} on ${date}`);
-    updateWaterTracker(name); // optional if you use water bubbles
   }
 
 
@@ -973,6 +973,7 @@ function initializePlantGrowthTracker() {
     if (modal) {
       modal.hide();
     }
+    
 
     // Update graph
     console.log(`Added growth data for ${name}:`, globalPlants.growthData[name]);
