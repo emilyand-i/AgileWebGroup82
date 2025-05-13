@@ -7,6 +7,7 @@
 let globalPlants = {};
 
 // Draw growth graph for selected plant
+
 let canvas;
 let ctx;
 function drawGraph(namePlant) {
@@ -610,7 +611,8 @@ function initialisePlantManagement() {
         streakCount: 0,
         creationDate: new Date().toISOString(),
         lastUpdated: new Date().toISOString(),
-        photos: [] 
+        photos: [], // Add this line to store plant photos
+        waterData: [] // Add this line to store water data
       };
 
       await savePlantinDB(plantName, plantType, avatarImageSrc);
@@ -640,18 +642,25 @@ function initialisePlantManagement() {
         <div class="daily-streak text-center">
           <h2 class="streak">Daily Streak: 0🔥</h2>
           <div class="plant-info-buttons">
-        <div class="nav-link bi bi-info-circle fs-3" 
-          role="button"
-          data-bs-toggle="modal"
-          data-bs-target="#infoModal"
-          data-plant-name="${plantName}">
-        </div>
-        <div class="nav-link bi bi-plus-circle fs-3" 
-          role="button"
-          data-bs-toggle="modal"
-          data-bs-target="#addInfoModal"
-          data-plant-name="${plantName}">
-        </div>
+            <div class="nav-link bi bi-info-circle fs-3" 
+              role="button"
+              data-bs-toggle="modal"
+              data-bs-target="#infoModal"
+              data-plant-name="${plantName}">
+            </div>
+            <div class="nav-link bi bi-plus-circle fs-3" 
+              role="button"
+              data-bs-toggle="modal"
+              data-bs-target="#addInfoModal"
+              data-plant-name="${plantName}">
+            </div>
+            <div class="nav-link bi bi-droplet fs-3"
+              role="button"
+              data-bs-toggle="modal"
+              data-bs-target="#waterModal"
+              data-plant-name="${plantName}">
+            </div>
+
           </div>
         </div>`;
 
@@ -913,43 +922,88 @@ function updatePicGrid(showAll = false) {
  * Functions to track and visualize plant growth
  */
 
-// Initialise plant growth tracker
-function initialisePlantGrowthTracker() {
-  const form = document.getElementById('growthDataForm');
-  const submitBtn = document.getElementById('addGrowthDataBtn');
-  const dateInput = document.getElementById('growthDate');
 
-  if (dateInput) {
-    dateInput.valueAsDate = new Date();
+// Initialize plant growth tracker
+function initializePlantGrowthTracker() {
+  const growthForm = document.getElementById('growthDataForm');
+  const waterForm = document.getElementById('waterForm');
+  const waterSubmitBtn = document.getElementById('waterBtn');
+  const growthSubmitBtn = document.getElementById('addGrowthDataBtn');
+  const growthDateInput = document.getElementById('growthDate');
+  const waterDateInput = document.getElementById('waterDate');
+
+  if (growthDateInput) {
+  growthDateInput.valueAsDate = new Date();
+  }
+  if (waterDateInput) {
+    waterDateInput.valueAsDate = new Date();
   }
 
-  if (form && submitBtn) {
-    form.addEventListener('submit', handleGrowthDataSubmit);
-    submitBtn.addEventListener('click', handleGrowthDataSubmit);
+  if (growthForm && growthSubmitBtn) {
+    growthForm.addEventListener('submit', handleGrowthDataSubmit);
+    growthSubmitBtn.addEventListener('click', handleGrowthDataSubmit);
+  }
+
+  if (waterForm && waterSubmitBtn) {
+    waterForm.addEventListener('submit', handleWaterDataSubmit);
+    waterSubmitBtn.addEventListener('click', handleWaterDataSubmit);
   }
 
   function setDateTo(offsetDays, buttonId) {
-    const dateInput = document.getElementById('growthDate');
+    const growthDateInput = document.getElementById('growthDate');
+    const waterDateInput = document.getElementById('waterDate');
     const buttons = document.querySelectorAll('.date-select-button');
-  
+
     // Remove active class from all buttons
     buttons.forEach(btn => btn.classList.remove('active'));
-  
+
     // Add active class to the clicked button
     const selectedButton = document.getElementById(buttonId);
     if (selectedButton) {
       selectedButton.classList.add('active');
     }
-  
-    if (dateInput && typeof offsetDays === 'number') {
-      const date = new Date();
-      date.setDate(date.getDate() + offsetDays);
-      dateInput.valueAsDate = date;
-    }
+
+    const date = new Date();
+    date.setDate(date.getDate() + offsetDays);
+
+    if (growthDateInput) growthDateInput.valueAsDate = date;
+    if (waterDateInput) waterDateInput.valueAsDate = date;
   }
+
 
   document.getElementById('todayButton').addEventListener('click', () => setDateTo(0, 'todayButton'));
   document.getElementById('yesterdayButton').addEventListener('click', () => setDateTo(-1, 'yesterdayButton'));
+  document.getElementById('waterTodayButton').addEventListener('click', () => setDateTo(0, 'waterTodayButton'));
+  document.getElementById('waterYesterdayButton').addEventListener('click', () => setDateTo(-1, 'waterYesterdayButton'));
+
+  function handleWaterDataSubmit(e) {
+    e.preventDefault();
+
+    console.log("Water data submission triggered.");
+
+    const name = getCurrentActivePlantName();
+    const date = document.getElementById('waterDate').value;
+
+    console.log(`Selected plant: ${name}`);
+    console.log(`Selected date: ${date}`);
+
+    if (!name || !date) {
+        console.warn('Submission failed: Missing plant name or date');
+        alert('Please select a date');
+        return;
+    }
+    globalPlants[name].waterData.push(date);
+    
+    console.log(`waterData for ${name}`, globalPlants[name]?.waterData);
+
+    waterForm.reset();
+    waterDateInput.valueAsDate = new Date();
+    const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
+    if (modal) {
+      modal.hide();
+    }
+  }
+
 
   function handleGrowthDataSubmit(e) {
     e.preventDefault();
@@ -975,12 +1029,13 @@ function initialisePlantGrowthTracker() {
     }
 
     // Clear form and close modal
-    form.reset();
-    dateInput.valueAsDate = new Date();
+    growthForm.reset();
+    growthDateInput.valueAsDate = new Date();
     const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
     if (modal) {
       modal.hide();
     }
+    
 
     // Update graph
     console.log(`Added growth data for ${name}:`, globalPlants.growthData[name]);
