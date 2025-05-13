@@ -54,7 +54,7 @@ body {
 
 .about-info{
   position: relative;
-  top: 5rem;
+  top: 3rem;
   width: 48%;
   color:aliceblue;
   height: 90dvh;
@@ -63,6 +63,11 @@ body {
   align-items: center;
   text-align: center;
 }
+
+.logo {
+  max-width: 30rem;
+}
+
 
 .center-bottom-text {
   margin-top: 2rem;
@@ -319,8 +324,8 @@ main.main-info {
 }
 
 .flower-avatar-container img {
-  width: 20rem;
-  margin-top: 3rem;
+  width: 17rem;
+  margin-top: 2rem;
 }
 
 #home-flower {
