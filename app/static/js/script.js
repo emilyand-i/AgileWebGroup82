@@ -493,12 +493,12 @@ function initialisePlantManagement() {
       const plant = globalPlants[plantName];
 
       if (!plant) {
-        console.warn('Couldnt find "${plantName}" in globalPlants');
+        console.warn(`Couldn't find "${plantName}" in globalPlants`);
         return;
       }
 
       currentPlantName = plantName;
-      document.getElementById('infoPlantNameDisplay').textContent = plant.plantName;
+      document.getElementById('infoPlantNameDisplay').textContent = plantName;
       document.getElementById('infoPlantCategory').textContent = plant.plantCategory || 'N/A';
       document.getElementById('infoPlantType').textContent = plant.plantType || 'N/A';
       document.getElementById('plantBirthday').textContent = new Date(plant.creationDate).toDateString();
@@ -515,11 +515,8 @@ function initialisePlantManagement() {
       const plant = globalPlants[currentPlantName];
       if (!plant) return;
     
-      const tab = document.getElementById(plant.tabId);
-      const tabContent = document.getElementById(plant.contentId);
-      if (tab) tab.remove();
-      if (tabContent) tabContent.remove();
-    
+      document.getElementById(plant.tabId)?.remove();
+      document.getElementById(plant.contentId)?.remove();
       // Remove plant from global plants dictionary
       delete globalPlants[currentPlantName];
       
@@ -538,9 +535,6 @@ function initialisePlantManagement() {
       console.log(`Plant "${currentPlantName}" deleted from global registry`);
       console.log('Current plants:', Object.keys(globalPlants));
   
-      
-      currentPlantName = null;
-      myPlantCount--;
       
       // No check for remaining tabs length before accessing remainingTabs[1] or [0] could cause error in plant deleteion section
       // so fixed with new implementation 
@@ -574,6 +568,8 @@ function initialisePlantManagement() {
         console.error('Could not delete plant from database', err);
       });
     });
+    currentPlantName = null;
+    myPlantCount--;
   }
 
   // Set up add plant form submission
