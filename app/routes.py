@@ -3,9 +3,16 @@ from .models import *
 from flask import session
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from flask_wtf.csrf import generate_csrf
+
 
 
 routes_bp = Blueprint('routes', __name__) # connect all related routes for later
+
+@routes_bp.route('/api/csrf_token')
+def get_csrf():
+    token = generate_csrf()
+    return jsonify({'csrf_token': token })
 
 
 @routes_bp.route('/api/register', methods=['POST']) #post route to /api/register - user sending user and pass data
