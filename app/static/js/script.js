@@ -1,15 +1,15 @@
+
 /**
- * UTILITY FUNCTIONS
- * Helper functions used across the application
+ * Global Constants & Utilities
  */
+// Global plants dictionary to track all plants
+// Structure: { plantName: { tabId, contentId, avatarSrc, streakCount, creationDate, etc. } }
+let globalPlants = {};
 
-  
-
+// Draw growth graph for selected plant
 
 let canvas;
 let ctx;
-
-// Draw growth graph for selected plant
 function drawGraph(namePlant) {
   console.log(`Drawing graph for ${namePlant}`);
   const data = globalPlants.growthData[namePlant];
@@ -112,32 +112,7 @@ function getCurrentActivePlantName() {
 }
 
 /**
- * DOCUMENT READY EVENT HANDLER
- * Main initialization when DOM is fully loaded
- */
-document.addEventListener('DOMContentLoaded', () => {
-  // Load dashboard
-  loadDashboard();
-  
-  // Initialize plant management
-  initializePlantManagement();
-  
-  // Initialize photo upload functionality
-  initializePhotoUpload();
-  
-  // Initialize plant growth tracker
-  initializePlantGrowthTracker();
-  
-  // Initialize settings modal
-  initializeSettingsModal();
-  
-  // Initialize dimming feature
-  initializeDimming();
-});
-
-/**
- * PAGE NAVIGATION & SCROLLING
- * Functions for page navigation and scroll behavior
+ * Event Listeners
  */
 
 // Allow scrolling of main-info from anywhere on the page
@@ -149,6 +124,9 @@ document.addEventListener('wheel', function(e) {
   }
 }, {passive:false});
 
+/**
+ * UI Helpers
+ */
 // Flip the form between login and register
 function flipForm() {
   document.getElementById("form-wrapper").classList.toggle("flip");
@@ -170,14 +148,98 @@ function scrollToAbout() {
   }
 }
 
+// Show/hide growth graph
+function graph_show() {
+  const graph_section = document.getElementById('growth_graph');
+  const pic_diary = document.getElementById('user_diary');
+  const style = window.getComputedStyle(graph_section);
+
+  if (style.display == 'none') {
+    graph_section.style.display = 'block';
+    pic_diary.style.display = 'none';
+  } else {
+    graph_section.style.display = 'none';
+  }
+}
+
+// Show/hide picture diary
+function pic_show() {
+  const pic_diary = document.getElementById('user_diary');
+  const graph_section = document.getElementById('growth_graph');
+  const style = window.getComputedStyle(user_diary);
+
+  if (style.display == 'none') {
+    pic_diary.style.display = 'block';
+    graph_section.style.display = 'none';
+  } else {
+    pic_diary.style.display = 'none';
+  }
+}
+
+// Toggle options in settings modal
+function toggleOptions(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.style.display = el.style.display === 'block' ? 'none' : 'block';
+  }
+}
+
+// Toggle light intensity (dimming feature)
+function toggleLightIntensity() {
+  const overlay = document.getElementById("dark-overlay");
+  if (!overlay) return;
+
+  const isOn = overlay.style.display === "block";
+  overlay.style.display = isOn ? "none" : "block";
+}
+
+// Initialise dimming from localStorage
+function initialiseDimming() {
+  const overlay = document.getElementById("dark-overlay");
+  if (overlay) {
+    overlay.style.display = "none";
+  }
+}
+
+// Toggle fullscreen mode
+function toggleFullscreen() {
+  const picsAndGraphs = document.getElementById('picsAndGraphs');
+  const leftCol = document.querySelector('.left_col');
+  const rightCol = document.querySelector('.right_col');
+  const picDiv = document.getElementById('picDiv');
+  
+  if (!leftCol || !rightCol) return;
+
+  const isExpanded = leftCol.classList.contains('col-12');
+
+  if (!isExpanded) { // if left column is not expanded
+    picsAndGraphs.classList.remove('flex-column');
+    picsAndGraphs.classList.add('gap-5');
+    picsAndGraphs.classList.add('p-5');
+
+    leftCol.classList.remove('col-3');
+    leftCol.classList.add('col-12', 'vh-100');
+    rightCol.classList.add('d-none');
+
+    // updatePicGrid();
+
+  } else { // if left column is expanded
+    picsAndGraphs.classList.add('flex-column');
+    picsAndGraphs.classList.remove('gap-5');
+    picsAndGraphs.classList.remove('p-5');
+    
+    leftCol.classList.remove('col-12', 'vh-100');
+    leftCol.classList.add('col-3');
+    rightCol.classList.remove('d-none');
+  }
+}
+
 
 /**
- * AUTHENTICATION & USER MANAGEMENT
- * Functions for user login, registration and logout
+ * Authentication / Sessions
  */
 
 // csrf Token call
- 
 let csrfToken = '';
 // fetch token from flask
 async function CsrfToken() {
@@ -206,12 +268,13 @@ function loginForm() {
         body: JSON.stringify({username, password})
       });
       
-      const login_data = await fetch_login.json();
+      const data = await fetch_login.json();
+      console.log("Storing user profile:", data);
       if (fetch_login.ok) {
-        localStorage.setItem('user_profile', JSON.stringify(login_data.user || {}));
+        localStorage.setItem('user_profile', JSON.stringify(data));
         window.location.href = 'dashboard.html';
       } else {
-        alert(login_data.error || 'Login failed');
+        alert(data.error || 'Login failed');
       }
     } catch (err) {
       console.log('Login error:', err);
@@ -279,7 +342,7 @@ async function loadSession() {
   const load = await fetch('/api/session', {
     method: 'GET',
     headers: {
-      'X-CSRFToken': CsrfToken
+      'X-CSRFToken': csrfToken
     },
     credentials: 'include'
   });
@@ -305,7 +368,8 @@ function loadDashboard() {
   const profile = JSON.parse(localStorage.getItem('user_profile'));
   if (!profile) return;
 
-  document.querySelector('.welcome_to').textContent = `${profile.username}'s Garden`;
+  document.querySelector('.welcome_to').textContent = `Welcome to ${profile.username}'s Garden`;
+
 
   const plantTabs = document.getElementById("plantTabs");
   const plantTabsContent = document.getElementById("plantTabsContent");
@@ -316,7 +380,7 @@ function loadDashboard() {
   // Clear global plants dictionary to rebuild it from profile data
   globalPlants = {};
 
-  profile.plants.forEach((plant) => {
+  profile.plants.forEach(plant => {
     myPlantCount++;
     const tabId = `plant${myPlantCount}`;
     const contentId = tabId;
@@ -352,7 +416,7 @@ function loadDashboard() {
         <div class="nav-link bi bi-gear fs-3" 
           role="button"
           data-bs-toggle="modal"
-          data-bs-target="#settingsModal"
+          data-bs-target="#infoModal"
           data-plant-name="${plant.plant_name}">
         </div>
       </div>`;
@@ -366,59 +430,41 @@ function loadDashboard() {
 }
 
 /**
- * PLANT VISUALIZATION TOGGLES
- * Functions to toggle between different plant visualizations
+ * Plant Management
  */
 
-// Show/hide growth graph
-function graph_show() {
-  const graph_section = document.getElementById('growth_graph');
-  const pic_diary = document.getElementById('user_diary');
-  const style = window.getComputedStyle(graph_section);
+async function savePlantinDB(plant_name, plant_type, chosen_image_url) {
+  try {
+    const load = await fetch('/api/add-plant', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken
+      },
+      credentials: 'include', 
+      body: JSON.stringify({plant_name, plant_type, chosen_image_url})
+    });
 
-  if (style.display == 'none') {
-    graph_section.style.display = 'block';
-    pic_diary.style.display = 'none';
-  } else {
-    graph_section.style.display = 'none';
+    const data = await load.json();
+    if (load.ok) {
+      console.log("Plant saved");
+      await loadSession();
+    } else {
+      console.warn('Plant save failed:', data.error);
+    }
+  } catch (err) {
+    console.error("couldnt save plant", err);
   }
 }
 
-// Show/hide picture diary
-function pic_show() {
-  const pic_diary = document.getElementById('user_diary');
-  const graph_section = document.getElementById('growth_graph');
-  const style = window.getComputedStyle(user_diary);
-
-  if (style.display == 'none') {
-    pic_diary.style.display = 'block';
-    graph_section.style.display = 'none';
-  } else {
-    pic_diary.style.display = 'none';
-  }
-}
-
-/**
- * GLOBAL VARIABLES
- * Global variables used across different functions
- */
-
-// Global plants dictionary to track all plants
-// Structure: { plantName: { tabId, contentId, avatarSrc, streakCount, creationDate, etc. } }
-let globalPlants = {};
-
-/**
- * PLANT MANAGEMENT
- * Functions to add, remove, and manage plants
- */
 
 let myPlantCount = 0;
 let selectedAvatarSrc = null;
 let currentPlantName = null;
 
 
-// Initialize plant management functionality
-function initializePlantManagement() {
+// Initialise plant management functionality
+function initialisePlantManagement() {
   const addPlantForm = document.getElementById("addPlantForm");
   const plantTabs = document.getElementById("plantTabs");
   const plantTabsContent = document.getElementById('plantTabsContent');
@@ -445,17 +491,18 @@ function initializePlantManagement() {
     infoModal.addEventListener('show.bs.modal', function (event) {
       const trigger = event.relatedTarget;
       const plantName = trigger.getAttribute('data-plant-name');
-      const plantCategory = globalPlants[plantName].plantCategory;
-      const plantType = globalPlants[plantName].plantType;
-      const birthday = globalPlants[plantName].creationDate;
+      const plant = globalPlants[plantName];
+
+      if (!plant) {
+        console.warn(`Couldn't find "${plantName}" in globalPlants`);
+        return;
+      }
 
       currentPlantName = plantName;
-      if (plantName) {
-        document.getElementById('infoPlantNameDisplay').textContent = plantName;
-        document.getElementById('infoPlantCategory').textContent = plantCategory;
-        document.getElementById('infoPlantType').textContent = plantType;
-        document.getElementById('plantBirthday').textContent = new Date(birthday).toDateString();
-      }
+      document.getElementById('infoPlantNameDisplay').textContent = plantName;
+      document.getElementById('infoPlantCategory').textContent = plant.plantCategory || 'N/A';
+      document.getElementById('infoPlantType').textContent = plant.plantType || 'N/A';
+      document.getElementById('plantBirthday').textContent = new Date(plant.creationDate).toDateString();
     });
   }
 
@@ -464,58 +511,71 @@ function initializePlantManagement() {
   const deleteButton = document.getElementById('delete-plant-button');
   if (deleteButton) {
     deleteButton.addEventListener("click", function() {
+      if (!currentPlantName || !globalPlants[currentPlantName]) return;
+
       const plant = globalPlants[currentPlantName];
       if (!plant) return;
     
-      const tab = document.getElementById(plant.tabId);
-      const tabContent = document.getElementById(plant.contentId);
-    
-      tab.remove();
-      tabContent.remove();
-    
+      document.getElementById(plant.tabId)?.remove();
+      document.getElementById(plant.contentId)?.remove();
       // Remove plant from global plants dictionary
       delete globalPlants[currentPlantName];
       
       // Also remove plant's growth data if it exists
-      if (globalPlants.growthData && globalPlants.growthData[currentPlantName]) {
+      if (globalPlants.growthData) {
         delete globalPlants.growthData[currentPlantName];
       }
       
+      // Update growth tracking dropdown by removing the plant
+      const selector = document.getElementById('plantSelector');
+      if (selector) {
+        const option = Array.from(selector.options).find(opt => opt.value === currentPlantName);
+        if (option) selector.removeChild(option);
+      }
+
       console.log(`Plant "${currentPlantName}" deleted from global registry`);
       console.log('Current plants:', Object.keys(globalPlants));
+  
       
-      // Update growth tracking dropdown by removing the plant
-      const plantSelector = document.getElementById('plantSelector');
-      if (plantSelector) {
-        for (let i = 0; i < plantSelector.options.length; i++) {
-          if (plantSelector.options[i].value === currentPlantName) {
-            plantSelector.remove(i);
-            break;
-          }
-        }
-      }
-      
-      currentPlantName = null;
-      myPlantCount--;
+      // No check for remaining tabs length before accessing remainingTabs[1] or [0] could cause error in plant deleteion section
+      // so fixed with new implementation 
 
-      if (myPlantCount > 0) {
-        const remainingTabs = document.querySelectorAll(".nav-link");
-        const firstTab = remainingTabs[1];
-        const bootstrapTab = new bootstrapTab(firstTab);
-        bootstrapTab.show();
-      }
-      else {
-        const remainingTabs = document.querySelectorAll(".nav-link");
+      const remainingTabs = Array.from(document.querySelectorAll(".nav-link")).filter(tab => 
+        !tab.id.includes('add-plant')
+      );
+      if (remainingTabs.length > 0) {
         const firstTab = remainingTabs[0];
-        const bootstrapTab = new bootstrapTab(firstTab);
-        bootstrapTab.show();
+        const bsTab = new bootstrap.Tab(firstTab);
+        bsTab.show();
+      } else {
+        console.log("No plants left")
       }
+
+      // Delete from backend
+      fetch('/api/delete-plant', {
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+        },
+        credentials: 'include',
+        body: JSON.stringify({plant_name: currentPlantName})
+      })
+      .then(load => load.json())
+      .then(data => {
+        console.log(data.message || 'Deleted from database');
+      })
+      .catch(err => {
+        console.error('Could not delete plant from database', err);
+      });
     });
+    currentPlantName = null;
+    myPlantCount--;
   }
 
   // Set up add plant form submission
   if (addPlantForm) {
-    addPlantForm.addEventListener('submit', function(e) {
+    addPlantForm.addEventListener('submit', async function(e) {
       e.preventDefault();
       
       const plantName = document.getElementById('plantName').value.trim();
@@ -540,7 +600,7 @@ function initializePlantManagement() {
       
       myPlantCount++;
       
-      // Add this to the plant initialization in initializePlantManagement()
+      
       globalPlants[plantName] = {
         tabId: tabId,
         contentId: contentId,
@@ -554,6 +614,8 @@ function initializePlantManagement() {
         photos: [], // Add this line to store plant photos
         waterData: [] // Add this line to store water data
       };
+
+      await savePlantinDB(plantName, plantType, avatarImageSrc);
 
       // Create new plant tab
       const newTab = document.createElement("li");
@@ -630,7 +692,7 @@ function initializePlantManagement() {
         plantSelector.appendChild(option);
       }
       
-      // Initialize empty growth data for this plant
+      // Initialise empty growth data for this plant
       if (!globalPlants.growthData) {
         globalPlants.growthData = {};
       }
@@ -728,14 +790,13 @@ function initializePlantManagement() {
     }
   });
 }
-
 /**
  * PHOTO UPLOAD & DISPLAY
  * Functions to handle photo uploads and display in diary
  */
 
-// Initialize photo upload functionality
-function initializePhotoUpload() {
+// Initialise photo upload functionality
+function initialisePhotoUpload() {
     const photoForm = document.getElementById('photoForm');
     const input = document.getElementById('photoInput');
     const display = document.getElementById('latestPhotoContainer');
@@ -860,6 +921,7 @@ function updatePicGrid(showAll = false) {
  * PLANT GROWTH TRACKING
  * Functions to track and visualize plant growth
  */
+
 
 // Initialize plant growth tracker
 function initializePlantGrowthTracker() {
@@ -1035,7 +1097,7 @@ function initializePlantGrowthTracker() {
       return;
     }
 
-    // Initialize growth data for this plant if it doesn't exist
+    // Initialise growth data for this plant if it doesn't exist
     if (!globalPlants.growthData[name]) {
       globalPlants.growthData[name] = [];
     }
@@ -1072,8 +1134,8 @@ function initializePlantGrowthTracker() {
  * Functions to handle user settings and preferences
  */
 
-// Initialize settings modal loading
-function initializeSettingsModal() {
+// Initialise settings modal loading
+function initialiseSettingsModal() {
   const modal = document.getElementById("User-Settings-Modal");
   if (!modal) return;
 
@@ -1092,145 +1154,107 @@ function initializeSettingsModal() {
   });
 }
 
-// Toggle options in settings modal
-function toggleOptions(id) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.style.display = el.style.display === 'block' ? 'none' : 'block';
+
+const plantOptions = {
+  flowers: [
+    { value: "lavender", text: "Lavender" },
+    { value: "daisy", text: "Daisy" },
+    { value: "marigold", text: "Marigold" },
+    { value: "petunia", text: "Petunia" },
+    { value: "snapdragon", text: "Snapdragon" },
+    { value: "geranium", text: "Geranium" },
+    { value: "pansy", text: "Pansy" }
+  ],
+  herbs: [
+    { value: "basil", text: "Basil" },
+    { value: "parsley", text: "Parsley" },
+    { value: "mint", text: "Mint" },
+    { value: "oregano", text: "Oregano" },
+    { value: "rosemary", text: "Rosemary" },
+    { value: "thyme", text: "Thyme" },
+    { value: "chives", text: "Chives" },
+    { value: "coriander", text: "Coriander (Cilantro)" }
+  ],
+  succulents: [
+    { value: "aloe", text: "Aloe Vera" },
+    { value: "jade", text: "Jade Plant" },
+    { value: "echeveria", text: "Echeveria" },
+    { value: "sedum", text: "Sedum" },
+    { value: "haworthia", text: "Haworthia" },
+    { value: "crassula", text: "Crassula" },
+    { value: "agave", text: "Agave" }
+  ],
+  trees: [
+    { value: "jacaranda", text: "Jacaranda" },
+    { value: "paperbark", text: "Paperbark Tree (Melaleuca)" },
+    { value: "pine", text: "Pine Tree" },
+    { value: "maple", text: "Maple Tree" },
+    { value: "oak", text: "Oak Tree" },
+    { value: "lemon", text: "Lemon Tree" },
+    { value: "fig", text: "Fig Tree" },
+    { value: "olive", text: "Olive Tree" }
+  ],
+  natives: [
+    { value: "wattle", text: "Golden Wattle (Acacia pycnantha)" },
+    { value: "grevillea", text: "Grevillea" },
+    { value: "banksia", text: "Banksia" },
+    { value: "kangaroo_paw", text: "Kangaroo Paw" },
+    { value: "eucalyptus", text: "Eucalyptus (Gum Tree)" },
+    { value: "waratah", text: "Waratah" },
+    { value: "lilly_pilly", text: "Lilly Pilly" },
+    { value: "callistemon", text: "Callistemon (Bottlebrush)" },
+    { value: "melaleuca", text: "Melaleuca (Tea Tree)" }
+  ],
+  grasses: [
+    { value: "kangaroo_grass", text: "Kangaroo Grass (Themeda triandra)" },
+    { value: "wallaby_grass", text: "Wallaby Grass (Rytidosperma spp.)" },
+    { value: "lomandra", text: "Lomandra" },
+    { value: "buffalo", text: "Buffalo Grass" },
+    { value: "zoysia", text: "Zoysia Grass" },
+    { value: "couch", text: "Couch Grass" },
+    { value: "fescue", text: "Tall Fescue" }
+  ]
+};
+
+document.getElementById("plantCategory").addEventListener("change", function () {
+  const category = this.value;
+  const plantTypeSelect = document.getElementById("plantType");
+
+  plantTypeSelect.innerHTML = '<option value="">Select Plant Type</option>';
+
+  if (plantOptions[category]) {
+    plantOptions[category].forEach(option => {
+      const opt = document.createElement("option");
+      opt.value = option.value;
+      opt.textContent = option.text;
+      plantTypeSelect.appendChild(opt);
+    });
+    plantTypeSelect.disabled = false;
+  } else {
+    plantTypeSelect.disabled = true;
   }
-}
+});
 
-// Toggle light intensity (dimming feature)
-function toggleLightIntensity() {
-  const overlay = document.getElementById("dark-overlay");
-  if (!overlay) return;
 
-  const isOn = overlay.style.display === "block";
-  overlay.style.display = isOn ? "none" : "block";
-}
-
-// Initialize dimming from localStorage
-function initializeDimming() {
-  const overlay = document.getElementById("dark-overlay");
-  if (overlay) {
-    overlay.style.display = "none";
-  }
-}
-
-/**
- * UI LAYOUT CONTROLS
- * Functions to control UI layout
+  /**
+ * Main initialisation
  */
-
-// Toggle fullscreen mode
-function toggleFullscreen() {
-  const picsAndGraphs = document.getElementById('picsAndGraphs');
-  const leftCol = document.querySelector('.left_col');
-  const rightCol = document.querySelector('.right_col');
-  const picDiv = document.getElementById('picDiv');
+document.addEventListener('DOMContentLoaded', async () => {
+  // Load dashboard
+  loadDashboard();
   
-  if (!leftCol || !rightCol) return;
-
-  const isExpanded = leftCol.classList.contains('col-12');
-
-  if (!isExpanded) { // if left column is not expanded
-    picsAndGraphs.classList.remove('flex-column');
-    picsAndGraphs.classList.add('gap-5');
-    picsAndGraphs.classList.add('p-5');
-
-    leftCol.classList.remove('col-3');
-    leftCol.classList.add('col-12', 'vh-100');
-    rightCol.classList.add('d-none');
-
-    // updatePicGrid();
-
-  } else { // if left column is expanded
-    picsAndGraphs.classList.add('flex-column');
-    picsAndGraphs.classList.remove('gap-5');
-    picsAndGraphs.classList.remove('p-5');
-    
-    leftCol.classList.remove('col-12', 'vh-100');
-    leftCol.classList.add('col-3');
-    rightCol.classList.remove('d-none');
-  }
-}
-
-  const plantOptions = {
-    flowers: [
-      { value: "lavender", text: "Lavender" },
-      { value: "daisy", text: "Daisy" },
-      { value: "marigold", text: "Marigold" },
-      { value: "petunia", text: "Petunia" },
-      { value: "snapdragon", text: "Snapdragon" },
-      { value: "geranium", text: "Geranium" },
-      { value: "pansy", text: "Pansy" }
-    ],
-    herbs: [
-      { value: "basil", text: "Basil" },
-      { value: "parsley", text: "Parsley" },
-      { value: "mint", text: "Mint" },
-      { value: "oregano", text: "Oregano" },
-      { value: "rosemary", text: "Rosemary" },
-      { value: "thyme", text: "Thyme" },
-      { value: "chives", text: "Chives" },
-      { value: "coriander", text: "Coriander (Cilantro)" }
-    ],
-    succulents: [
-      { value: "aloe", text: "Aloe Vera" },
-      { value: "jade", text: "Jade Plant" },
-      { value: "echeveria", text: "Echeveria" },
-      { value: "sedum", text: "Sedum" },
-      { value: "haworthia", text: "Haworthia" },
-      { value: "crassula", text: "Crassula" },
-      { value: "agave", text: "Agave" }
-    ],
-    trees: [
-      { value: "jacaranda", text: "Jacaranda" },
-      { value: "paperbark", text: "Paperbark Tree (Melaleuca)" },
-      { value: "pine", text: "Pine Tree" },
-      { value: "maple", text: "Maple Tree" },
-      { value: "oak", text: "Oak Tree" },
-      { value: "lemon", text: "Lemon Tree" },
-      { value: "fig", text: "Fig Tree" },
-      { value: "olive", text: "Olive Tree" }
-    ],
-    natives: [
-      { value: "wattle", text: "Golden Wattle (Acacia pycnantha)" },
-      { value: "grevillea", text: "Grevillea" },
-      { value: "banksia", text: "Banksia" },
-      { value: "kangaroo_paw", text: "Kangaroo Paw" },
-      { value: "eucalyptus", text: "Eucalyptus (Gum Tree)" },
-      { value: "waratah", text: "Waratah" },
-      { value: "lilly_pilly", text: "Lilly Pilly" },
-      { value: "callistemon", text: "Callistemon (Bottlebrush)" },
-      { value: "melaleuca", text: "Melaleuca (Tea Tree)" }
-    ],
-    grasses: [
-      { value: "kangaroo_grass", text: "Kangaroo Grass (Themeda triandra)" },
-      { value: "wallaby_grass", text: "Wallaby Grass (Rytidosperma spp.)" },
-      { value: "lomandra", text: "Lomandra" },
-      { value: "buffalo", text: "Buffalo Grass" },
-      { value: "zoysia", text: "Zoysia Grass" },
-      { value: "couch", text: "Couch Grass" },
-      { value: "fescue", text: "Tall Fescue" }
-    ]
-  };
-
-  document.getElementById("plantCategory").addEventListener("change", function () {
-    const category = this.value;
-    const plantTypeSelect = document.getElementById("plantType");
-
-    plantTypeSelect.innerHTML = '<option value="">Select Plant Type</option>';
-
-    if (plantOptions[category]) {
-      plantOptions[category].forEach(option => {
-        const opt = document.createElement("option");
-        opt.value = option.value;
-        opt.textContent = option.text;
-        plantTypeSelect.appendChild(opt);
-      });
-      plantTypeSelect.disabled = false;
-    } else {
-      plantTypeSelect.disabled = true;
-    }
-  });
+  // Initialise plant management
+  initialisePlantManagement();
+  
+  // Initialise photo upload functionality
+  initialisePhotoUpload();
+  
+  // Initialise plant growth tracker
+  initialisePlantGrowthTracker();
+  
+  // Initialise settings modal
+  initialiseSettingsModal();
+  
+  // Initialise dimming feature
+  initialiseDimming();
+});

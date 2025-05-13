@@ -120,12 +120,59 @@ def login():
             'growth_entries': growth_data,
             'friends': friends_data,
             'photos': photo_data,
-            'settings': settings_data,
-            'user': session.get('user')
+            'settings': settings_data
             
         }), 200
     else:
         return jsonify({'error': 'Invalid credentials'}), 401
+    
+
+@routes_bp.route('/api/session', methods = ['GET'])
+def session_data():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error:' 'User not logged in'}), 401
+    
+    user = User.query.get(user_id)
+    settings = UserSettings.query.filter_by(user_id=user.id).first()
+    friends = FriendsList.query.filter_by(user_id=user.id).all()
+    plants = Plants.query.filter_by(user_id=user.id).all()
+    growth_entries = PlantGrowthEntry.query.filter_by(user_id=user.id).all()
+    photos = uploadedPics.query.filter_by(user_id=user.id).all()
+
+    return jsonify({
+        'user_id': user.id,
+        'username': user.username,
+        'email': user.email,
+        'plants': [{
+            'plant_name': plant.plant_name,
+            'plant_type': plant.plant_type,
+            'chosen_image_url': plant.chosen_image_url,
+            'id': plant.id,
+            'date_created': plant.date_created
+        } for plant in plants],
+        'growth_entries': [{
+            'plant_name': growth.plant_name,
+            'date_recorded': growth.date_recorded,
+            'cm_grown': growth.cm_grown
+        } for growth in growth_entries],
+        'photos': [{
+            'photo_id': pics.photo_id,
+            'plant_id': pics.plant_id,
+            'image_url': pics.image_url,
+            'caption': pics.caption,
+            'datetime_uploaded': pics.datetime_uploaded
+        } for pics in photos],
+        'friends': [{
+            'user_id': friend.user_id,
+            'friend_id': friend.friend_id,
+            'status': friend.status
+        } for friend in friends],
+        'settings': {
+            'is_profile_public': settings.is_profile_public if settings else True,
+            'allow_friend_requests': settings.allow_friend_requests if settings else True
+        }
+    }), 200
 
 @routes_bp.route('/api/logout', methods=['POST'])
 def logout():
@@ -134,25 +181,47 @@ def logout():
 
 @routes_bp.route('/api/add-plant', methods=['POST'])
 def add_plant():
+    data = request.get_json()
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'error': 'Unauthorized'}), 401
 
-    data = request.get_json()
     plant_name = data.get('plant_name')
     plant_type = data.get('plant_type')
     chosen_image_url = data.get('chosen_image_url')
 
-    if not plant_name or not plant_type:
-        return jsonify({'error': 'Missing plant name or type'}), 400
+    if not plant_name or not plant_type or not chosen_image_url:
+        return jsonify({'error': 'Missing required fields'}), 400
 
     new_plant = Plants(
-        user_id=user_id,
-        plant_name=plant_name,
-        plant_type=plant_type,
-        chosen_image_url=chosen_image_url
+        user_id = user_id,
+        plant_name = plant_name,
+        plant_type = plant_type,
+        chosen_image_url = chosen_image_url
     )
     user_db.session.add(new_plant)
     user_db.session.commit()
 
     return jsonify({'message': 'Plant added successfully'}), 201
+
+@routes_bp.route('/api/delete-plant', methods = ['POST'])
+def delete_plant():
+    data = request.get_json()
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    plant_name = data.get('plant_name')
+    
+    if not plant_name:
+        return jsonify({'error': "Need plant name"}), 404
+    
+    plant = Plants.query.filter_by(user_id = user_id, plant_name = plant_name).first()
+    if not plant:
+        return jsonify({'error': "Plant not found"}), 404
+    
+    user_db.session.delete(plant)
+    user_db.session.commit()
+    
+    return jsonify({'message': "Plant has been deleted successfully"}), 200
+
