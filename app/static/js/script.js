@@ -1,6 +1,3 @@
-
-const CSRFToken = document.querySelector('meta[name= "csrf-token"]').content;
-
 /**
  * UTILITY FUNCTIONS
  * Helper functions used across the application
@@ -198,20 +195,27 @@ function loginForm() {
     const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
 
-    const fetch_login = await fetch('/api/login', {
-      method: 'POST', 
-      headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
-      credentials: 'include',
-      body: JSON.stringify({username, password})
-    });
-    
-    const login_data = await fetch_login.json();
-    if (fetch_login.ok) {
-      window.location.href = 'dashboard.html';
-    } else {
-      alert(login_data.error || 'Login failed');
+    try {
+      const fetch_login = await fetch('/api/login', {
+        method: 'POST', 
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+        credentials: 'include',
+        body: JSON.stringify({username, password})
+      });
+      
+      const login_data = await fetch_login.json();
+      if (fetch_login.ok) {
+        localStorage.setItem('user_profile', JSON.stringify(login_data.user || {}));
+        window.location.href = 'dashboard.html';
+      } else {
+        alert(login_data.error || 'Login failed');
+      }
+    } catch (err) {
+      console.log('Login error:', err);
+      alert('server error')
     }
   });
+
 }
 
 // Registration form
