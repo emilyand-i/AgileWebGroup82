@@ -1,6 +1,10 @@
+
 /**
  * Global Constants & Utilities
  */
+// Global plants dictionary to track all plants
+// Structure: { plantName: { tabId, contentId, avatarSrc, streakCount, creationDate, etc. } }
+let globalPlants = {};
 
 // Draw growth graph for selected plant
 let canvas;
@@ -365,6 +369,7 @@ function loadDashboard() {
 
   document.querySelector('.welcome_to').textContent = `Welcome to ${profile.username}'s Garden`;
 
+
   const plantTabs = document.getElementById("plantTabs");
   const plantTabsContent = document.getElementById("plantTabsContent");
   
@@ -374,7 +379,7 @@ function loadDashboard() {
   // Clear global plants dictionary to rebuild it from profile data
   globalPlants = {};
 
-  profile.plants.forEach((plant) => {
+  profile.plants.forEach(plant => {
     myPlantCount++;
     const tabId = `plant${myPlantCount}`;
     const contentId = tabId;
@@ -410,7 +415,7 @@ function loadDashboard() {
         <div class="nav-link bi bi-gear fs-3" 
           role="button"
           data-bs-toggle="modal"
-          data-bs-target="#settingsModal"
+          data-bs-target="#infoModal"
           data-plant-name="${plant.plant_name}">
         </div>
       </div>`;
@@ -422,10 +427,6 @@ function loadDashboard() {
   
   console.log('Loaded plants:', Object.keys(globalPlants));
 }
-
-// Global plants dictionary to track all plants
-// Structure: { plantName: { tabId, contentId, avatarSrc, streakCount, creationDate, etc. } }
-let globalPlants = {};
 
 /**
  * Plant Management
@@ -545,14 +546,14 @@ function initialisePlantManagement() {
       if (myPlantCount > 0) {
         const remainingTabs = document.querySelectorAll(".nav-link");
         const firstTab = remainingTabs[1];
-        const bootstrapTab = new bootstrapTab(firstTab);
-        bootstrapTab.show();
+        const bsTab = new bootstrap.Tab(firstTab);
+        bsTab.show();
       }
       else {
         const remainingTabs = document.querySelectorAll(".nav-link");
         const firstTab = remainingTabs[0];
-        const bootstrapTab = new bootstrapTab(firstTab);
-        bootstrapTab.show();
+        const bsTab = new bootstrap.Tab(firstTab);
+        bsTab.show();
       }
     });
   }
@@ -766,9 +767,6 @@ function initialisePlantManagement() {
     }
   });
 }
-
-
-
 /**
  * PHOTO UPLOAD & DISPLAY
  * Functions to handle photo uploads and display in diary
@@ -1170,10 +1168,9 @@ document.getElementById("plantCategory").addEventListener("change", function () 
 
 
   /**
- * DOCUMENT READY EVENT HANDLER
- * Main initialization when DOM is fully loaded
+ * Main initialisation
  */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Load dashboard
   loadDashboard();
   
