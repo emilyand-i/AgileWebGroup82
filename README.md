@@ -13,7 +13,7 @@ You can log your plants growth measurements, upload photos to your album, track 
 
 -- MEMBERS --
 
-- Andoni (student_id)
+- Andoni (24314657) GIT: Donaks1
 - Eli (student_id)
 - Emily (23723242) GIT: emilyand-i
 - Luke (23814635)
