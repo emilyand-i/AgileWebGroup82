@@ -862,43 +862,86 @@ function updatePicGrid(showAll = false) {
 
 // Initialize plant growth tracker
 function initializePlantGrowthTracker() {
-  const form = document.getElementById('growthDataForm');
-  const submitBtn = document.getElementById('addGrowthDataBtn');
-  const dateInput = document.getElementById('growthDate');
+  const growthForm = document.getElementById('growthDataForm');
+  const waterForm = document.getElementById('waterDataForm');
+  const waterSubmitBtn = document.getElementById('waterBtn');
+  const growthSubmitBtn = document.getElementById('addGrowthDataBtn');
+  const growthDateInput = document.getElementById('growthDate');
+  const waterDateInput = document.getElementById('waterDate');
 
-  if (dateInput) {
-    dateInput.valueAsDate = new Date();
+  if (growthDateInput) {
+  growthDateInput.valueAsDate = new Date();
+  }
+  if (waterDateInput) {
+    waterDateInput.valueAsDate = new Date();
   }
 
-  if (form && submitBtn) {
-    form.addEventListener('submit', handleGrowthDataSubmit);
-    submitBtn.addEventListener('click', handleGrowthDataSubmit);
+
+  if (growthForm && growthSubmitBtn) {
+    growthForm.addEventListener('submit', handleGrowthDataSubmit);
+    growthSubmitBtn.addEventListener('click', handleGrowthDataSubmit);
+  }
+
+  if (waterForm && waterSubmitBtn) {
+    waterForm.addEventListener('submit', handleWaterDataSubmit);
+    waterSubmitBtn.addEventListener('click', handleWaterDataSubmit);
   }
 
   function setDateTo(offsetDays, buttonId) {
-    const dateInput = document.getElementById('growthDate');
+    const growthDateInput = document.getElementById('growthDate');
+    const waterDateInput = document.getElementById('waterDate');
     const buttons = document.querySelectorAll('.date-select-button');
-  
+
     // Remove active class from all buttons
     buttons.forEach(btn => btn.classList.remove('active'));
-  
+
     // Add active class to the clicked button
     const selectedButton = document.getElementById(buttonId);
     if (selectedButton) {
       selectedButton.classList.add('active');
     }
-  
-    if (dateInput && typeof offsetDays === 'number') {
-      const date = new Date();
-      date.setDate(date.getDate() + offsetDays);
-      dateInput.valueAsDate = date;
-    }
+
+    const date = new Date();
+    date.setDate(date.getDate() + offsetDays);
+
+    if (growthDateInput) growthDateInput.valueAsDate = date;
+    if (waterDateInput) waterDateInput.valueAsDate = date;
   }
+
 
   document.getElementById('todayButton').addEventListener('click', () => setDateTo(0, 'todayButton'));
   document.getElementById('yesterdayButton').addEventListener('click', () => setDateTo(-1, 'yesterdayButton'));
   document.getElementById('waterTodayButton').addEventListener('click', () => setDateTo(0, 'waterTodayButton'));
   document.getElementById('waterYesterdayButton').addEventListener('click', () => setDateTo(-1, 'waterYesterdayButton'));
+
+  function handleWaterDataSubmit(e) {
+    e.preventDefault();
+
+    const name = getCurrentActivePlantName();
+    const date = document.getElementById('waterDate').value;
+
+    if (!name || !date) {
+      alert('Please select a date');
+      return;
+    }
+
+    if (!globalPlants.waterData[name]) {
+      globalPlants.waterData[name] = [];
+    }
+
+    if (!globalPlants.waterData[name].includes(date)) {
+      globalPlants.waterData[name].push(date);
+      globalPlants.waterData[name].sort((a, b) => new Date(a) - new Date(b));
+    }
+
+    if (globalPlants[name]) {
+      globalPlants[name].lastWatered = date;
+    }
+
+    console.log(`Watered ${name} on ${date}`);
+    updateWaterTracker(name); // optional if you use water bubbles
+  }
+
 
   function handleGrowthDataSubmit(e) {
     e.preventDefault();
@@ -924,8 +967,8 @@ function initializePlantGrowthTracker() {
     }
 
     // Clear form and close modal
-    form.reset();
-    dateInput.valueAsDate = new Date();
+    growthForm.reset();
+    growthDateInput.valueAsDate = new Date();
     const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
     if (modal) {
       modal.hide();
