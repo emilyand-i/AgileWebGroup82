@@ -640,23 +640,3 @@ main.main-info {
   background-color: green;
   border-radius: 4px;
 }
-
-
-.carousel-item img {
-  height: 15rem;
-  width: 100%;
-  object-fit: cover;
-}
-
-.tracker-circle {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 2px solid #ccc;
-  background-color: rgb(70, 108, 90);
-}
-
-.tracker-circle.watered {
-  background-color: #0d6efd; /* Bootstrap primary */
-  border-color: #0d6efd;
-}

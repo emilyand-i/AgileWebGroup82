@@ -3,6 +3,9 @@
  * Helper functions used across the application
  */
 
+  
+
+
 let canvas;
 let ctx;
 
