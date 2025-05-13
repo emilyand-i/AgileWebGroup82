@@ -1089,7 +1089,7 @@ function initialiseSettingsModal() {
   if (!modal) return;
 
   modal.addEventListener("show.bs.modal", () => {
-    fetch("User-Settings.html")
+    fetch("/static/User-Settings.html")
       .then(response => response.text())
       .then(html => {
         document.getElementById("SettingsModalContent").innerHTML = html;
@@ -1112,11 +1112,43 @@ function toggleOptions(id) {
     el.style.display = el.style.display === 'block' ? 'none' : 'block';
   }
 }
+
+// functions to switch tabs in the user settings modal 
+function openTab(evt, tabName) {
+  // Hide all tab contents
+  const tabContents = document.querySelectorAll('.tabcontent');
+  tabContents.forEach(tc => tc.classList.remove('active'));
+
+  // Remove active class from all tab buttons
+  const tabButtons = document.querySelectorAll('.tab button.tablinks');
+  tabButtons.forEach(btn => btn.classList.remove('active'));
+
+  // Show the selected tab content
+  const selectedContent = document.getElementById(tabName);
+  if (selectedContent) {
+    selectedContent.classList.add('active');
+  }
+
+  // Add active class to the clicked button
+  if (evt && evt.currentTarget) {
+    evt.currentTarget.classList.add('active');
+  }
+
+  // Optional: reload the friends list if we switched to that tab
+  if (tabName === 'Friends') {
+    loadFriendsList();
+  }
+}
+// other user settings functions 
+
+
+
+
 // dark mode functions
 
 // function to toggle dark mode
 // Toggle light intensity (dimming feature)
-function toggleLightIntensity() {
+/* function toggleLightIntensity() {
   const overlay = document.getElementById("dark-overlay");
   if (!overlay) return;
 
@@ -1133,7 +1165,7 @@ function initializeDimming() {
   if (overlay) {
     overlay.style.display = "none";
   }
-}
+} */
 
 /**
  * UI LAYOUT CONTROLS
@@ -1252,23 +1284,7 @@ document.getElementById("plantCategory").addEventListener("change", function () 
     plantTypeSelect.disabled = true;
   }
 });
-    if (plantOptions[category]) {
-      plantOptions[category].forEach(option => {
-        const opt = document.createElement("option");
-        opt.value = option.value;
-        opt.textContent = option.text;
-        plantTypeSelect.appendChild(opt);
-      });
-      plantTypeSelect.disabled = false;
-    } else {
-      plantTypeSelect.disabled = true;
-    }
-  });
-
-  if (overlay && saved) {
-    overlay.style.display = "block";
-  }
-});
+    
 
 // slecting font size settings
 
@@ -1325,7 +1341,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   initialisePlantGrowthTracker();
   
   // Initialise settings modal
+  
   initialiseSettingsModal();
+  
   
   // Initialise dimming feature
   initialiseDimming();

@@ -362,17 +362,29 @@ def remove_friend(user_id):
     return jsonify({'message': 'Friend removed'}), 200
 #serch for users 
 @routes_bp.route('/api/search-users')
-#@login_required
 def search_users():
     query = request.args.get('q', '').strip()
+
+    user_id = session.get('user_id')   # ✅ Get logged-in user ID from session
+    if not user_id:
+        return jsonify({'error': 'Not logged in'}), 401
+
     if not query:
         return jsonify([])
 
-    current_id = current_user.id
+    # ✅ Exclude self from results
     results = User.query.filter(
         User.username.ilike(f'%{query}%'),
-        User.id != current_id
+        User.id != user_id
     ).limit(10).all()
 
-    return jsonify([{'id': user.id, 'username': user.username} for user in results])
+    return jsonify([
+        {'id': user.id, 'username': user.username}
+        for user in results
+    ])
 
+from flask import current_app, send_from_directory
+
+@routes_bp.route('/')
+def serve_index():
+    return send_from_directory(current_app.static_folder, 'index.html')
