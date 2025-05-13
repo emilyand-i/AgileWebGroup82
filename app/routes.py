@@ -206,11 +206,11 @@ def add_plant():
 
 @routes_bp.route('/api/delete-plant', methods = ['POST'])
 def delete_plant():
+    data = request.get_json()
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'error': 'Unauthorized'}), 401
     
-    data = request.get_json()
     plant_name = data.get('plant_name')
     
     if not plant_name:

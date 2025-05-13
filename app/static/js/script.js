@@ -490,17 +490,18 @@ function initialisePlantManagement() {
     infoModal.addEventListener('show.bs.modal', function (event) {
       const trigger = event.relatedTarget;
       const plantName = trigger.getAttribute('data-plant-name');
-      const plantCategory = globalPlants[plantName].plantCategory;
-      const plantType = globalPlants[plantName].plantType;
-      const birthday = globalPlants[plantName].creationDate;
+      const plant = globalPlants[plantName];
+
+      if (!plant) {
+        console.warn('Couldnt find "${plantName}" in globalPlants');
+        return;
+      }
 
       currentPlantName = plantName;
-      if (plantName) {
-        document.getElementById('infoPlantNameDisplay').textContent = plantName;
-        document.getElementById('infoPlantCategory').textContent = plantCategory;
-        document.getElementById('infoPlantType').textContent = plantType;
-        document.getElementById('plantBirthday').textContent = new Date(birthday).toDateString();
-      }
+      document.getElementById('infoPlantNameDisplay').textContent = plant.plantName;
+      document.getElementById('infoPlantCategory').textContent = plant.plantCategory || 'N/A';
+      document.getElementById('infoPlantType').textContent = plant.plantType || 'N/A';
+      document.getElementById('plantBirthday').textContent = new Date(plant.creationDate).toDateString();
     });
   }
 
@@ -554,6 +555,24 @@ function initialisePlantManagement() {
       } else {
         console.log("No plants left")
       }
+
+      // Delete from backend
+      fetch('/api/delete-plant', {
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+        },
+        credentials: 'include',
+        body: JSON.stringify({plant_name: currentPlantName})
+      })
+      .then(load => load.json())
+      .then(data => {
+        console.log(data.message || 'Deleted from database');
+      })
+      .catch(err => {
+        console.error('Could not delete plant from database', err);
+      });
     });
   }
 
