@@ -576,18 +576,25 @@ function initializePlantManagement() {
         <div class="daily-streak text-center">
           <h2 class="streak">Daily Streak: 0🔥</h2>
           <div class="plant-info-buttons">
-        <div class="nav-link bi bi-info-circle fs-3" 
-          role="button"
-          data-bs-toggle="modal"
-          data-bs-target="#infoModal"
-          data-plant-name="${plantName}">
-        </div>
-        <div class="nav-link bi bi-plus-circle fs-3" 
-          role="button"
-          data-bs-toggle="modal"
-          data-bs-target="#addInfoModal"
-          data-plant-name="${plantName}">
-        </div>
+            <div class="nav-link bi bi-info-circle fs-3" 
+              role="button"
+              data-bs-toggle="modal"
+              data-bs-target="#infoModal"
+              data-plant-name="${plantName}">
+            </div>
+            <div class="nav-link bi bi-plus-circle fs-3" 
+              role="button"
+              data-bs-toggle="modal"
+              data-bs-target="#addInfoModal"
+              data-plant-name="${plantName}">
+            </div>
+            <div class="nav-link bi bi-droplet fs-3"
+              role="button"
+              data-bs-toggle="modal"
+              data-bs-target="#waterModal"
+              data-plant-name="${plantName}">
+            </div>
+
           </div>
         </div>`;
 
