@@ -897,6 +897,8 @@ function initializePlantGrowthTracker() {
 
   document.getElementById('todayButton').addEventListener('click', () => setDateTo(0, 'todayButton'));
   document.getElementById('yesterdayButton').addEventListener('click', () => setDateTo(-1, 'yesterdayButton'));
+  document.getElementById('waterTodayButton').addEventListener('click', () => setDateTo(0, 'waterTodayButton'));
+  document.getElementById('waterYesterdayButton').addEventListener('click', () => setDateTo(-1, 'waterYesterdayButton'));
 
   function handleGrowthDataSubmit(e) {
     e.preventDefault();
