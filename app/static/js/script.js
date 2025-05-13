@@ -1,6 +1,10 @@
+
 /**
  * Global Constants & Utilities
  */
+// Global plants dictionary to track all plants
+// Structure: { plantName: { tabId, contentId, avatarSrc, streakCount, creationDate, etc. } }
+let globalPlants = {};
 
 // Draw growth graph for selected plant
 let canvas;
@@ -365,6 +369,7 @@ function loadDashboard() {
 
   document.querySelector('.welcome_to').textContent = `Welcome to ${profile.username}'s Garden`;
 
+
   const plantTabs = document.getElementById("plantTabs");
   const plantTabsContent = document.getElementById("plantTabsContent");
   
@@ -374,7 +379,7 @@ function loadDashboard() {
   // Clear global plants dictionary to rebuild it from profile data
   globalPlants = {};
 
-  profile.plants.forEach((plant) => {
+  profile.plants.forEach(plant => {
     myPlantCount++;
     const tabId = `plant${myPlantCount}`;
     const contentId = tabId;
@@ -410,7 +415,7 @@ function loadDashboard() {
         <div class="nav-link bi bi-gear fs-3" 
           role="button"
           data-bs-toggle="modal"
-          data-bs-target="#settingsModal"
+          data-bs-target="#infoModal"
           data-plant-name="${plant.plant_name}">
         </div>
       </div>`;
@@ -422,10 +427,6 @@ function loadDashboard() {
   
   console.log('Loaded plants:', Object.keys(globalPlants));
 }
-
-// Global plants dictionary to track all plants
-// Structure: { plantName: { tabId, contentId, avatarSrc, streakCount, creationDate, etc. } }
-let globalPlants = {};
 
 /**
  * Plant Management
@@ -489,17 +490,18 @@ function initialisePlantManagement() {
     infoModal.addEventListener('show.bs.modal', function (event) {
       const trigger = event.relatedTarget;
       const plantName = trigger.getAttribute('data-plant-name');
-      const plantCategory = globalPlants[plantName].plantCategory;
-      const plantType = globalPlants[plantName].plantType;
-      const birthday = globalPlants[plantName].creationDate;
+      const plant = globalPlants[plantName];
+
+      if (!plant) {
+        console.warn('Couldnt find "${plantName}" in globalPlants');
+        return;
+      }
 
       currentPlantName = plantName;
-      if (plantName) {
-        document.getElementById('infoPlantNameDisplay').textContent = plantName;
-        document.getElementById('infoPlantCategory').textContent = plantCategory;
-        document.getElementById('infoPlantType').textContent = plantType;
-        document.getElementById('plantBirthday').textContent = new Date(birthday).toDateString();
-      }
+      document.getElementById('infoPlantNameDisplay').textContent = plant.plantName;
+      document.getElementById('infoPlantCategory').textContent = plant.plantCategory || 'N/A';
+      document.getElementById('infoPlantType').textContent = plant.plantType || 'N/A';
+      document.getElementById('plantBirthday').textContent = new Date(plant.creationDate).toDateString();
     });
   }
 
@@ -508,52 +510,69 @@ function initialisePlantManagement() {
   const deleteButton = document.getElementById('delete-plant-button');
   if (deleteButton) {
     deleteButton.addEventListener("click", function() {
+      if (!currentPlantName || !globalPlants[currentPlantName]) return;
+
       const plant = globalPlants[currentPlantName];
       if (!plant) return;
     
       const tab = document.getElementById(plant.tabId);
       const tabContent = document.getElementById(plant.contentId);
-    
-      tab.remove();
-      tabContent.remove();
+      if (tab) tab.remove();
+      if (tabContent) tabContent.remove();
     
       // Remove plant from global plants dictionary
       delete globalPlants[currentPlantName];
       
       // Also remove plant's growth data if it exists
-      if (globalPlants.growthData && globalPlants.growthData[currentPlantName]) {
+      if (globalPlants.growthData) {
         delete globalPlants.growthData[currentPlantName];
       }
       
+      // Update growth tracking dropdown by removing the plant
+      const selector = document.getElementById('plantSelector');
+      if (selector) {
+        const option = Array.from(selector.options).find(opt => opt.value === currentPlantName);
+        if (option) selector.removeChild(option);
+      }
+
       console.log(`Plant "${currentPlantName}" deleted from global registry`);
       console.log('Current plants:', Object.keys(globalPlants));
-      
-      // Update growth tracking dropdown by removing the plant
-      const plantSelector = document.getElementById('plantSelector');
-      if (plantSelector) {
-        for (let i = 0; i < plantSelector.options.length; i++) {
-          if (plantSelector.options[i].value === currentPlantName) {
-            plantSelector.remove(i);
-            break;
-          }
-        }
-      }
+  
       
       currentPlantName = null;
       myPlantCount--;
+      
+      // No check for remaining tabs length before accessing remainingTabs[1] or [0] could cause error in plant deleteion section
+      // so fixed with new implementation 
 
-      if (myPlantCount > 0) {
-        const remainingTabs = document.querySelectorAll(".nav-link");
-        const firstTab = remainingTabs[1];
-        const bootstrapTab = new bootstrapTab(firstTab);
-        bootstrapTab.show();
-      }
-      else {
-        const remainingTabs = document.querySelectorAll(".nav-link");
+      const remainingTabs = Array.from(document.querySelectorAll(".nav-link")).filter(tab => 
+        !tab.id.includes('add-plant')
+      );
+      if (remainingTabs.length > 0) {
         const firstTab = remainingTabs[0];
-        const bootstrapTab = new bootstrapTab(firstTab);
-        bootstrapTab.show();
+        const bsTab = new bootstrap.Tab(firstTab);
+        bsTab.show();
+      } else {
+        console.log("No plants left")
       }
+
+      // Delete from backend
+      fetch('/api/delete-plant', {
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+        },
+        credentials: 'include',
+        body: JSON.stringify({plant_name: currentPlantName})
+      })
+      .then(load => load.json())
+      .then(data => {
+        console.log(data.message || 'Deleted from database');
+      })
+      .catch(err => {
+        console.error('Could not delete plant from database', err);
+      });
     });
   }
 
@@ -766,9 +785,6 @@ function initialisePlantManagement() {
     }
   });
 }
-
-
-
 /**
  * PHOTO UPLOAD & DISPLAY
  * Functions to handle photo uploads and display in diary
@@ -1293,10 +1309,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   /**
- * DOCUMENT READY EVENT HANDLER
- * Main initialization when DOM is fully loaded
+ * Main initialisation
  */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Load dashboard
   loadDashboard();
   

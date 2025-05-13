@@ -186,17 +186,17 @@ def logout():
 
 @routes_bp.route('/api/add-plant', methods=['POST'])
 def add_plant():
+    data = request.get_json()
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'error': 'Unauthorized'}), 401
 
-    data = request.get_json()
     plant_name = data.get('plant_name')
     plant_type = data.get('plant_type')
     chosen_image_url = data.get('chosen_image_url')
 
-    if not plant_name or not plant_type:
-        return jsonify({'error': 'Missing plant name or type'}), 400
+    if not plant_name or not plant_type or not chosen_image_url:
+        return jsonify({'error': 'Missing required fields'}), 400
 
     new_plant = Plants(
         user_id = user_id,
