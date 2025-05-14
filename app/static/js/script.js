@@ -357,6 +357,7 @@ async function loadSession() {
   }
 }
 
+
 /**
  * DASHBOARD FUNCTIONALITY
  * Functions to load and handle dashboard content
@@ -364,26 +365,26 @@ async function loadSession() {
 
 // Load dashboard content based on user profile
 async function loadDashboard() {
+  const profile = await loadSession();
   if (!window.location.pathname.includes('dashboard.html')) return;
   
-  const profile = await loadSession();
   if (!profile) return;
 
   const username = profile.username || 'username';
   document.querySelector('.welcome_to').textContent = `Welcome to ${username}'s Garden`;
 
+  const plantTabs = document.getElementById("plantTabs");
+  const plantTabsContent = document.getElementById("plantTabsContent");
   
+
   // Reset plant count when loading dashboard
   myPlantCount = 0;
   // Clear global plants dictionary to rebuild it from profile data
   globalPlants = {};
-  if (!globalPlants.growthData) globalPlants.growthData = {};
 
   profile.plants.forEach(plant => {
-    console.log("🌿 Rendering plant:", plant.plant_name);
     myPlantCount++;
-    const tabId = `plant${myPlantCount}`;
-    const contentId = tabId;
+    
     const plantName = plant.plant_name;
     const avatarImageSrc = plant.chosen_image_url;
     const plantCategory = plant.plant_category || 'Unknown';
@@ -391,8 +392,6 @@ async function loadDashboard() {
     
     // Add plant to global plants dictionary
     globalPlants[plantName] = {
-      tabId: tabId,
-      contentId: contentId,
       name: plantName,
       avatarSrc: avatarImageSrc,
       plantCategory: plantCategory,
@@ -404,6 +403,9 @@ async function loadDashboard() {
       waterData: [] // Add this line to store water data
     };
 
+    if (!globalPlants.growthData) globalPlants.growthData = {};
+    globalPlants.growthData[plantName] = [];
+
     // Add to dropdown for growth tracking
     const selector = document.getElementById('plantSelector');
     if (selector) {
@@ -413,8 +415,8 @@ async function loadDashboard() {
       selector.appendChild(option);
     }
 
-    // Add default empty growth data if missing
-    globalPlants.growthData[plantName] = [];
+    const tabId = `plant${myPlantCount}-tab`;
+    const contentId = `plant${myPlantCount}`;
 
     renderPlantTab({
       plantName,
@@ -422,17 +424,15 @@ async function loadDashboard() {
       plantCategory,
       plantType,
       tabId,
-      contentId,
-      streakCount: globalPlants[plantName].streakCount
+      contentId
     });
   });
-  console.log('Loaded plants:', Object.keys(globalPlants));
+  console.log(globalPlants.growthData)
 }
 
 /**
  * Plant Management
  */
-
 async function savePlantinDB(plant_name, plant_type, chosen_image_url, plant_category) {
   try {
     const load = await fetch('/api/add-plant', {
@@ -453,9 +453,10 @@ async function savePlantinDB(plant_name, plant_type, chosen_image_url, plant_cat
       console.warn('Plant save failed:', data.error);
     }
   } catch (err) {
-    console.error("couldnt save plant", err);
+    console.error("couldnt save plant:", err);
   }
 }
+
 
 
 function renderPlantTab ({
@@ -464,9 +465,10 @@ function renderPlantTab ({
   plantCategory,
   plantType,
   tabId,
-  contentId,
-  streakCount = 0
+  contentId
 }) {
+  console.log("[renderPlantTab] Rendering", plantName);
+  console.trace();
   // Create new plant tab
   const newTab = document.createElement("li");
   newTab.role = "presentation";
@@ -515,13 +517,17 @@ function renderPlantTab ({
     </div>`;
 
   // Insert new plant before "Add Plant" tab
-  const addPlantTab = document.getElementById("add-plant-tab").parentNode;
-  plantTabs.insertBefore(newTab, addPlantTab);
-  plantTabsContent.appendChild(newTabContent);
-  
-  // Show the new plant tab
+  const addPlantTab = document.getElementById("add-plant-tab")?.parentNode;
+  if (addPlantTab) {
+    plantTabs.insertBefore(newTab, addPlantTab);
+    plantTabsContent.appendChild(newTabContent);
+  }
+
+  // Show the new plant tab safely
   const newTabButton = document.getElementById(tabId);
-  if (newTabButton) new bootstrap.Tab(newTabButton).show();
+  if (newTabButton && !newTabButton.classList.contains('active')) {
+    setTimeout(() => new bootstrap.Tab(newTabButton).show(), 0);
+  }
 }
 
 let myPlantCount = 0;
@@ -593,8 +599,12 @@ function initialisePlantManagement() {
       // Update growth tracking dropdown by removing the plant
       const selector = document.getElementById('plantSelector');
       if (selector) {
-        const option = Array.from(selector.options).find(opt => opt.value === currentPlantName);
-        if (option) selector.removeChild(option);
+        for (let i = 0; i < selector.options.length; i++) {
+          if (selector.options[i].value === currentPlantName) {
+            selector.remove(i);
+            break;
+          }
+        }
       }
 
       console.log(`Plant "${currentPlantName}" deleted from global registry`);
@@ -604,15 +614,14 @@ function initialisePlantManagement() {
       // No check for remaining tabs length before accessing remainingTabs[1] or [0] could cause error in plant deleteion section
       // so fixed with new implementation 
 
-      const remainingTabs = Array.from(document.querySelectorAll(".nav-link")).filter(tab => 
-        !tab.id.includes('add-plant')
-      );
-      if (remainingTabs.length > 0) {
-        const firstTab = remainingTabs[0];
-        const bsTab = new bootstrap.Tab(firstTab);
-        bsTab.show();
-      } else {
-        console.log("No plants left")
+      // Show another existing tab, if any
+      const tabLinks = document.querySelectorAll(".nav-link");
+      for (let i = 0; i < tabLinks.length; i++) {
+        const tab = tabLinks[i];
+        if (!tab.id.includes('add-plant')) {
+          new bootstrap.Tab(tab).show();
+          break;
+        }
       }
 
       // Delete from backend
@@ -679,7 +688,7 @@ function initialisePlantManagement() {
         waterData: [] // Add this line to store water data
       };
 
-      await savePlantinDB(plantName, plantType, avatarImageSrc);
+      await savePlantinDB(plantName, plantType, avatarImageSrc, plantCategory);
 
       renderPlantTab({
         plantName,
@@ -687,8 +696,7 @@ function initialisePlantManagement() {
         plantCategory,
         plantType,
         tabId,
-        contentId,
-        streakCount: 0
+        contentId
       });
 
       // Update share column content
@@ -757,54 +765,50 @@ function initialisePlantManagement() {
     const activeTab = event.target; // newly activated tab
     const previousTab = event.relatedTarget; // previous active tab
     
-    if (activeTab && !activeTab.id.includes('add-plant')) { // checks if tab is not add-plant tab
-      const plantName = activeTab.textContent.trim();
+        // Only proceed if tab is not "Add Plant" and already active
+      if (!activeTab || activeTab.id.includes('add-plant') || !activeTab.classList.contains('active')) return;
+
+      const plantName = activeTab.getAttribute("data-plant-name") || activeTab.textContent.trim();
       const plantData = globalPlants[plantName];
-      
-      if (plantData) {
-        // Update any UI elements that depend on the current plant
-        console.log(`Switched to plant: ${plantName}`);
-        
-        // Update share content if it exists
-        const shareContent = document.getElementById("share-content");
-        if (shareContent && plantData.avatarSrc) {
-          shareContent.innerHTML = `
-            <h3 class="text-white"> Share Your Plant! </h3>
-            <img src="${plantData.avatarSrc}" class="img-fluid text-center share-avatar">
-            <div class="share-controls text-center mt-4">
-              <a class="btn btn-success btn-lg" href="shareBoard.html">
-                <i class="bi bi-share me-2"></i> Share Plant
-              </a>
-            </div>
-          `;
-        }
 
-        // Update growth graph for the current plant
-        canvas = document.getElementById('plantGrowthGraph');
-        const graphHeader = document.getElementById('graphHeader');
-        if (canvas && graphHeader) {
-          // Update the graph header with the current plant name
-          graphHeader.textContent = plantName;
+      if (!plantData) return;
 
-          // Clear and redraw the graph with current plant's data
-          ctx = canvas.getContext('2d');
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          
-          // Draw the graph if growth data exists
-          if (globalPlants.growthData && globalPlants.growthData[plantName]) {
-            drawGraph(plantName);
-          } else {
-            // Show placeholder text if no data
-            ctx.font = "16px sans-serif";
-            ctx.textAlign = "center";
-            ctx.fillText(`No growth data for ${plantName} yet.`, canvas.width/2, canvas.height/2);
-          }
-        }
+      console.log(`✅ Switched to plant tab: ${plantName}`);
 
-        // Update photo display for the selected plant
-        updatePhotoDisplay(plantName);
+      // Update share content
+      const shareContent = document.getElementById("share-content");
+      if (shareContent && plantData.avatarSrc) {
+        shareContent.innerHTML = `
+          <h3 class="text-white"> Share Your Plant! </h3>
+          <img src="${plantData.avatarSrc}" class="img-fluid text-center share-avatar">
+          <div class="share-controls text-center mt-4">
+            <a class="btn btn-success btn-lg" href="shareBoard.html">
+              <i class="bi bi-share me-2"></i> Share Plant
+            </a>
+          </div>
+        `;
       }
-    }
+
+      // Update graph
+      const canvas = document.getElementById('plantGrowthGraph');
+      const graphHeader = document.getElementById('graphHeader');
+      if (canvas && graphHeader) {
+        graphHeader.textContent = plantName;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const data = globalPlants.growthData?.[plantName] || [];
+        if (data.length > 0) {
+          drawGraph(plantName);
+        } else {
+          ctx.font = "16px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(`No growth data for ${plantName} yet.`, canvas.width / 2, canvas.height / 2);
+        }
+      }
+
+      // Update photo display for the selected plant
+      updatePhotoDisplay(plantName);
   });
 }
 /**
@@ -1111,7 +1115,7 @@ function initialisePlantGrowthTracker() {
   canvas = document.getElementById('plantGrowthGraph');
   const plantSelector = document.getElementById('plantSelector');
   
-  if (!form || !canvas || !plantSelector) return;
+  if (!growthForm || !canvas || !plantSelector) return;
 
   ctx = canvas.getContext('2d');
   
