@@ -573,76 +573,6 @@ function initialisePlantManagement() {
     });
   }
 
-
-  // Set up delete button functionality
-  const deleteButton = document.getElementById('delete-plant-button');
-  if (deleteButton) {
-    deleteButton.addEventListener("click", function() {
-      if (!currentPlantName || !globalPlants[currentPlantName]) return;
-
-      const plant = globalPlants[currentPlantName];
-      if (!plant) return;
-    
-      document.getElementById(plant.tabId)?.remove();
-      document.getElementById(plant.contentId)?.remove();
-      // Remove plant from global plants dictionary
-      delete globalPlants[currentPlantName];
-      
-      // Also remove plant's growth data if it exists
-      if (globalPlants.growthData) {
-        delete globalPlants.growthData[currentPlantName];
-      }
-      
-      // Update growth tracking dropdown by removing the plant
-      const selector = document.getElementById('plantSelector');
-      if (selector) {
-        for (let i = 0; i < selector.options.length; i++) {
-          if (selector.options[i].value === currentPlantName) {
-            selector.remove(i);
-            break;
-          }
-        }
-      }
-
-      console.log(`Plant "${currentPlantName}" deleted from global registry`);
-      console.log('Current plants:', Object.keys(globalPlants));
-  
-      
-      // No check for remaining tabs length before accessing remainingTabs[1] or [0] could cause error in plant deleteion section
-      // so fixed with new implementation 
-
-      // Show another existing tab, if any
-      const tabLinks = document.querySelectorAll(".nav-link");
-      for (let i = 0; i < tabLinks.length; i++) {
-        const tab = tabLinks[i];
-        if (!tab.id.includes('add-plant')) {
-          new bootstrap.Tab(tab).show();
-          break;
-        }
-      }
-
-      // Delete from backend
-      fetch('/api/delete-plant', {
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrfToken
-        },
-        credentials: 'include',
-        body: JSON.stringify({plant_name: currentPlantName})
-      })
-      .then(load => load.json())
-      .then(data => {
-        console.log(data.message || 'Deleted from database');
-      })
-      .catch(err => {
-        console.error('Could not delete plant from database', err);
-      });
-    });
-    currentPlantName = null;
-    myPlantCount--;
-  }
-
   // Set up add plant form submission
   if (addPlantForm) {
     addPlantForm.addEventListener('submit', async function(e) {
@@ -768,23 +698,68 @@ function initialisePlantManagement() {
       if (plantName && globalPlants[plantName]) {
         currentPlantName = plantName;
         console.log(`🌱 Current plant switched to: ${currentPlantName}`);
-      }
       
 
-      console.log(`witched to plant tab: ${plantName}`);
+        // Set up delete button functionality
+        const deleteButton = document.getElementById('delete-plant-button');
+        if (deleteButton) {
+          deleteButton.onclick = async function () {
+            if (!currentPlantName || !globalPlants[currentPlantName]) return;
 
-      // Update share content
-      const shareContent = document.getElementById("share-content");
-      if (shareContent && plantData.avatarSrc) {
-        shareContent.innerHTML = `
-          <h3 class="text-white"> Share Your Plant! </h3>
-          <img src="${plantData.avatarSrc}" class="img-fluid text-center share-avatar">
-          <div class="share-controls text-center mt-4">
-            <a class="btn btn-success btn-lg" href="shareBoard.html">
-              <i class="bi bi-share me-2"></i> Share Plant
-            </a>
-          </div>
-        `;
+            const plant = globalPlants[currentPlantName];
+            document.getElementById(plant.tabId)?.remove();
+            document.getElementById(plant.contentId)?.remove();
+            // Remove plant from global plants dictionary
+            delete globalPlants[currentPlantName];
+            
+            // Also remove plant's growth data if it exists
+            if (globalPlants.growthData) {
+              delete globalPlants.growthData[currentPlantName];
+            }
+            // Update growth tracking dropdown by removing the plant
+            const selector = document.getElementById('plantSelector');
+            if (selector) {
+              for (let i = 0; i < selector.options.length; i++) {
+                if (selector.options[i].value === currentPlantName) {
+                  selector.remove(i);
+                  break;
+                }
+              }
+            }
+
+            console.log(`Plant "${currentPlantName}" deleted from global registry`);
+            console.log('Current plants:', Object.keys(globalPlants));
+
+            
+            const tabLinks = document.querySelectorAll(".nav-link");
+            for (let i = 0; i < tabLinks.length; i++) {
+              const tab = tabLinks[i];
+              if (!tab.id.includes('add-plant')) {
+                new bootstrap.Tab(tab).show();
+                break;
+              }
+            }
+
+            // Delete from backend
+            try {
+              const load = await fetch('/api/delete-plant', {
+                method: 'POST', 
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': csrfToken
+                },
+                credentials: 'include',
+                body: JSON.stringify({plant_name: currentPlantName})
+              });
+              const data = await load.json();
+              console.log(data.message || 'Deleted from database');
+            } catch (err) {
+              console.error('Could not delete plant from database', err);
+            }
+            currentPlantName = null;
+            myPlantCount--;
+          }
+        }
       }
 
       // Update graph
