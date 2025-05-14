@@ -10,9 +10,9 @@ let globalPlants = {};
 
 let canvas;
 let ctx;
-function drawGraph(namePlant) {
-  console.log(`Drawing graph for ${namePlant}`);
-  const data = globalPlants.growthData[namePlant];
+function drawGraph(plantName) {
+  console.log(`Drawing graph for ${plantName}`);
+  const data = globalPlants.growthData[plantName];
   console.log("Retrieved data:", data);
 
   if (!data || data.length < 2) {
@@ -99,7 +99,7 @@ function drawGraph(namePlant) {
 
   // Graph title
   ctx.font = "bold 18px sans-serif";
-  ctx.fillText(`${namePlant}'s Growth Journey`, canvas.width / 2, padding - 15);
+  ctx.fillText(`${plantName}'s Growth Journey`, canvas.width / 2, padding - 15);
 }
 
 
@@ -372,9 +372,6 @@ async function loadDashboard() {
 
   const username = profile.username || 'username';
   document.querySelector('.welcome_to').textContent = `Welcome to ${username}'s Garden`;
-
-  const plantTabs = document.getElementById("plantTabs");
-  const plantTabsContent = document.getElementById("plantTabsContent");
   
 
   // Reset plant count when loading dashboard
@@ -763,17 +760,18 @@ function initialisePlantManagement() {
 
   document.addEventListener('shown.bs.tab', function(event) { // Event Listener for Tab Switch
     const activeTab = event.target; // newly activated tab
-    const previousTab = event.relatedTarget; // previous active tab
     
         // Only proceed if tab is not "Add Plant" and already active
-      if (!activeTab || activeTab.id.includes('add-plant') || !activeTab.classList.contains('active')) return;
+      if (!activeTab || activeTab.id.includes('add-plant')) return;
 
-      const plantName = activeTab.getAttribute("data-plant-name") || activeTab.textContent.trim();
-      const plantData = globalPlants[plantName];
+      const plantName = activeTab.getAttribute("data-plant-name");
+      if (plantName && globalPlants[plantName]) {
+        currentPlantName = plantName;
+        console.log(`🌱 Current plant switched to: ${currentPlantName}`);
+      }
+      
 
-      if (!plantData) return;
-
-      console.log(`✅ Switched to plant tab: ${plantName}`);
+      console.log(`witched to plant tab: ${plantName}`);
 
       // Update share content
       const shareContent = document.getElementById("share-content");
