@@ -147,9 +147,9 @@ def session_data():
         'email': user.email,
         'plants': [{
             'plant_name': plant.plant_name,
-            'plant_type': plant.plant_type or "Unknown",
+            'plant_type': plant.plant_type,
             'chosen_image_url': plant.chosen_image_url,
-            'plant_category': plant.plant_category or "Unknown",
+            'plant_category': plant.plant_category,
             'id': plant.id,
             'date_created': plant.date_created
         } for plant in plants],
@@ -191,6 +191,7 @@ def add_plant():
     plant_name = data.get('plant_name')
     plant_type = data.get('plant_type')
     chosen_image_url = data.get('chosen_image_url')
+    plant_category = data.get('plant_category')
 
     if not plant_name or not plant_type or not chosen_image_url:
         return jsonify({'error': 'Missing required fields'}), 400
@@ -199,7 +200,8 @@ def add_plant():
         user_id = user_id,
         plant_name = plant_name,
         plant_type = plant_type,
-        chosen_image_url = chosen_image_url
+        chosen_image_url = chosen_image_url,
+        plant_category = plant_category
     )
     user_db.session.add(new_plant)
     user_db.session.commit()
