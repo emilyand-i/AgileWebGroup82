@@ -158,7 +158,7 @@
               </div>
             </div>
 
-            <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true"> <!-- SETTINGS MODAL -->
+            <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel"> <!-- SETTINGS MODAL -->
               <div class="modal-dialog">
                 <div class="modal-content modal-style">
                 
@@ -237,6 +237,42 @@
                 </div>
               </div>
             </div> <!-- PLANT ADD MODAL END -->
+
+        <!-- Bootstrap Modal -->
+        <div class="modal fade" id="waterModal" tabindex="-1" aria-labelledby="waterModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-4 modal-style">
+              <div class="modal-header">
+                <h5 class="modal-title" id="waterModalLabel">Water Your Plant</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              
+              <div class="modal-body text-white d-flex flex-column justify-content-between" style="height: 100%;">
+                <form id="waterForm" class="flex-grow-1">
+                  <div class="mb-3">
+                    <label for="waterDate" class="form-label mb-0">Date</label>
+                    <input type="date" id="waterDate" class="form-control">
+
+                    <div class="btn-group mt-3" role="group">
+                      <button type="button" id="waterTodayButton" class="btn btn-outline-primary date-select-button ">Today</button>
+                      <button type="button" id="waterYesterdayButton" class="btn btn-outline-primary date-select-button ">Yesterday</button>
+                    </div>
+                  </div>
+                </form>
+
+                <div class="d-flex justify-content-end">
+                  <button type="submit" form="waterForm" id="waterBtn" class="btn btn-primary btn-lg mt-3">
+                    💧 Water
+                  </button>
+                </div>
+              </div>
+
+
+
+            </div>
+          </div>
+        </div>
+
             
           </div>
         </div>
@@ -259,7 +295,7 @@
       </div>
     </div>
     <!-- Settings Modal shell -->
-    <div class="modal fade" id="User-Settings-Modal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="User-Settings-Modal" tabindex="-1">
       <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content" id="SettingsModalContent">
       <!-- The content from User-Settings.html will be loaded here by JS -->
@@ -270,7 +306,7 @@
 
     <!-- Add these modal structures -->
     <!-- Picture Modal -->
-    <div class="modal fade" id="pictureModal" tabindex="-1" aria-labelledby="pictureModalLabel" aria-hidden="true">
+    <div class="modal fade" id="pictureModal" tabindex="-1" aria-labelledby="pictureModalLabel">
       <div class="modal-dialog modal-lg">
         <div class="modal-content modal-style">
           <div class="modal-header">
@@ -312,7 +348,7 @@
     </div>
 
     <!-- Add Growth Data Modal -->
-    <div class="modal fade" id="graphModal" tabindex="-1" aria-labelledby="addGrowthModalLabel" aria-hidden="true">
+    <div class="modal fade" id="graphModal" tabindex="-1" aria-labelledby="addGrowthModalLabel">
       <div class="modal-dialog">
         <div class="modal-content modal-style">
           <div class="modal-header">

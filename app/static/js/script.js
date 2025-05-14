@@ -7,6 +7,7 @@
 let globalPlants = {};
 
 // Draw growth graph for selected plant
+
 let canvas;
 let ctx;
 function drawGraph(namePlant) {
@@ -347,6 +348,7 @@ async function loadSession() {
   });
   if (load.ok) {
     const user = await load.json();
+    console.log("📦 session loaded:", user.plants.map(p => p.plant_name));
     localStorage.setItem('user_profile', JSON.stringify(user));
     return user;
   } else {
@@ -361,70 +363,69 @@ async function loadSession() {
  */
 
 // Load dashboard content based on user profile
-function loadDashboard() {
+async function loadDashboard() {
   if (!window.location.pathname.includes('dashboard.html')) return;
   
-  const profile = JSON.parse(localStorage.getItem('user_profile'));
+  const profile = await loadSession();
   if (!profile) return;
 
-  document.querySelector('.welcome_to').textContent = `Welcome to ${profile.username}'s Garden`;
+  const username = profile.username || 'username';
+  document.querySelector('.welcome_to').textContent = `Welcome to ${username}'s Garden`;
 
-
-  const plantTabs = document.getElementById("plantTabs");
-  const plantTabsContent = document.getElementById("plantTabsContent");
   
   // Reset plant count when loading dashboard
   myPlantCount = 0;
-  
   // Clear global plants dictionary to rebuild it from profile data
   globalPlants = {};
+  if (!globalPlants.growthData) globalPlants.growthData = {};
 
   profile.plants.forEach(plant => {
+    console.log("🌿 Rendering plant:", plant.plant_name);
     myPlantCount++;
     const tabId = `plant${myPlantCount}`;
     const contentId = tabId;
+    const plantName = plant.plant_name;
+    const avatarImageSrc = plant.chosen_image_url;
+    const plantCategory = plant.plant_category || 'Unknown';
+    const plantType = plant.plant_type || 'Unknown';
     
     // Add plant to global plants dictionary
-    globalPlants[plant.plant_name] = {
+    globalPlants[plantName] = {
       tabId: tabId,
       contentId: contentId,
-      name: plant.plant_name,
-      avatarSrc: plant.chosen_image_url,
-      streakCount: plant.streak || 0,
-      creationDate: plant.creation_date || new Date().toISOString(),
-      lastUpdated: plant.last_updated || new Date().toISOString()
+      name: plantName,
+      avatarSrc: avatarImageSrc,
+      plantCategory: plantCategory,
+      plantType: plantType,
+      streakCount: 0,
+      creationDate: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
+      photos: [], // Add this line to store plant photos
+      waterData: [] // Add this line to store water data
     };
 
-    const newTab = document.createElement("li");
-    newTab.className = "nav-item";
-    newTab.innerHTML = `
-      <button class="nav-link" id="${tabId}-tab" data-bs-toggle="tab" data-bs-target="#${contentId}" type="button" role="tab">
-        ${plant.plant_name}
-      </button>`;
+    // Add to dropdown for growth tracking
+    const selector = document.getElementById('plantSelector');
+    if (selector) {
+      const option = document.createElement('option');
+      option.value = plantName;
+      option.textContent = plantName;
+      selector.appendChild(option);
+    }
 
-    const newContent = document.createElement("div");
-    newContent.className = "tab-pane fade";
-    newContent.id = contentId;
-    newContent.role = "tabpanel";
-    newContent.innerHTML = `
-      <div class="text-center flower-avatar-container">
-        <img src="${plant.chosen_image_url}" class="img-fluid text-center avatar">
-      </div>
-      <div class="daily-streak text-center mt-4">
-        <h2 class="streak">Daily Streak: ${globalPlants[plant.plant_name].streakCount}🔥</h2>
-        <div class="nav-link bi bi-gear fs-3" 
-          role="button"
-          data-bs-toggle="modal"
-          data-bs-target="#infoModal"
-          data-plant-name="${plant.plant_name}">
-        </div>
-      </div>`;
+    // Add default empty growth data if missing
+    globalPlants.growthData[plantName] = [];
 
-    const addPlantTab = document.getElementById("add-plant-tab").parentNode;
-    plantTabs.insertBefore(newTab, addPlantTab);
-    plantTabsContent.appendChild(newContent);
+    renderPlantTab({
+      plantName,
+      avatarImageSrc,
+      plantCategory,
+      plantType,
+      tabId,
+      contentId,
+      streakCount: globalPlants[plantName].streakCount
+    });
   });
-  
   console.log('Loaded plants:', Object.keys(globalPlants));
 }
 
@@ -432,7 +433,7 @@ function loadDashboard() {
  * Plant Management
  */
 
-async function savePlantinDB(plant_name, plant_type, chosen_image_url) {
+async function savePlantinDB(plant_name, plant_type, chosen_image_url, plant_category) {
   try {
     const load = await fetch('/api/add-plant', {
       method: 'POST',
@@ -441,7 +442,7 @@ async function savePlantinDB(plant_name, plant_type, chosen_image_url) {
         'X-CSRFToken': csrfToken
       },
       credentials: 'include', 
-      body: JSON.stringify({plant_name, plant_type, chosen_image_url})
+      body: JSON.stringify({plant_name, plant_type, chosen_image_url, plant_category})
     });
 
     const data = await load.json();
@@ -457,6 +458,72 @@ async function savePlantinDB(plant_name, plant_type, chosen_image_url) {
 }
 
 
+function renderPlantTab ({
+  plantName,
+  avatarImageSrc,
+  plantCategory,
+  plantType,
+  tabId,
+  contentId,
+  streakCount = 0
+}) {
+  // Create new plant tab
+  const newTab = document.createElement("li");
+  newTab.role = "presentation";
+  newTab.className = "nav-item";
+  newTab.innerHTML = `
+    <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${contentId}" data-plant-name="${plantName}" type="button" role="tab"> 
+      ${plantName}
+    </button>`;
+
+  // Create new plant tab content
+  const newTabContent = document.createElement("div");
+  newTabContent.className = "tab-pane fade";
+  newTabContent.id = contentId;
+  newTabContent.role = "tabpanel";
+  newTabContent.innerHTML = `
+     
+    <div class="text-center flower-avatar-container">
+      <img src="${avatarImageSrc}" class="img-fluid text-center avatar">
+      <div class="input-group input-group-sm justify-content-center">
+    <span class="input-group-text mt-2 text-light bg-success">${plantCategory}: ${plantType}</span>
+      </div>
+    </div>
+    <div class="daily-streak text-center">
+      <h2 class="streak">Daily Streak: 0🔥</h2>
+      <div class="plant-info-buttons">
+        <div class="nav-link bi bi-info-circle fs-3" 
+          role="button"
+          data-bs-toggle="modal"
+          data-bs-target="#infoModal"
+          data-plant-name="${plantName}">
+        </div>
+        <div class="nav-link bi bi-plus-circle fs-3" 
+          role="button"
+          data-bs-toggle="modal"
+          data-bs-target="#addInfoModal"
+          data-plant-name="${plantName}">
+        </div>
+        <div class="nav-link bi bi-droplet fs-3"
+          role="button"
+          data-bs-toggle="modal"
+          data-bs-target="#waterModal"
+          data-plant-name="${plantName}">
+        </div>
+
+      </div>
+    </div>`;
+
+  // Insert new plant before "Add Plant" tab
+  const addPlantTab = document.getElementById("add-plant-tab").parentNode;
+  plantTabs.insertBefore(newTab, addPlantTab);
+  plantTabsContent.appendChild(newTabContent);
+  
+  // Show the new plant tab
+  const newTabButton = document.getElementById(tabId);
+  if (newTabButton) new bootstrap.Tab(newTabButton).show();
+}
+
 let myPlantCount = 0;
 let selectedAvatarSrc = null;
 let currentPlantName = null;
@@ -465,8 +532,6 @@ let currentPlantName = null;
 // Initialise plant management functionality
 function initialisePlantManagement() {
   const addPlantForm = document.getElementById("addPlantForm");
-  const plantTabs = document.getElementById("plantTabs");
-  const plantTabsContent = document.getElementById('plantTabsContent');
   const container = document.getElementById('avatar-container');
   
   if (!container) return;
@@ -493,12 +558,12 @@ function initialisePlantManagement() {
       const plant = globalPlants[plantName];
 
       if (!plant) {
-        console.warn('Couldnt find "${plantName}" in globalPlants');
+        console.warn(`Couldn't find "${plantName}" in globalPlants`);
         return;
       }
 
       currentPlantName = plantName;
-      document.getElementById('infoPlantNameDisplay').textContent = plant.plantName;
+      document.getElementById('infoPlantNameDisplay').textContent = plantName;
       document.getElementById('infoPlantCategory').textContent = plant.plantCategory || 'N/A';
       document.getElementById('infoPlantType').textContent = plant.plantType || 'N/A';
       document.getElementById('plantBirthday').textContent = new Date(plant.creationDate).toDateString();
@@ -515,11 +580,8 @@ function initialisePlantManagement() {
       const plant = globalPlants[currentPlantName];
       if (!plant) return;
     
-      const tab = document.getElementById(plant.tabId);
-      const tabContent = document.getElementById(plant.contentId);
-      if (tab) tab.remove();
-      if (tabContent) tabContent.remove();
-    
+      document.getElementById(plant.tabId)?.remove();
+      document.getElementById(plant.contentId)?.remove();
       // Remove plant from global plants dictionary
       delete globalPlants[currentPlantName];
       
@@ -538,9 +600,6 @@ function initialisePlantManagement() {
       console.log(`Plant "${currentPlantName}" deleted from global registry`);
       console.log('Current plants:', Object.keys(globalPlants));
   
-      
-      currentPlantName = null;
-      myPlantCount--;
       
       // No check for remaining tabs length before accessing remainingTabs[1] or [0] could cause error in plant deleteion section
       // so fixed with new implementation 
@@ -574,6 +633,8 @@ function initialisePlantManagement() {
         console.error('Could not delete plant from database', err);
       });
     });
+    currentPlantName = null;
+    myPlantCount--;
   }
 
   // Set up add plant form submission
@@ -594,7 +655,7 @@ function initialisePlantManagement() {
         document.getElementById('uniqueNameError').classList.remove('d-none');
         plantNameInput.classList.add('is-invalid');
 
-        plantNameInput.addEventListener('input', function() {
+        plantNameInput.addEventListener('input', () => {
           document.getElementById('uniqueNameError').classList.add('d-none');
           plantNameInput.classList.remove('is-invalid');
         });
@@ -614,50 +675,21 @@ function initialisePlantManagement() {
         streakCount: 0,
         creationDate: new Date().toISOString(),
         lastUpdated: new Date().toISOString(),
-        photos: [] 
+        photos: [], // Add this line to store plant photos
+        waterData: [] // Add this line to store water data
       };
 
       await savePlantinDB(plantName, plantType, avatarImageSrc);
 
-      // Create new plant tab
-      const newTab = document.createElement("li");
-      newTab.role = "presentation";
-      newTab.className = "nav-item";
-      newTab.innerHTML = `
-        <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${contentId}" type="button" role="tab"> 
-          ${plantName}
-        </button>`;
-
-      // Create new plant tab content
-      const newTabContent = document.createElement("div");
-      newTabContent.className = "tab-pane fade";
-      newTabContent.id = contentId;
-      newTabContent.role = "tabpanel";
-      newTabContent.innerHTML = `
-         
-        <div class="text-center flower-avatar-container">
-          <img src="${avatarImageSrc}" class="img-fluid text-center avatar">
-          <div class="input-group input-group-sm justify-content-center">
-        <span class="input-group-text mt-2 text-light bg-success">${plantCategory}: ${plantType}</span>
-          </div>
-        </div>
-        <div class="daily-streak text-center">
-          <h2 class="streak">Daily Streak: 0🔥</h2>
-          <div class="plant-info-buttons">
-        <div class="nav-link bi bi-info-circle fs-3" 
-          role="button"
-          data-bs-toggle="modal"
-          data-bs-target="#infoModal"
-          data-plant-name="${plantName}">
-        </div>
-        <div class="nav-link bi bi-plus-circle fs-3" 
-          role="button"
-          data-bs-toggle="modal"
-          data-bs-target="#addInfoModal"
-          data-plant-name="${plantName}">
-        </div>
-          </div>
-        </div>`;
+      renderPlantTab({
+        plantName,
+        avatarImageSrc,
+        plantCategory,
+        plantType,
+        tabId,
+        contentId,
+        streakCount: 0
+      });
 
       // Update share column content
       const shareContent = document.getElementById("share-content");
@@ -672,11 +704,6 @@ function initialisePlantManagement() {
           </div>
         `;
       }
-
-      // Insert new plant before "Add Plant" tab
-      const addPlantTab = document.getElementById("add-plant-tab").parentNode;
-      plantTabs.insertBefore(newTab, addPlantTab);
-      plantTabsContent.appendChild(newTabContent);
       
       // Update growth tracking dropdown with new plant
       const plantSelector = document.getElementById('plantSelector');
@@ -723,11 +750,6 @@ function initialisePlantManagement() {
           }
         });
       }
-
-      // Show the new plant tab
-      const newTabButton = document.getElementById(tabId);
-      const tab = new bootstrap.Tab(newTabButton);
-      tab.show();
     });
   }
 
@@ -914,46 +936,139 @@ function updatePicGrid(showAll = false) {
 
 /**
  * PLANT GROWTH TRACKING
- * Functions to track and visualize plant growth
+ * Functions to track plant growth
  */
 
+
 // Initialise plant growth tracker
+
 function initialisePlantGrowthTracker() {
-  const form = document.getElementById('growthDataForm');
-  const submitBtn = document.getElementById('addGrowthDataBtn');
-  const dateInput = document.getElementById('growthDate');
+  const growthForm = document.getElementById('growthDataForm');
+  const waterForm = document.getElementById('waterForm');
+  const growthDateInput = document.getElementById('growthDate');
+  const waterDateInput = document.getElementById('waterDate');
 
-  if (dateInput) {
-    dateInput.valueAsDate = new Date();
+  console.log("Initializing plant growth tracker...");
+
+  if (growthDateInput) {
+    growthDateInput.valueAsDate = new Date();
+  }
+  if (waterDateInput) {
+    waterDateInput.valueAsDate = new Date();
   }
 
-  if (form && submitBtn) {
-    form.addEventListener('submit', handleGrowthDataSubmit);
-    submitBtn.addEventListener('click', handleGrowthDataSubmit);
+  if (growthForm) {
+    console.log("Growth form found");
+    growthForm.addEventListener('submit', handleGrowthDataSubmit);
   }
 
-  function setDateTo(offsetDays, buttonId) {
-    const dateInput = document.getElementById('growthDate');
+  if (waterForm) {
+    console.log("Water form found");
+    waterForm.addEventListener('submit', handleWaterDataSubmit);
+  }
+
+  function setDateTo(offsetDays, buttonId, inputId) {
+    console.log(`🔁 setDateTo called with offsetDays=${offsetDays}, buttonId=${buttonId}, inputId=${inputId}`);
+
     const buttons = document.querySelectorAll('.date-select-button');
-  
+    console.log(`🎯 Found ${buttons.length} buttons`);
+
     // Remove active class from all buttons
-    buttons.forEach(btn => btn.classList.remove('active'));
-  
-    // Add active class to the clicked button
+    buttons.forEach(btn => {
+      btn.classList.remove('active');
+      console.log(`✂️ Removed active from button: ${btn.id}`);
+    });
+
     const selectedButton = document.getElementById(buttonId);
     if (selectedButton) {
       selectedButton.classList.add('active');
+      console.log(`✅ Added active to button: ${buttonId}`);
+    } else {
+      console.warn(`❌ Button not found: ${buttonId}`);
     }
-  
-    if (dateInput && typeof offsetDays === 'number') {
-      const date = new Date();
-      date.setDate(date.getDate() + offsetDays);
-      dateInput.valueAsDate = date;
+
+    const date = new Date();
+    date.setDate(date.getDate() + offsetDays);
+    console.log(`📅 New date: ${date.toDateString()}`);
+
+    const input = document.getElementById(inputId);
+    if (input) {
+      input.valueAsDate = date;
+      console.log(`📝 Set date for input ${inputId} to ${input.value}`);
+    } else {
+      console.warn(`❌ Input not found: ${inputId}`);
     }
   }
 
-  document.getElementById('todayButton').addEventListener('click', () => setDateTo(0, 'todayButton'));
-  document.getElementById('yesterdayButton').addEventListener('click', () => setDateTo(-1, 'yesterdayButton'));
+  window.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 DOM fully loaded. Setting initial date values...');
+    const today = new Date();
+
+    const growthDateInput = document.getElementById('growthDate');
+    const waterDateInput = document.getElementById('waterDate');
+
+    if (growthDateInput) {
+      growthDateInput.valueAsDate = today;
+      console.log(`📥 Set initial growthDate to ${growthDateInput.value}`);
+    } else {
+      console.warn('❌ growthDate input not found.');
+    }
+
+    if (waterDateInput) {
+      waterDateInput.valueAsDate = today;
+      console.log(`📥 Set initial waterDate to ${waterDateInput.value}`);
+    } else {
+      console.warn('❌ waterDate input not found.');
+    }
+  });
+
+  document.getElementById('todayButton')?.addEventListener('click', () =>
+    setDateTo(0, 'todayButton', 'growthDate')
+  );
+
+  document.getElementById('yesterdayButton')?.addEventListener('click', () =>
+    setDateTo(-1, 'yesterdayButton', 'growthDate')
+  );
+
+  document.getElementById('waterTodayButton')?.addEventListener('click', () =>
+    setDateTo(0, 'waterTodayButton', 'waterDate')
+  );
+
+  document.getElementById('waterYesterdayButton')?.addEventListener('click', () =>
+    setDateTo(-1, 'waterYesterdayButton', 'waterDate')
+  );
+
+
+
+
+  function handleWaterDataSubmit(e) {
+    e.preventDefault();
+
+    console.log("Water data submission triggered.");
+
+    const name = getCurrentActivePlantName();
+    const date = document.getElementById('waterDate').value;
+
+    console.log(`Selected plant: ${name}`);
+    console.log(`Selected date: ${date}`);
+
+    if (!name || !date) {
+        console.warn('Submission failed: Missing plant name or date');
+        alert('Please select a date');
+        return;
+    }
+    globalPlants[name].waterData.push(date);
+    
+    console.log(`waterData for ${name}`, globalPlants[name]?.waterData);
+
+    waterForm.reset();
+    waterDateInput.valueAsDate = new Date();
+    const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
+    if (modal) {
+      modal.hide();
+    }
+  }
+
 
   function handleGrowthDataSubmit(e) {
     e.preventDefault();
@@ -979,12 +1094,13 @@ function initialisePlantGrowthTracker() {
     }
 
     // Clear form and close modal
-    form.reset();
-    dateInput.valueAsDate = new Date();
+    growthForm.reset();
+    growthDateInput.valueAsDate = new Date();
     const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
     if (modal) {
       modal.hide();
     }
+    
 
     // Update graph
     console.log(`Added growth data for ${name}:`, globalPlants.growthData[name]);
@@ -1328,23 +1444,22 @@ document.addEventListener('DOMContentLoaded', () => {
  * Main initialisation
  */
 document.addEventListener('DOMContentLoaded', async () => {
-  // Load dashboard
-  loadDashboard();
+    // Load dashboard - wait for initialisations to render first
+    loadDashboard();
+    
+    // Initialise plant management
+    initialisePlantManagement();
+    
+    // Initialise photo upload functionality
+    initialisePhotoUpload();
+    
+    // Initialise plant growth tracker
+    initialisePlantGrowthTracker();
+    
+    // Initialise settings modal
+    initialiseSettingsModal();
+    
+    // Initialise dimming feature
+    initialiseDimming();
   
-  // Initialise plant management
-  initialisePlantManagement();
-  
-  // Initialise photo upload functionality
-  initialisePhotoUpload();
-  
-  // Initialise plant growth tracker
-  initialisePlantGrowthTracker();
-  
-  // Initialise settings modal
-  
-  initialiseSettingsModal();
-  
-  
-  // Initialise dimming feature
-  initialiseDimming();
 });
