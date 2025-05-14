@@ -75,6 +75,7 @@ def login():
                 'plant_name': plant.plant_name,
                 'plant_type': plant.plant_type,
                 'chosen_image_url': plant.chosen_image_url,
+                'plant_category': plant.plant_category,
                 'date_created': plant.date_created,
                 'id': plant.id
             } for plant in plants
@@ -146,8 +147,9 @@ def session_data():
         'email': user.email,
         'plants': [{
             'plant_name': plant.plant_name,
-            'plant_type': plant.plant_type,
+            'plant_type': plant.plant_type or "Unknown",
             'chosen_image_url': plant.chosen_image_url,
+            'plant_category': plant.plant_category or "Unknown",
             'id': plant.id,
             'date_created': plant.date_created
         } for plant in plants],
@@ -201,6 +203,7 @@ def add_plant():
     )
     user_db.session.add(new_plant)
     user_db.session.commit()
+    
 
     return jsonify({'message': 'Plant added successfully'}), 201
 

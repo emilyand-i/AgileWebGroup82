@@ -53,7 +53,7 @@ class Plants(user_db.Model):
   chosen_image_url = user_db.Column(user_db.String(255)) #255 characters max
   plant_type = user_db.Column(user_db.String(50)) #50 characters max
   date_created = user_db.Column(user_db.DateTime, default=user_db.func.now()) 
-
+  plant_category = user_db.Column(user_db.String(100), nullable = True)
 
 
 # uploadedPics: table in user_db

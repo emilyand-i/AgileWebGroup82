@@ -362,70 +362,68 @@ async function loadSession() {
  */
 
 // Load dashboard content based on user profile
-function loadDashboard() {
+async function loadDashboard() {
   if (!window.location.pathname.includes('dashboard.html')) return;
   
-  const profile = JSON.parse(localStorage.getItem('user_profile'));
+  const profile = await loadSession();
   if (!profile) return;
 
-  document.querySelector('.welcome_to').textContent = `Welcome to ${profile.username}'s Garden`;
+  const username = session.username || 'username';
+  document.querySelector('.welcome_to').textContent = `Welcome to ${username}'s Garden`;
 
-
-  const plantTabs = document.getElementById("plantTabs");
-  const plantTabsContent = document.getElementById("plantTabsContent");
   
   // Reset plant count when loading dashboard
   myPlantCount = 0;
-  
   // Clear global plants dictionary to rebuild it from profile data
   globalPlants = {};
+  if (!globalPlants.growthData) globalPlants.growthData = {};
 
   profile.plants.forEach(plant => {
     myPlantCount++;
     const tabId = `plant${myPlantCount}`;
     const contentId = tabId;
+    const plantName = plant.plant_name;
+    const avatarImageSrc = plant.chosen_image_url;
+    const plantCategory = plant.plant_category || 'Unknown';
+    const plantType = plant.plant_type || 'Unknown';
     
     // Add plant to global plants dictionary
-    globalPlants[plant.plant_name] = {
+    globalPlants[plantName] = {
       tabId: tabId,
       contentId: contentId,
-      name: plant.plant_name,
-      avatarSrc: plant.chosen_image_url,
-      streakCount: plant.streak || 0,
-      creationDate: plant.creation_date || new Date().toISOString(),
-      lastUpdated: plant.last_updated || new Date().toISOString()
+      name: plantName,
+      avatarSrc: avatarImageSrc,
+      plantCategory: plantCategory,
+      plantType: plantType,
+      streakCount: 0,
+      creationDate: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
+      photos: [], // Add this line to store plant photos
+      waterData: [] // Add this line to store water data
     };
 
-    const newTab = document.createElement("li");
-    newTab.className = "nav-item";
-    newTab.innerHTML = `
-      <button class="nav-link" id="${tabId}-tab" data-bs-toggle="tab" data-bs-target="#${contentId}" type="button" role="tab">
-        ${plant.plant_name}
-      </button>`;
+    // Add to dropdown for growth tracking
+    const selector = document.getElementById('plantSelector');
+    if (selector) {
+      const option = document.createElement('option');
+      option.value = plantName;
+      option.textContent = plantName;
+      selector.appendChild(option);
+    }
 
-    const newContent = document.createElement("div");
-    newContent.className = "tab-pane fade";
-    newContent.id = contentId;
-    newContent.role = "tabpanel";
-    newContent.innerHTML = `
-      <div class="text-center flower-avatar-container">
-        <img src="${plant.chosen_image_url}" class="img-fluid text-center avatar">
-      </div>
-      <div class="daily-streak text-center mt-4">
-        <h2 class="streak">Daily Streak: ${globalPlants[plant.plant_name].streakCount}🔥</h2>
-        <div class="nav-link bi bi-gear fs-3" 
-          role="button"
-          data-bs-toggle="modal"
-          data-bs-target="#infoModal"
-          data-plant-name="${plant.plant_name}">
-        </div>
-      </div>`;
+    // Add default empty growth data if missing
+    globalPlants.growthData[plantName] = [];
 
-    const addPlantTab = document.getElementById("add-plant-tab").parentNode;
-    plantTabs.insertBefore(newTab, addPlantTab);
-    plantTabsContent.appendChild(newContent);
+    renderPlantTab({
+      plantName,
+      avatarImageSrc,
+      plantCategory,
+      plantType,
+      tabId,
+      contentId,
+      streakCount: globalPlants[plantName].streakCount
+    });
   });
-  
   console.log('Loaded plants:', Object.keys(globalPlants));
 }
 
@@ -458,6 +456,86 @@ async function savePlantinDB(plant_name, plant_type, chosen_image_url) {
 }
 
 
+function renderPlantTab ({
+  plantName,
+  avatarImageSrc,
+  plantCategory,
+  plantType,
+  tabId,
+  contentId,
+  streakCount = 0
+}) {
+  // Create new plant tab
+  const newTab = document.createElement("li");
+  newTab.role = "presentation";
+  newTab.className = "nav-item";
+  newTab.innerHTML = `
+    <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${contentId}" type="button" role="tab"> 
+      ${plantName}
+    </button>`;
+
+  // Create new plant tab content
+  const newTabContent = document.createElement("div");
+  newTabContent.className = "tab-pane fade";
+  newTabContent.id = contentId;
+  newTabContent.role = "tabpanel";
+  newTabContent.innerHTML = `
+     
+    <div class="text-center flower-avatar-container">
+      <img src="${avatarImageSrc}" class="img-fluid text-center avatar">
+      <div class="input-group input-group-sm justify-content-center">
+    <span class="input-group-text mt-2 text-light bg-success">${plantCategory}: ${plantType}</span>
+      </div>
+    </div>
+    <div class="daily-streak text-center">
+      <h2 class="streak">Daily Streak: 0🔥</h2>
+      <div class="plant-info-buttons">
+        <div class="nav-link bi bi-info-circle fs-3" 
+          role="button"
+          data-bs-toggle="modal"
+          data-bs-target="#infoModal"
+          data-plant-name="${plantName}">
+        </div>
+        <div class="nav-link bi bi-plus-circle fs-3" 
+          role="button"
+          data-bs-toggle="modal"
+          data-bs-target="#addInfoModal"
+          data-plant-name="${plantName}">
+        </div>
+        <div class="nav-link bi bi-droplet fs-3"
+          role="button"
+          data-bs-toggle="modal"
+          data-bs-target="#waterModal"
+          data-plant-name="${plantName}">
+        </div>
+
+      </div>
+    </div>`;
+
+  // Update share column content
+  const shareContent = document.getElementById("share-content");
+  if (shareContent) {
+    shareContent.innerHTML = `
+      <h3 class="text-white"> Share Your Plant! </h3>
+      <img src="${avatarImageSrc}" class="img-fluid text-center share-avatar">
+      <div class="share-controls text-center mt-4">
+          <a class="btn btn-success btn-lg" href="shareBoard.html">
+            <i class="bi bi-share me-2"></i> Share Plant
+          </a>
+      </div>
+    `;
+  }
+
+  // Insert new plant before "Add Plant" tab
+  const addPlantTab = document.getElementById("add-plant-tab").parentNode;
+  plantTabs.insertBefore(newTab, addPlantTab);
+  plantTabsContent.appendChild(newTabContent);
+  
+  // Show the new plant tab
+  const newTabButton = document.getElementById(tabId);
+  if (newTabButton) new bootstrap.Tab(newTabButton).show();
+}
+
 let myPlantCount = 0;
 let selectedAvatarSrc = null;
 let currentPlantName = null;
@@ -466,8 +544,6 @@ let currentPlantName = null;
 // Initialise plant management functionality
 function initialisePlantManagement() {
   const addPlantForm = document.getElementById("addPlantForm");
-  const plantTabs = document.getElementById("plantTabs");
-  const plantTabsContent = document.getElementById('plantTabsContent');
   const container = document.getElementById('avatar-container');
   
   if (!container) return;
@@ -591,7 +667,7 @@ function initialisePlantManagement() {
         document.getElementById('uniqueNameError').classList.remove('d-none');
         plantNameInput.classList.add('is-invalid');
 
-        plantNameInput.addEventListener('input', function() {
+        plantNameInput.addEventListener('input', () => {
           document.getElementById('uniqueNameError').classList.add('d-none');
           plantNameInput.classList.remove('is-invalid');
         });
@@ -617,52 +693,15 @@ function initialisePlantManagement() {
 
       await savePlantinDB(plantName, plantType, avatarImageSrc);
 
-      // Create new plant tab
-      const newTab = document.createElement("li");
-      newTab.role = "presentation";
-      newTab.className = "nav-item";
-      newTab.innerHTML = `
-        <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${contentId}" type="button" role="tab"> 
-          ${plantName}
-        </button>`;
-
-      // Create new plant tab content
-      const newTabContent = document.createElement("div");
-      newTabContent.className = "tab-pane fade";
-      newTabContent.id = contentId;
-      newTabContent.role = "tabpanel";
-      newTabContent.innerHTML = `
-         
-        <div class="text-center flower-avatar-container">
-          <img src="${avatarImageSrc}" class="img-fluid text-center avatar">
-          <div class="input-group input-group-sm justify-content-center">
-        <span class="input-group-text mt-2 text-light bg-success">${plantCategory}: ${plantType}</span>
-          </div>
-        </div>
-        <div class="daily-streak text-center">
-          <h2 class="streak">Daily Streak: 0🔥</h2>
-          <div class="plant-info-buttons">
-            <div class="nav-link bi bi-info-circle fs-3" 
-              role="button"
-              data-bs-toggle="modal"
-              data-bs-target="#infoModal"
-              data-plant-name="${plantName}">
-            </div>
-            <div class="nav-link bi bi-plus-circle fs-3" 
-              role="button"
-              data-bs-toggle="modal"
-              data-bs-target="#addInfoModal"
-              data-plant-name="${plantName}">
-            </div>
-            <div class="nav-link bi bi-droplet fs-3"
-              role="button"
-              data-bs-toggle="modal"
-              data-bs-target="#waterModal"
-              data-plant-name="${plantName}">
-            </div>
-
-          </div>
-        </div>`;
+      renderPlantTab({
+        plantName,
+        avatarImageSrc,
+        plantCategory,
+        plantType,
+        tabId,
+        contentId,
+        streakCount: 0
+      });
 
       // Update share column content
       const shareContent = document.getElementById("share-content");
@@ -677,11 +716,6 @@ function initialisePlantManagement() {
           </div>
         `;
       }
-
-      // Insert new plant before "Add Plant" tab
-      const addPlantTab = document.getElementById("add-plant-tab").parentNode;
-      plantTabs.insertBefore(newTab, addPlantTab);
-      plantTabsContent.appendChild(newTabContent);
       
       // Update growth tracking dropdown with new plant
       const plantSelector = document.getElementById('plantSelector');
@@ -728,11 +762,6 @@ function initialisePlantManagement() {
           }
         });
       }
-
-      // Show the new plant tab
-      const newTabButton = document.getElementById(tabId);
-      const tab = new bootstrap.Tab(newTabButton);
-      tab.show();
     });
   }
 
