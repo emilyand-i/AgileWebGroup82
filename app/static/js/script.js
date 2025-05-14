@@ -512,20 +512,6 @@ function renderPlantTab ({
       </div>
     </div>`;
 
-  // Update share column content
-  const shareContent = document.getElementById("share-content");
-  if (shareContent) {
-    shareContent.innerHTML = `
-      <h3 class="text-white"> Share Your Plant! </h3>
-      <img src="${avatarImageSrc}" class="img-fluid text-center share-avatar">
-      <div class="share-controls text-center mt-4">
-          <a class="btn btn-success btn-lg" href="shareBoard.html">
-            <i class="bi bi-share me-2"></i> Share Plant
-          </a>
-      </div>
-    `;
-  }
-
   // Insert new plant before "Add Plant" tab
   const addPlantTab = document.getElementById("add-plant-tab").parentNode;
   plantTabs.insertBefore(newTab, addPlantTab);
@@ -948,11 +934,11 @@ function updatePicGrid(showAll = false) {
 
 /**
  * PLANT GROWTH TRACKING
- * Functions to track and visualize plant growth
+ * Functions to track plant growth
  */
 
 
-// Initialize plant growth tracker
+// Initialise plant growth tracker
 
 function initialisePlantGrowthTracker() {
   const growthForm = document.getElementById('growthDataForm');
@@ -1317,21 +1303,22 @@ document.getElementById("plantCategory").addEventListener("change", function () 
  * Main initialisation
  */
 document.addEventListener('DOMContentLoaded', async () => {
-  // Load dashboard
-  loadDashboard();
+    // Load dashboard - wait for initialisations to render first
+    loadDashboard();
+    
+    // Initialise plant management
+    initialisePlantManagement();
+    
+    // Initialise photo upload functionality
+    initialisePhotoUpload();
+    
+    // Initialise plant growth tracker
+    initialisePlantGrowthTracker();
+    
+    // Initialise settings modal
+    initialiseSettingsModal();
+    
+    // Initialise dimming feature
+    initialiseDimming();
   
-  // Initialise plant management
-  initialisePlantManagement();
-  
-  // Initialise photo upload functionality
-  initialisePhotoUpload();
-  
-  // Initialise plant growth tracker
-  initialisePlantGrowthTracker();
-  
-  // Initialise settings modal
-  initialiseSettingsModal();
-  
-  // Initialise dimming feature
-  initialiseDimming();
 });
