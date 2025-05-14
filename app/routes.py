@@ -181,6 +181,7 @@ def logout():
 
 @routes_bp.route('/api/add-plant', methods=['POST'])
 def add_plant():
+    print("add plant route")
     data = request.get_json()
     user_id = session.get('user_id')
     if not user_id:

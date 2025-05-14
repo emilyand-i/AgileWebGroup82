@@ -442,20 +442,24 @@ async function savePlantinDB(plant_name, plant_type, chosen_image_url) {
         'X-CSRFToken': csrfToken
       },
       credentials: 'include', 
-      body: JSON.stringify({plant_name, plant_type, chosen_image_url})
+      body: JSON.stringify({ plant_name, plant_type, chosen_image_url })
     });
 
     const data = await load.json();
     if (load.ok) {
       console.log("Plant saved");
       await loadSession();
+      return { success: true };
     } else {
       console.warn('Plant save failed:', data.error);
+      return { success: false, error: data.error };
     }
   } catch (err) {
-    console.error("couldnt save plant", err);
+    console.error("couldn't save plant", err);
+    return { success: false, error: 'Network error' };
   }
 }
+
 
 
 let myPlantCount = 0;
@@ -485,6 +489,8 @@ function initialisePlantManagement() {
     }
   });
 
+  
+
   // Set up info modal for plant settings
   const infoModal = document.getElementById('infoModal');
   if (infoModal) {
@@ -506,8 +512,10 @@ function initialisePlantManagement() {
     });
   }
 
+  
 
   // Set up delete button functionality
+  const deleteButton = document.getElementById('delete-plant-button');
   deleteButton.addEventListener("click", function() {
     if (!currentPlantName || !globalPlants[currentPlantName]) return;
 
@@ -568,11 +576,14 @@ function initialisePlantManagement() {
     });
   });
 
+  
 
   // Set up add plant form submission
   if (addPlantForm) {
+    console.log("Add plant form found");
     addPlantForm.addEventListener('submit', async function(e) {
       e.preventDefault();
+      console.log("Add plant form submitted");
       
       const plantName = document.getElementById('plantName').value.trim();
       const plantNameInput = document.getElementById('plantName');
@@ -593,10 +604,18 @@ function initialisePlantManagement() {
         });
         return;
       }
-      
+
+      // Attempt to save in backend first
+      const saveResult = await savePlantinDB(plantName, plantType, avatarImageSrc);
+
+      if (!saveResult || !saveResult.success) {
+        alert("Failed to save plant. Please try again.");
+        return;
+      }
+
+      // Proceed only if save was successful
       myPlantCount++;
-      
-      
+
       globalPlants[plantName] = {
         tabId: tabId,
         contentId: contentId,
@@ -607,11 +626,9 @@ function initialisePlantManagement() {
         streakCount: 0,
         creationDate: new Date().toISOString(),
         lastUpdated: new Date().toISOString(),
-        photos: [], // Add this line to store plant photos
-        waterData: [] // Add this line to store water data
+        photos: [],
+        waterData: []
       };
-
-      await savePlantinDB(plantName, plantType, avatarImageSrc);
 
       // Create new plant tab
       const newTab = document.createElement("li");
@@ -628,11 +645,10 @@ function initialisePlantManagement() {
       newTabContent.id = contentId;
       newTabContent.role = "tabpanel";
       newTabContent.innerHTML = `
-         
         <div class="text-center flower-avatar-container">
           <img src="${avatarImageSrc}" class="img-fluid text-center avatar">
           <div class="input-group input-group-sm justify-content-center">
-        <span class="input-group-text mt-2 text-light bg-success">${plantCategory}: ${plantType}</span>
+            <span class="input-group-text mt-2 text-light bg-success">${plantCategory}: ${plantType}</span>
           </div>
         </div>
         <div class="daily-streak text-center">
@@ -656,7 +672,6 @@ function initialisePlantManagement() {
               data-bs-target="#waterModal"
               data-plant-name="${plantName}">
             </div>
-
           </div>
         </div>`;
 
@@ -678,7 +693,7 @@ function initialisePlantManagement() {
       const addPlantTab = document.getElementById("add-plant-tab").parentNode;
       plantTabs.insertBefore(newTab, addPlantTab);
       plantTabsContent.appendChild(newTabContent);
-      
+
       // Update growth tracking dropdown with new plant
       const plantSelector = document.getElementById('plantSelector');
       if (plantSelector) {
@@ -687,17 +702,17 @@ function initialisePlantManagement() {
         option.textContent = plantName;
         plantSelector.appendChild(option);
       }
-      
+
       // Initialise empty growth data for this plant
       if (!globalPlants.growthData) {
         globalPlants.growthData = {};
       }
       globalPlants.growthData[plantName] = [];
-      
+
+      // Reset form and avatar UI
       addPlantForm.reset();
       selectedAvatarSrc = null;
 
-      // Reset avatar choices
       container.innerHTML = ` 
         <div id="avatar-choices" class="avatar-grid">
           <img src="assets/Flower_Avatars/bush.jpg" alt="Bush" class="avatar-choice">
@@ -712,7 +727,7 @@ function initialisePlantManagement() {
           <img src="assets/Flower_Avatars/houseplant.jpg" alt="houseplant" class="avatar-choice">
         </div>
       `;
-      
+
       // Reattach avatar selection event listener
       const avatarChoices = document.getElementById("avatar-choices");
       if (avatarChoices) {
@@ -731,6 +746,7 @@ function initialisePlantManagement() {
       tab.show();
     });
   }
+
 
   document.addEventListener('shown.bs.tab', function(event) { // Event Listener for Tab Switch
     const activeTab = event.target; // newly activated tab
