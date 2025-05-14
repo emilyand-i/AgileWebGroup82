@@ -193,15 +193,15 @@ def add_plant():
     chosen_image_url = data.get('chosen_image_url')
     plant_category = data.get('plant_category')
 
-    if not plant_name or not plant_type or not chosen_image_url:
+    if not plant_name or not plant_type or not chosen_image_url or not plant_category:
         return jsonify({'error': 'Missing required fields'}), 400
 
     new_plant = Plants(
-        user_id = user_id,
-        plant_name = plant_name,
-        plant_type = plant_type,
-        chosen_image_url = chosen_image_url,
-        plant_category = plant_category
+        user_id=user_id,
+        plant_name=plant_name,
+        plant_type=plant_type,
+        chosen_image_url=chosen_image_url,
+        plant_category=plant_category
     )
     user_db.session.add(new_plant)
     user_db.session.commit()
