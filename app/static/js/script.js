@@ -348,6 +348,7 @@ async function loadSession() {
   });
   if (load.ok) {
     const user = await load.json();
+    console.log("📦 session loaded:", user.plants.map(p => p.plant_name));
     localStorage.setItem('user_profile', JSON.stringify(user));
     return user;
   } else {
@@ -368,7 +369,7 @@ async function loadDashboard() {
   const profile = await loadSession();
   if (!profile) return;
 
-  const username = session.username || 'username';
+  const username = profile.username || 'username';
   document.querySelector('.welcome_to').textContent = `Welcome to ${username}'s Garden`;
 
   
@@ -379,6 +380,7 @@ async function loadDashboard() {
   if (!globalPlants.growthData) globalPlants.growthData = {};
 
   profile.plants.forEach(plant => {
+    console.log("🌿 Rendering plant:", plant.plant_name);
     myPlantCount++;
     const tabId = `plant${myPlantCount}`;
     const contentId = tabId;
@@ -470,7 +472,7 @@ function renderPlantTab ({
   newTab.role = "presentation";
   newTab.className = "nav-item";
   newTab.innerHTML = `
-    <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${contentId}" type="button" role="tab"> 
+    <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${contentId}" data-plant-name="${plantName}" type="button" role="tab"> 
       ${plantName}
     </button>`;
 
