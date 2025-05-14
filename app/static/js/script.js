@@ -348,6 +348,7 @@ async function loadSession() {
   });
   if (load.ok) {
     const user = await load.json();
+    console.log("📦 session loaded:", user.plants.map(p => p.plant_name));
     localStorage.setItem('user_profile', JSON.stringify(user));
     return user;
   } else {
@@ -368,7 +369,7 @@ async function loadDashboard() {
   const profile = await loadSession();
   if (!profile) return;
 
-  const username = session.username || 'username';
+  const username = profile.username || 'username';
   document.querySelector('.welcome_to').textContent = `Welcome to ${username}'s Garden`;
 
   
@@ -379,6 +380,7 @@ async function loadDashboard() {
   if (!globalPlants.growthData) globalPlants.growthData = {};
 
   profile.plants.forEach(plant => {
+    console.log("🌿 Rendering plant:", plant.plant_name);
     myPlantCount++;
     const tabId = `plant${myPlantCount}`;
     const contentId = tabId;
@@ -431,7 +433,7 @@ async function loadDashboard() {
  * Plant Management
  */
 
-async function savePlantinDB(plant_name, plant_type, chosen_image_url) {
+async function savePlantinDB(plant_name, plant_type, chosen_image_url, plant_category) {
   try {
     const load = await fetch('/api/add-plant', {
       method: 'POST',
@@ -440,7 +442,7 @@ async function savePlantinDB(plant_name, plant_type, chosen_image_url) {
         'X-CSRFToken': csrfToken
       },
       credentials: 'include', 
-      body: JSON.stringify({plant_name, plant_type, chosen_image_url})
+      body: JSON.stringify({plant_name, plant_type, chosen_image_url, plant_category})
     });
 
     const data = await load.json();
@@ -470,7 +472,7 @@ function renderPlantTab ({
   newTab.role = "presentation";
   newTab.className = "nav-item";
   newTab.innerHTML = `
-    <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${contentId}" type="button" role="tab"> 
+    <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${contentId}" data-plant-name="${plantName}" type="button" role="tab"> 
       ${plantName}
     </button>`;
 
@@ -511,20 +513,6 @@ function renderPlantTab ({
 
       </div>
     </div>`;
-
-  // Update share column content
-  const shareContent = document.getElementById("share-content");
-  if (shareContent) {
-    shareContent.innerHTML = `
-      <h3 class="text-white"> Share Your Plant! </h3>
-      <img src="${avatarImageSrc}" class="img-fluid text-center share-avatar">
-      <div class="share-controls text-center mt-4">
-          <a class="btn btn-success btn-lg" href="shareBoard.html">
-            <i class="bi bi-share me-2"></i> Share Plant
-          </a>
-      </div>
-    `;
-  }
 
   // Insert new plant before "Add Plant" tab
   const addPlantTab = document.getElementById("add-plant-tab").parentNode;
@@ -948,11 +936,11 @@ function updatePicGrid(showAll = false) {
 
 /**
  * PLANT GROWTH TRACKING
- * Functions to track and visualize plant growth
+ * Functions to track plant growth
  */
 
 
-// Initialize plant growth tracker
+// Initialise plant growth tracker
 
 function initialisePlantGrowthTracker() {
   const growthForm = document.getElementById('growthDataForm');
@@ -1317,21 +1305,22 @@ document.getElementById("plantCategory").addEventListener("change", function () 
  * Main initialisation
  */
 document.addEventListener('DOMContentLoaded', async () => {
-  // Load dashboard
-  loadDashboard();
+    // Load dashboard - wait for initialisations to render first
+    loadDashboard();
+    
+    // Initialise plant management
+    initialisePlantManagement();
+    
+    // Initialise photo upload functionality
+    initialisePhotoUpload();
+    
+    // Initialise plant growth tracker
+    initialisePlantGrowthTracker();
+    
+    // Initialise settings modal
+    initialiseSettingsModal();
+    
+    // Initialise dimming feature
+    initialiseDimming();
   
-  // Initialise plant management
-  initialisePlantManagement();
-  
-  // Initialise photo upload functionality
-  initialisePhotoUpload();
-  
-  // Initialise plant growth tracker
-  initialisePlantGrowthTracker();
-  
-  // Initialise settings modal
-  initialiseSettingsModal();
-  
-  // Initialise dimming feature
-  initialiseDimming();
 });
