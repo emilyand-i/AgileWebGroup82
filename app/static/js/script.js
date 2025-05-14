@@ -349,6 +349,20 @@ async function logout() {
   window.location.href = 'index.html';
 }
 
+async function plantDelete() {
+  const load = await fetch('/api/delete-plant', {
+    method: 'POST', 
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken
+    },
+    credentials: 'include',
+    body: JSON.stringify({plant_name: currentPlantName})
+  });
+  const data = await load.json();
+  console.log(data.message || 'Deleted from database');
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
   await CsrfToken();
   loginForm();
@@ -709,110 +723,83 @@ function initialisePlantManagement() {
 
   document.addEventListener('shown.bs.tab', function(event) { // Event Listener for Tab Switch
     const activeTab = event.target; // newly activated tab
-    
-    // Only proceed if tab is not "Add Plant" and already active
+    // Only proceed if tab is not "add-plant" or already active
     if (!activeTab || activeTab.id.includes('add-plant')) return;
 
     const plantName = activeTab.getAttribute("data-plant-name");
-    if (plantName && globalPlants[plantName]) {
-      currentPlantName = plantName;
-      console.log(`🌱 Current plant switched to: ${currentPlantName}`);
     
 
-      // Set up delete button functionality
-      const deleteButton = document.getElementById('delete-plant-button');
-      if (deleteButton) {
-        deleteButton.onclick = async function () {
-          if (!currentPlantName || !globalPlants[currentPlantName]) return;
+    currentPlantName = plantName;
+    console.log(`🌱 Current plant switched to: ${currentPlantName}`);
+    
 
-          const plant = globalPlants[currentPlantName];
-          // Remove plant from global plants dictionary
-          delete globalPlants[currentPlantName];
+    // Set up delete button functionality
+    const deleteButton = document.getElementById('delete-plant-button');
+    if (deleteButton) {
+      deleteButton.onclick = async () => {
+        if (!plantName && !globalPlants[plantName]) return;
 
-          const tabLinks = document.querySelectorAll(".nav-link");
-          let tabOnDelete = null;
-          for (let i = 0; i < tabLinks.length; i++) {
-            const tab = tabLinks[i];
-            if (!tab.id.includes('add-plant') && tab.id !== plant.tabId) {
-              tabOnDelete = tab;
+
+        const plant = globalPlants[currentPlantName];
+
+        document.getElementById(plant.tabId)?.remove();
+        document.getElementById(plant.contentId)?.remove();
+        delete globalPlants[currentPlantName];
+        if (globalPlants.growthData) {
+          delete globalPlants.growthData[currentPlantName];
+        }
+        const selector = document.getElementById('plantSelector');
+        if (selector) {
+          for (let i = 0; i < selector.options.length; i++) {
+            if (selector.options[i].value === currentPlantName) {
+              selector.remove(i);
               break;
             }
           }
-          if (tabOnDelete) {
-            const newTabDel = tabOnDelete.getAttribute('data-plant-name');
-            new bootstrap.Tab(tabOnDelete).show();
-            updateShareSection(newTabDel);
-          }
-          setTimeout(() => {
-            document.getElementById(plant.tabId)?.remove();
-            document.getElementById(plant.contentId)?.remove();
-          }, 150);
-          // Also remove plant's growth data if it exists
-          if (globalPlants.growthData) {
-            delete globalPlants.growthData[currentPlantName];
-          }
-
-          // Update growth tracking dropdown by removing the plant
-          const selector = document.getElementById('plantSelector');
-          if (selector) {
-            for (let i = 0; i < selector.options.length; i++) {
-              if (selector.options[i].value === currentPlantName) {
-                selector.remove(i);
-                break;
-              }
-            }
-          }
-
-          console.log(`Plant "${currentPlantName}" deleted from global registry`);
-          console.log('Current plants:', Object.keys(globalPlants));
-
-          // Delete from backend
-          try {
-            const load = await fetch('/api/delete-plant', {
-              method: 'POST', 
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
-              },
-              credentials: 'include',
-              body: JSON.stringify({plant_name: currentPlantName})
-            });
-            const data = await load.json();
-            console.log(data.message || 'Deleted from database');
-          } catch (err) {
-            console.error('Could not delete plant from database', err);
-          }
-          currentPlantName = null;
-          myPlantCount--;
         }
-      }
-    }
+        const tabs = document.querySelectorAll(".nav-link");
+        for (let i = 0; i < tabs.length; i++) {
+          const tab = tabs[i];
+          if (!tab.id.includes('add-plant') && tab.id !== plant.tabId) {
+            new bootstrap.Tab(tab).show();
+            updateShareSection(tab.getAttribute('data-plant-name'));
+            break;
+          }
+        }
+        await plantDelete();
 
+        currentPlantName = null;
+        myPlantCount--;
+      };
+    }
     // Update share content
     updateShareSection(plantName);
-
-    // Update graph
-    const canvas = document.getElementById('plantGrowthGraph');
-    const graphHeader = document.getElementById('graphHeader');
-    if (canvas && graphHeader) {
-      graphHeader.textContent = plantName;
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const data = globalPlants.growthData?.[plantName] || [];
-      if (data.length > 0) {
-        drawGraph(plantName);
-      } else {
-        ctx.font = "16px sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(`No growth data for ${plantName} yet.`, canvas.width / 2, canvas.height / 2);
-      }
-    }
-
-    // Update photo display for the selected plant
-    updatePhotoDisplay(plantName);
   });
+
+
+
+  // Update graph
+  const canvas = document.getElementById('plantGrowthGraph');
+  const graphHeader = document.getElementById('graphHeader');
+  if (canvas && graphHeader) {
+    graphHeader.textContent = plantName;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const data = globalPlants.growthData?.[plantName] || [];
+    if (data.length > 0) {
+      drawGraph(plantName);
+    } else {
+      ctx.font = "16px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(`No growth data for ${plantName} yet.`, canvas.width / 2, canvas.height / 2);
+    }
+  }
+
+  // Update photo display for the selected plant
+  updatePhotoDisplay(plantName);
 }
+
 /**
  * PHOTO UPLOAD & DISPLAY
  * Functions to handle photo uploads and display in diary
