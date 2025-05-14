@@ -508,37 +508,42 @@ function initialisePlantManagement() {
 
 
   // Set up delete button functionality
-  const deleteButton = document.getElementById('delete-plant-button');
-  if (deleteButton) {
-    deleteButton.addEventListener("click", function() {
-      if (!currentPlantName || !globalPlants[currentPlantName]) return;
+  deleteButton.addEventListener("click", function() {
+    if (!currentPlantName || !globalPlants[currentPlantName]) return;
+
+    fetch('/api/delete-plant', {
+      method: 'POST', 
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken
+      },
+      credentials: 'include',
+      body: JSON.stringify({plant_name: currentPlantName})
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        console.error('Delete failed:', data.error);
+        alert(`Could not delete plant: ${data.error}`);
+        return;
+      }
 
       const plant = globalPlants[currentPlantName];
       if (!plant) return;
-    
+
       document.getElementById(plant.tabId)?.remove();
       document.getElementById(plant.contentId)?.remove();
-      // Remove plant from global plants dictionary
       delete globalPlants[currentPlantName];
-      
-      // Also remove plant's growth data if it exists
+
       if (globalPlants.growthData) {
         delete globalPlants.growthData[currentPlantName];
       }
-      
-      // Update growth tracking dropdown by removing the plant
+
       const selector = document.getElementById('plantSelector');
       if (selector) {
         const option = Array.from(selector.options).find(opt => opt.value === currentPlantName);
         if (option) selector.removeChild(option);
       }
-
-      console.log(`Plant "${currentPlantName}" deleted from global registry`);
-      console.log('Current plants:', Object.keys(globalPlants));
-  
-      
-      // No check for remaining tabs length before accessing remainingTabs[1] or [0] could cause error in plant deleteion section
-      // so fixed with new implementation 
 
       const remainingTabs = Array.from(document.querySelectorAll(".nav-link")).filter(tab => 
         !tab.id.includes('add-plant')
@@ -548,30 +553,21 @@ function initialisePlantManagement() {
         const bsTab = new bootstrap.Tab(firstTab);
         bsTab.show();
       } else {
-        console.log("No plants left")
+        console.log("No plants left");
       }
 
-      // Delete from backend
-      fetch('/api/delete-plant', {
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrfToken
-        },
-        credentials: 'include',
-        body: JSON.stringify({plant_name: currentPlantName})
-      })
-      .then(load => load.json())
-      .then(data => {
-        console.log(data.message || 'Deleted from database');
-      })
-      .catch(err => {
-        console.error('Could not delete plant from database', err);
-      });
+      console.log(`Plant "${currentPlantName}" deleted from global registry`);
+      console.log('Current plants:', Object.keys(globalPlants));
+
+      currentPlantName = null;
+      myPlantCount--;
+    })
+    .catch(err => {
+      console.error('Could not delete plant from database', err);
+      alert('Something went wrong while deleting the plant.');
     });
-    currentPlantName = null;
-    myPlantCount--;
-  }
+  });
+
 
   // Set up add plant form submission
   if (addPlantForm) {
