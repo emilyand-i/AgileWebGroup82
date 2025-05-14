@@ -431,7 +431,7 @@ async function loadDashboard() {
  * Plant Management
  */
 
-async function savePlantinDB(plant_name, plant_type, chosen_image_url) {
+async function savePlantinDB(plant_name, plant_type, chosen_image_url, plant_category) {
   try {
     const load = await fetch('/api/add-plant', {
       method: 'POST',
@@ -440,7 +440,7 @@ async function savePlantinDB(plant_name, plant_type, chosen_image_url) {
         'X-CSRFToken': csrfToken
       },
       credentials: 'include', 
-      body: JSON.stringify({plant_name, plant_type, chosen_image_url})
+      body: JSON.stringify({plant_name, plant_type, chosen_image_url, plant_category})
     });
 
     const data = await load.json();
