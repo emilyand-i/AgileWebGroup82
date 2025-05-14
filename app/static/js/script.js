@@ -374,7 +374,6 @@ async function loadDashboard() {
   
   // Reset plant count when loading dashboard
   myPlantCount = 0;
-  
   // Clear global plants dictionary to rebuild it from profile data
   globalPlants = {};
   if (!globalPlants.growthData) globalPlants.growthData = {};
@@ -383,48 +382,48 @@ async function loadDashboard() {
     myPlantCount++;
     const tabId = `plant${myPlantCount}`;
     const contentId = tabId;
+    const plantName = plant.plant_name;
+    const avatarImageSrc = plant.chosen_image_url;
+    const plantCategory = plant.plant_category || 'Unknown';
+    const plantType = plant.plant_type || 'Unknown';
     
     // Add plant to global plants dictionary
-    globalPlants[plant.plant_name] = {
+    globalPlants[plantName] = {
       tabId: tabId,
       contentId: contentId,
-      name: plant.plant_name,
-      avatarSrc: plant.chosen_image_url,
-      streakCount: plant.streak || 0,
-      creationDate: plant.creation_date || new Date().toISOString(),
-      lastUpdated: plant.last_updated || new Date().toISOString()
+      name: plantName,
+      avatarSrc: avatarImageSrc,
+      plantCategory: plantCategory,
+      plantType: plantType,
+      streakCount: 0,
+      creationDate: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
+      photos: [], // Add this line to store plant photos
+      waterData: [] // Add this line to store water data
     };
 
-    const newTab = document.createElement("li");
-    newTab.className = "nav-item";
-    newTab.innerHTML = `
-      <button class="nav-link" id="${tabId}-tab" data-bs-toggle="tab" data-bs-target="#${contentId}" type="button" role="tab">
-        ${plant.plant_name}
-      </button>`;
+    // Add to dropdown for growth tracking
+    const selector = document.getElementById('plantSelector');
+    if (selector) {
+      const option = document.createElement('option');
+      option.value = plantName;
+      option.textContent = plantName;
+      selector.appendChild(option);
+    }
 
-    const newContent = document.createElement("div");
-    newContent.className = "tab-pane fade";
-    newContent.id = contentId;
-    newContent.role = "tabpanel";
-    newContent.innerHTML = `
-      <div class="text-center flower-avatar-container">
-        <img src="${plant.chosen_image_url}" class="img-fluid text-center avatar">
-      </div>
-      <div class="daily-streak text-center mt-4">
-        <h2 class="streak">Daily Streak: ${globalPlants[plant.plant_name].streakCount}🔥</h2>
-        <div class="nav-link bi bi-gear fs-3" 
-          role="button"
-          data-bs-toggle="modal"
-          data-bs-target="#infoModal"
-          data-plant-name="${plant.plant_name}">
-        </div>
-      </div>`;
+    // Add default empty growth data if missing
+    globalPlants.growthData[plantName] = [];
 
-    const addPlantTab = document.getElementById("add-plant-tab").parentNode;
-    plantTabs.insertBefore(newTab, addPlantTab);
-    plantTabsContent.appendChild(newContent);
+    renderPlantTab({
+      plantName,
+      avatarImageSrc,
+      plantCategory,
+      plantType,
+      tabId,
+      contentId,
+      streakCount: globalPlants[plantName].streakCount
+    });
   });
-  
   console.log('Loaded plants:', Object.keys(globalPlants));
 }
 
@@ -545,8 +544,6 @@ let currentPlantName = null;
 // Initialise plant management functionality
 function initialisePlantManagement() {
   const addPlantForm = document.getElementById("addPlantForm");
-  const plantTabs = document.getElementById("plantTabs");
-  const plantTabsContent = document.getElementById('plantTabsContent');
   const container = document.getElementById('avatar-container');
   
   if (!container) return;
