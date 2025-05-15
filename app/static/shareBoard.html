@@ -79,11 +79,27 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch('/api/update-social')
         .then(response => response.json())
         .then(data => {
+            //get the references for our tab containers
             const publicContainer = document.getElementById('public-posts-container');
             const friendsContainer = document.getElementById('friends-posts-container');
-        } //get the references for our tab containers
+        
+            const makeCard = (post) => {
+                const card = document.createElement('div');
+                card.className = 'card photo-card'; //should apply the same styles as the demo card
+                card.innerHTML = `
+                    <img src="${post.image}" class="photo-img" alt="${post.username}'s plant photo">
+                    <div class="card-body">
+                        <p class="card-text"><strong>${post.username} </strong><br>posted on 04/08/2025, 10:15 AM</p>
+                        <p class="card-text"><strong>Plant Name:</strong> ${post.plant_name || 'Unknown'}</p>
+                        <p class="card-text">${post.caption || ''}</p>
+                    </div>
+                `;
+                return card;
+            };
+        
+        
 
-    }
+    
     </script>
 </body>
 
