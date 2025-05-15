@@ -158,34 +158,6 @@ function scrollToAbout() {
   }
 }
 
-// Show/hide growth graph
-function graph_show() {
-  const graph_section = document.getElementById('growth_graph');
-  const pic_diary = document.getElementById('user_diary');
-  const style = window.getComputedStyle(graph_section);
-
-  if (style.display == 'none') {
-    graph_section.style.display = 'block';
-    pic_diary.style.display = 'none';
-  } else {
-    graph_section.style.display = 'none';
-  }
-}
-
-// Show/hide picture diary
-function pic_show() {
-  const pic_diary = document.getElementById('user_diary');
-  const graph_section = document.getElementById('growth_graph');
-  const style = window.getComputedStyle(user_diary);
-
-  if (style.display == 'none') {
-    pic_diary.style.display = 'block';
-    graph_section.style.display = 'none';
-  } else {
-    pic_diary.style.display = 'none';
-  }
-}
-
 // Toggle options in settings modal
 function toggleOptions(id) {
   const el = document.getElementById(id);
@@ -217,32 +189,45 @@ function toggleFullscreen() {
   const leftCol = document.querySelector('.left_col');
   const rightCol = document.querySelector('.right_col');
   const picDiv = document.getElementById('picDiv');
-  
-  if (!leftCol || !rightCol) return;
+  const currentPlant = getCurrentActivePlantName();
+
+  if (!leftCol || !rightCol || !picsAndGraphs || !picDiv) {
+    console.warn('Missing required elements');
+    return;
+  }
 
   const isExpanded = leftCol.classList.contains('col-12');
 
-  if (!isExpanded) { // if left column is not expanded
-    picsAndGraphs.classList.remove('flex-column');
-    picsAndGraphs.classList.add('gap-5');
-    picsAndGraphs.classList.add('p-5');
+  if (!isExpanded) {
+    if (!currentPlant || !globalPlants[currentPlant]) {
+      alert("Please select a plant before entering fullscreen mode.");
+      return;
+    }
 
+    // Enter fullscreen
+    picsAndGraphs.classList.remove('flex-column');
+    picsAndGraphs.classList.add('gap-5', 'p-5');
     leftCol.classList.remove('col-3');
     leftCol.classList.add('col-12', 'vh-100');
     rightCol.classList.add('d-none');
 
-    // updatePicGrid();
-
-  } else { // if left column is expanded
+    picDiv.classList.add('fullscreen');  // <-- Add class
+  } else {
+    // Exit fullscreen
     picsAndGraphs.classList.add('flex-column');
-    picsAndGraphs.classList.remove('gap-5');
-    picsAndGraphs.classList.remove('p-5');
-    
+    picsAndGraphs.classList.remove('gap-5', 'p-5');
     leftCol.classList.remove('col-12', 'vh-100');
     leftCol.classList.add('col-3');
     rightCol.classList.remove('d-none');
+
+    picDiv.classList.remove('fullscreen');  // <-- Remove class
   }
+
+  updatePhotoDisplay(currentPlant);
 }
+
+
+
 
 
 /**
@@ -899,65 +884,45 @@ function initialisePhotoUpload() {
     });
 }
 
-// Add this new function to update photo display
-function updatePhotoDisplay(plantName) {
-  const display = document.getElementById('latestPhotoContainer');
-  const noPhotoMessage = document.getElementById('noPhotoMessage');
-  
-  if (!display) return;
-
-  const plant = globalPlants[plantName];
-  if (!plant || !plant.photos || plant.photos.length === 0) {
-      display.innerHTML = '';
-      if (noPhotoMessage) {
-          noPhotoMessage.style.display = 'block';
-      }
-      return;
-  }
-
-  if (noPhotoMessage) {
-      noPhotoMessage.style.display = 'none';
-  }
-
-  const latestPhoto = plant.photos[plant.photos.length - 1];
-
-  display.innerHTML = `
-      <div class="card photo-card mb-3">
-          <div class="card-body">
-              <p class="card-text"><small>${latestPhoto.date}</small></p>
-              <img src="${latestPhoto.src}" class="card-img-top photo-img mb-2" alt="Plant photo">
-              ${latestPhoto.comments ? `<p class="card-text"><strong>Comments:</strong> ${latestPhoto.comments}</p>` : ''}
-          </div>
-      </div>
-  `;
-}
-
-
-function updatePicGrid(showAll = false) {
-  console.log("updatePicGrid called");
+function updatePhotoDisplay(currentPlant) {
   const picDiv = document.getElementById('picDiv');
-  console.log("picDiv", picDiv);
-  if (!picDiv) return;
-  currentPlantName = getCurrentActivePlantName();
-  console.log("currentPlantName", currentPlantName);
+  if (!currentPlant || !globalPlants[currentPlant]) {
+    picDiv.innerHTML = `<p class="text-white">Select a plant to view its photos.</p>`;
+    return;
+  }
 
-  console.log("currentPlantName", currentPlantName);
-  
-  
-  const photosToShow = globalPlants[currentPlantName].photos.reverse(); // Most recent first
-  
-  const grid = document.createElement('div');
-  grid.className = 'row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3';
+  const photos = globalPlants[currentPlant].photos;
+  if (!photos || photos.length === 0) {
+    picDiv.innerHTML = `<p class="text-white">No photos available.</p>`;
+    return;
+  }
 
-  photosToShow.forEach(card => {
-    const col = document.createElement('div');
-    col.className = 'col';
-    col.appendChild(card.cloneNode(true)); // Clone to avoid DOM reuse issues
-    grid.appendChild(col);
-  });
+  // Reverse the array so the latest photo appears first
+  const carouselItems = photos.slice().reverse().map((photo, i) => `
+    <div class="carousel-item ${i === 0 ? 'active' : ''}">
+      <div class="card photo-card mb-3 bg-light text-dark">
+        <div class="card-body text-center">
+          <p class="card-text"><small>${photo.date}</small></p>
+          <img src="${photo.src}" class="card-img-top photo-img mb-2" alt="Plant photo ${photos.length - i}">
+          ${photo.comments ? `<p class="card-text"><strong>Comments:</strong> ${photo.comments}</p>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
 
-  picDiv.appendChild(grid);
-
+  picDiv.innerHTML = `
+    <div id="photoCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        ${carouselItems}
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#photoCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#photoCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      </button>
+    </div>
+  `;
 }
 
 

@@ -21,7 +21,7 @@
       <div class="row vh-100 text-center">
         <!-- Left Column -->
         <div class="col-3 bckgrnd border-end border-success d-flex flex-column align-items-center justify-content-start left_col position-relative">
-          <button class="btn btn-sm fullscreen-toggle" onclick="toggleFullscreen()">
+          <button class="btn btn-sm fullscreen-toggle" id="fullScreenBtn" onclick="toggleFullscreen()">
             <i class="bi bi-arrows-fullscreen me-1"></i>
           </button>
           
@@ -37,7 +37,6 @@
             <div class="container mt-1" id="picDiv">
               <!-- Latest Photo -->
               <div class="recent-photo mb-1">
-                <h3 class="plantheader">Latest Photo</h3>
                 <div id="latestPhotoContainer" class="text-center d-flex justify-content-center">
                   <p class="text-white text-center" id="noPhotoMessage">No photos yet</p>
                 </div>
@@ -346,8 +345,9 @@
                 <!-- Comments -->
                 <div class="mb-3">
                   <label for="comments" class="form-label plantheader">Comments</label>
-                  <textarea id="comments" class="form-control" placeholder="Share your thoughts about this growth update (optional)"></textarea>
+                  <textarea id="comments" class="form-control" maxlength="50" placeholder="Share your thoughts about this growth update (optional)"></textarea>
                 </div>
+
 
                 <div class="d-flex justify-content-end">
                   <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
