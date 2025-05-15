@@ -231,22 +231,35 @@ def delete_plant():
     return jsonify({'message': "Plant has been deleted successfully"}), 200
 
 
-#demo for flask shareboard content. Needs to be updated with actual matching data
-#I'm still trying to wrap my head around flask logic
-@routes_bp.route('api/update-social', methods=['GET'])
 # Fetch 9 most recent public posts
-def get_recent_posts(limit=9):
+def get_recent_posts_public(limit=9):
     # Query to get the most recent public posts from all users, ordered by datetime_uploaded
     all_posts = user_db.session.query(uploadedPics).order_by(uploadedPics.datetime_uploaded.desc()).limit(limit).all()
 
     return all_posts
 
-def manageUI():
+
+
+#demo for flask shareboard content. Needs to be updated with actual matching data
+#I'm still trying to wrap my head around flask logic
+@routes_bp.route('api/update-social', methods=['GET'])
+def updateFeed():
+    #get the current user's id
     user_id = session.get("user_id")
 
-    all_posts = get_recent_posts(limit=9)
+    # Fetch 9 most recent public posts
+    #NOTE: limit is hard coded for now, may be changed later
+    public_posts = user_db.session.query(uploadedPics).order_by(uploadedPics.datetime_uploaded.desc()).limit(9).all()
 
-    # Fetch 9 posts from friends (you'll need to filter this in your db logic)
-    friends_posts = get_friend_posts(user_id, limit=9)
+    # Fetch 9 posts from friends
+    #link friend ID to the user ID in photoTable (uploaded friend photos)
+    #also ensures friend list is specific to the current user
+    friends_posts = user_db.session.query(uploadedPics)\
+        .join(FriendsList, (FriendsList.friend_id == uploadedPics.user_id)\ 
+        & (FriendsList.user_id == user_id)).order_by(uploadedPics.datetime_uploaded.desc())\
+        .limit(9).all()
 
-    return render_template("community.html", all_posts=all_posts, friends_posts=friends_posts)
+    return jsonify({
+        'public_posts': [post.to_dict() for post in public_posts],
+        'friends_posts': [post.to_dict() for post in friends_posts]
+    }), 200
