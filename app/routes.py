@@ -76,7 +76,7 @@ def login():
 
         user_db.session.commit()
 
-        # Fetch related data (as in your original route)
+        # Fetch related data (as in the original route)
         settings = UserSettings.query.filter_by(user_id=user.id).first()
         friends = FriendsList.query.filter_by(user_id=user.id).all()
         plants = Plants.query.filter_by(user_id=user.id).all()
@@ -191,7 +191,7 @@ def add_plant():
     data = request.get_json()
     user_id = session.get('user_id')
     if not user_id:
-        return jsonify({'error': 'Unauthorized'}), 401
+        return jsonify({'error': 'Plantly doesn`t know you'}), 401
 
     plant_name = data.get('plant_name')
     plant_type = data.get('plant_type')
@@ -219,7 +219,7 @@ def delete_plant():
     data = request.get_json()
     user_id = session.get('user_id')
     if not user_id:
-        return jsonify({'error': 'Unauthorized'}), 401
+        return jsonify({'error': 'Plantly doesn`t know you'}), 401
     
     plant_name = data.get('plant_name')
     
@@ -234,4 +234,37 @@ def delete_plant():
     user_db.session.commit()
     
     return jsonify({'message': "Plant has been deleted successfully"}), 200
+
+@routes_bp.route('/api/settings', methods=['POST'])
+def update_settings():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Plantly doesn`t know you'}), 401
+
+    data = request.get_json()
+    is_profile_public = data.get('is_profile_public', True)
+    allow_friend_requests = data.get('allow_friend_requests', True)
+
+    settings = UserSettings.query.filter_by(user_id=user_id).first()
+
+    if not settings:
+        # Create a new settings record if it doesn't exist
+        settings = UserSettings(
+            user_id=user_id,
+            is_profile_public=is_profile_public,
+            allow_friend_requests=allow_friend_requests)
+        
+        user_db.session.add(settings)
+    else:
+        settings.is_profile_public = is_profile_public
+        settings.allow_friend_requests = allow_friend_requests
+
+    user_db.session.commit()
+
+    return jsonify({
+        'settings': {
+            'is_profile_public': settings.is_profile_public,
+            'allow_friend_requests': settings.allow_friend_requests
+        }
+    }), 200
 

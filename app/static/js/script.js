@@ -1206,14 +1206,68 @@ function initialiseSettingsModal() {
     fetch("User-Settings.html")
       .then(response => response.text())
       .then(html => {
-        document.getElementById("SettingsModalContent").innerHTML = html;
+        document.getElementById("accountModalContent").innerHTML = html;
+        initialiseSettingsForm();
       })
       .catch(error => {
-        document.getElementById("SettingsModalContent").innerHTML = `
-          <div class="modal-body text-danger">Failed to load settings content.</div>
+        document.getElementById("accountModalContent").innerHTML = `
+          <div class="modal_main_section text-danger">Failed to load settings content.</div>
         `;
         console.error("Error loading settings:", error);
       });
+  });
+}
+function initialiseSettingsForm() {
+  const form = document.getElementById("userSettingsForm");
+  let saveBtn = document.getElementById("saveUserSettings");
+
+  if (!form || !saveBtn) return;
+
+  const profile = JSON.parse(localStorage.getItem('user_profile'));
+  if (profile?.settings) {
+    const profilePublicCheckbox = document.getElementById("profilePublic");
+    const allowFriendRequestsCheckbox = document.getElementById("allowFriendRequests");
+    if (profilePublicCheckbox) {
+      profilePublicCheckbox.checked = profile.settings.is_profile_public;
+    }
+    if (allowFriendRequestsCheckbox) {
+      allowFriendRequestsCheckbox.checked = profile.settings.allow_friend_requests;
+    }
+  }
+
+  saveBtn.replaceWith(saveBtn.cloneNode(true));
+  saveBtn = document.getElementById("saveUserSettings");
+
+  saveBtn.addEventListener("click", async () => {
+    const data = {
+      is_profile_public: form.publicProfile.checked,
+      allow_friend_requests: form.allowFriendRequests.checked
+    };
+
+    try {
+      const response = await fetch("/api/settings", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+        },
+        credentials: 'include',
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        const updated = await response.json();
+        alert("✅ Settings saved.");
+        localStorage.setItem('user_profile', JSON.stringify({
+          ...profile,
+          settings: updated.settings
+        }));
+      } else {
+        alert("❌ Could not save settings.");
+      }
+    } catch (err) {
+      console.error("Settings update failed:", err);
+    }
   });
 }
 
