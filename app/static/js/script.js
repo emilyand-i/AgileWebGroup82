@@ -1249,6 +1249,32 @@ function updateDailyStreak() {
     streakDiv.textContent = 'Login streak not available.';
   }
 }
+function openTab(evt, tabName) {
+  // Hide all tab contents
+  const tabContents = document.querySelectorAll('.tabcontent');
+  tabContents.forEach(tc => tc.classList.remove('active'));
+
+  // Remove active class from all tab buttons
+  const tabButtons = document.querySelectorAll('.tab button.tablinks');
+  tabButtons.forEach(btn => btn.classList.remove('active'));
+
+  // Show the selected tab content
+  const selectedContent = document.getElementById(tabName);
+  if (selectedContent) {
+    selectedContent.classList.add('active');
+  }
+
+  // Add active class to the clicked button
+  if (evt && evt.currentTarget) {
+    evt.currentTarget.classList.add('active');
+  }
+
+  // Optional: reload the friends list if we switched to that tab
+  if (tabName === 'Friends') {
+    loadFriendsList();
+  }
+}
+
 
 
 

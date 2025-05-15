@@ -142,7 +142,7 @@ def login():
 def session_data():
     user_id = session.get('user_id')
     if not user_id:
-        return jsonify({'error:' 'User not logged in'}), 401
+        return jsonify({'error': 'User not logged in'}), 401
     
     user = User.query.get(user_id)
     settings = UserSettings.query.filter_by(user_id=user.id).first()
