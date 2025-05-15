@@ -60,7 +60,7 @@
 
     <div class="modal_main_section" style="background-color: rgb(69, 97, 71); color: #fff;">
 
-      <form class="nav nav-tabs" id="userSettingsForm">
+      <ul class="nav nav-tabs">
         <li class="nav-item" role="presentation">
           <button class="nav-link active" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settingsTab" type="button" role="tab">
             Account Settings
@@ -71,21 +71,21 @@
             Friends List
           </button>
         </li>
-      </form>
+      </ul>
 
       <div class="tab-content mt-3" id="userSettingsTabsContent">
         <div class="tab-pane fade show active" id="settingsTab" role="tabpanel">
           <h2>Account Settings</h2>
 
-          <form>
+          <form id="userSettingsForm">
             <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="profilePublic" checked>
+              <input class="form-check-input" type="checkbox" id="profilePublic" name="publicProfile">
               <label class="form-check-label" for="profilePublic">
                 Profile Public
               </label>
             </div>
             <div class="form-check mt-2">
-              <input class="form-check-input" type="checkbox" id="allowFriendRequests" checked>
+              <input class="form-check-input" type="checkbox" id="allowFriendRequests" name="allowFriendRequests">
               <label class="form-check-label" for="allowFriendRequests">
                 Allow Friend Requests
               </label>
