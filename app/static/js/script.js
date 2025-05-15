@@ -353,9 +353,19 @@ async function loadSession() {
   });
   if (load.ok) {
     const user = await load.json();
-    console.log("📦 session loaded:", user.plants.map(p => p.plant_name));
-    localStorage.setItem('user_profile', JSON.stringify(user));
-    return user;
+
+    // Preserve streak data from existing profile
+    const existingProfile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+    const updatedProfile = {
+      ...user,
+      streak: existingProfile.streak || 0,
+      last_login_date: existingProfile.last_login_date
+    };
+
+    console.log("📦 session loaded:", updatedProfile.plants.map(p => p.plant_name));
+    // Store updatedProfile instead of user
+    localStorage.setItem('user_profile', JSON.stringify(updatedProfile));
+    return updatedProfile;
   } else {
     console.error('Session fetch failure');
     return null;
@@ -432,7 +442,6 @@ async function loadDashboard() {
       contentId
     });
   });
-  console.log(globalPlants.growthData)
 }
 
 /**
