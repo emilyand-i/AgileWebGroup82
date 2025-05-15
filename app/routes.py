@@ -233,11 +233,17 @@ def delete_plant():
 
 #demo for flask shareboard content. Needs to be updated with actual matching data
 #I'm still trying to wrap my head around flask logic
-@app.route('/shareboard')
+@routes_bp.route('api/update-social', methods=['GET'])
+# Fetch 9 most recent public posts
+def get_recent_posts(limit=9):
+    # Query to get the most recent public posts from all users, ordered by datetime_uploaded
+    all_posts = user_db.session.query(uploadedPics).order_by(uploadedPics.datetime_uploaded.desc()).limit(limit).all()
+
+    return all_posts
+
 def manageUI():
     user_id = session.get("user_id")
 
-    # Fetch 9 most recent public posts
     all_posts = get_recent_posts(limit=9)
 
     # Fetch 9 posts from friends (you'll need to filter this in your db logic)
