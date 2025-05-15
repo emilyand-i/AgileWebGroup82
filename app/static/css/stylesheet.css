@@ -714,7 +714,7 @@ main.main-info {
 
 /* User Account Settings Modal */
 
-#user-settings-modal {
+.user-settings-modal {
   background-color: rgb(69, 97, 71);
   font-family: inherit;
   margin: 0;
@@ -722,7 +722,7 @@ main.main-info {
 }
 
 
-#user-settings-modal {
+.user-settings-modal {
   color: #ffffff;
 }
 
@@ -746,23 +746,25 @@ main.main-info {
 }
 
 .modal_main_section {
-  background-color: #194d19;
+  background-color: #729566;
   padding: 20px;
-  border-radius: 10px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
-.nav-tabs .nav-link {
-  color: #000000;
-  background-color: #c7eac7;
+#user-settings-modal .nav-link {
+  color: #fff;
+  background-color: #729566;
   border-radius: 5px 5px 0 0;
   margin-right: 5px;
   border: none;
 }
+#user-settings-modal .nav-link:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
 
-.nav-tabs .nav-link.active {
-  background-color: #729566;
-  color: #fff;
+#user-settings-modal .nav-link.active {
+  background-color: #c7eac7;
+  color: #000000;
   font-weight: bold;
 }
 
