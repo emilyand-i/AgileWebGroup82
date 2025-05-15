@@ -1233,7 +1233,7 @@ function updateDailyStreak() {
   const streakDiv = document.getElementById('dailyStreak');
 
   if (userData && streakDiv) {
-    streakDiv.textContent = `🔥 Current daily login streak: ${userData.streak} day(s)`;
+    streakDiv.textContent = `Daily Streak: ${userData.streak} 🔥`;
   } else if (streakDiv) {
     streakDiv.textContent = 'Login streak not available.';
   }
