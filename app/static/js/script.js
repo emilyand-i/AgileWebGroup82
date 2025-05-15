@@ -12,6 +12,19 @@ let canvas;
 let ctx;
 function drawGraph(namePlant) {
   console.log(`Drawing graph for ${namePlant}`);
+
+  canvas = document.getElementById('plantGrowthGraph');
+  if (!canvas) {
+    console.error("❌ Canvas element with id 'plantGrowthGraph' not found!");
+    return;
+  }
+  ctx = canvas.getContext('2d');
+  if (!ctx) {
+    console.error("❌ Failed to get canvas context!");
+    return;
+  }
+
+
   const data = globalPlants.growthData[namePlant];
   console.log("Retrieved data:", data);
 
