@@ -53,12 +53,11 @@
           </div>
 
           <div class="tab-pane fade" id="friendsTab" role="tabpanel">
-            <h2>Friends</h2>
             <div class="row">
               <!-- Current Friends -->
               <div class="col-6">
-                <h3>Current Friends</h3>
-                <ul class="list-group">
+                <h3>My Friends</h3>
+                <ul class="list-group" id="friendsList">
                   <li class="list-group-item d-flex justify-content-between align-items-center">
                     John Doe 
                     <button class="btn btn-sm btn-danger">Remove</button>
@@ -69,8 +68,8 @@
               <!-- Look Up Friends -->
               <div class="col-6">
                 <h3>Look Up Friends</h3>
-                <input type="text" class="form-control mb-2" placeholder="Search for a friend...">
-                <ul class="list-group">
+                <input type="text" class="form-control mb-2" placeholder="Search for a friend..." id="friendSearch">
+                <ul class="list-group" id="searchResults">
                   <li class="list-group-item d-flex justify-content-between align-items-center">
                     Emily Johnson 
                     <button class="btn btn-sm addFriend_btn">Add</button>
