@@ -1199,7 +1199,7 @@ function initialisePlantGrowthTracker() {
 
 // Initialise settings modal loading
 function initialiseSettingsModal() {
-  const modal = document.getElementById("acc_settings_modal");
+  const modal = document.getElementById("User-Settings-Modal");
   if (!modal) return;
 
   modal.addEventListener("show.bs.modal", () => {
@@ -1219,16 +1219,24 @@ function initialiseSettingsModal() {
 }
 function initialiseSettingsForm() {
   const form = document.getElementById("userSettingsForm");
-  const saveBtn = document.getElementById("saveUserSettings");
+  let saveBtn = document.getElementById("saveUserSettings");
 
   if (!form || !saveBtn) return;
 
-  // Pre-fill from session
   const profile = JSON.parse(localStorage.getItem('user_profile'));
   if (profile?.settings) {
-    form.publicProfile.checked = profile.settings.is_profile_public;
-    form.allowFriendRequests.checked = profile.settings.allow_friend_requests;
+    const profilePublicCheckbox = document.getElementById("profilePublic");
+    const allowFriendRequestsCheckbox = document.getElementById("allowFriendRequests");
+    if (profilePublicCheckbox) {
+      profilePublicCheckbox.checked = profile.settings.is_profile_public;
+    }
+    if (allowFriendRequestsCheckbox) {
+      allowFriendRequestsCheckbox.checked = profile.settings.allow_friend_requests;
+    }
   }
+
+  saveBtn.replaceWith(saveBtn.cloneNode(true));
+  saveBtn = document.getElementById("saveUserSettings");
 
   saveBtn.addEventListener("click", async () => {
     const data = {
