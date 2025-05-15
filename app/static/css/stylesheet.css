@@ -675,6 +675,9 @@ main.main-info {
   right: 1rem;
 }
 
-
-
+.share-icon:hover {
+  cursor: pointer;
+  transform: scale(1.2);
+  transition: transform 0.5s ease;
+}
 
