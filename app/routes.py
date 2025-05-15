@@ -230,3 +230,17 @@ def delete_plant():
     
     return jsonify({'message': "Plant has been deleted successfully"}), 200
 
+
+#demo for flask shareboard content. Needs to be updated with actual matching data
+#I'm still trying to wrap my head around flask logic
+@app.route('/shareboard')
+def manageUI():
+    user_id = session.get("user_id")
+
+    # Fetch 9 most recent public posts
+    all_posts = get_recent_posts(limit=9)
+
+    # Fetch 9 posts from friends (you'll need to filter this in your db logic)
+    friends_posts = get_friend_posts(user_id, limit=9)
+
+    return render_template("community.html", all_posts=all_posts, friends_posts=friends_posts)
