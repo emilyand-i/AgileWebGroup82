@@ -275,7 +275,13 @@ function loginForm() {
         // Store the entire profile including streak
         localStorage.setItem('user_profile', JSON.stringify(data));
 
-        // Optionally, alert the streak before redirecting
+        // Display streak in the #dailyStreak div
+        const streakDiv = document.getElementById('dailyStreak');
+        if (streakDiv) {
+          streakDiv.textContent = `🔥 Current daily login streak: ${data.streak} day(s)`;
+        }
+
+        // Optionally alert
         alert(`🔥 Welcome back, ${data.username}! Your current login streak is ${data.streak} day(s).`);
 
         // Redirect to dashboard
@@ -289,6 +295,7 @@ function loginForm() {
     }
   });
 }
+
 
 
 // Registration form
