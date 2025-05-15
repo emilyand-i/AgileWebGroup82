@@ -60,21 +60,6 @@
             </div>
             
            </div>
-          
-
-          <!-- user settings modal button -->
-          <div class="mt-auto w-100 px-3 pb-4">
-            <button class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#User-Settings-Modal">
-              <i class="bi bi-gear me-2"> Settings</i>
-            </button>
-          </div>
-
-          <div class="modal fade" id="User-Settings-Modal" tabindex="-1">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-              <div class="modal-content" id="accountModalContent">
-              </div>
-            </div>
-          </div>
         </div>
 
         
@@ -307,7 +292,24 @@
             <h3 class="text-center text-white mt-5">Create A Plant First In Order To Share It!</h3>
           </div>
 
-          <button onclick="logout()" class="btn mt-3 logout_button position-absolute bottom-0 mb-5">Logout</button>
+          <div class=" position-absolute bottom-0 mb-5">
+            <!-- user settings modal button -->
+            <div class="mt-auto w-100 px-3 pb-4">
+              <button class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#User-Settings-Modal">
+                <i class="bi bi-gear me-2"></i>Settings
+              </button>
+              <!--Logout Button-->
+              <button onclick="logout()" class="btn mt-3 logout_button">Logout</button>
+            </div>
+
+            <div class="modal fade" id="User-Settings-Modal" tabindex="-1">
+              <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content" id="accountModalContent">
+                </div>
+              </div>
+            </div>
+            
+          </div>
         </div>
 
 

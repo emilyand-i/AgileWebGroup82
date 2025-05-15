@@ -681,3 +681,110 @@ main.main-info {
   transition: transform 0.5s ease;
 }
 
+
+/* User Account Settings Modal */
+
+#user-settings-modal {
+  background-color: rgb(69, 97, 71);
+  font-family: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+
+#user-settings-modal {
+  color: #ffffff;
+}
+
+#user-settings-modal .modal-header,
+#user-settings-modal .modal-footer {
+  background-color: #355E3B;
+  border: none;
+}
+
+#user-settings-modal .modal-title {
+  font-weight: bold;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#user-settings-modal .modal-title::before {
+  content: "🌿";
+  font-size: 1.2rem;
+}
+
+#user-settings-modal .modal_main_section {
+  background-color: #3f5f3f;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+#user-settings-modal .nav-tabs .nav-link {
+  color: #c7eac7;
+  background-color: #2f4f2f;
+  border-radius: 5px 5px 0 0;
+  margin-right: 5px;
+  border: none;
+}
+
+#user-settings-modal .nav-tabs .nav-link.active {
+  background-color: #4a7c4a;
+  color: #fff;
+  font-weight: bold;
+}
+
+#user-settings-modal .form-check-label {
+  font-size: 1.1rem;
+}
+
+#user-settings-modal .btn-primary {
+  background-color: #5fa35f;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+#user-settings-modal .btn-primary:hover {
+  background-color: #7ac07a;
+}
+
+#user-settings-modal .btn-secondary {
+  background-color: #cccccc;
+  color: #333;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+#user-settings-modal .btn-secondary:hover {
+  background-color: #eeeeee;
+}
+
+#user-settings-modal .list-group-item {
+  background-color: #4b6e4b;
+  color: #fff;
+  border: none;
+}
+
+
+
+
+/* Checkboxes */
+.form-check-input {
+  
+}
+.form-check-label {
+
+}
+
+
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.btn:hover .bi-gear {
+  animation: spin 1s linear infinite;
+}
