@@ -275,15 +275,6 @@ function loginForm() {
         // Store the entire profile including streak
         localStorage.setItem('user_profile', JSON.stringify(data));
 
-        // Display streak in the #dailyStreak div
-        const streakDiv = document.getElementById('dailyStreak');
-        if (streakDiv) {
-          streakDiv.textContent = `🔥 Current daily login streak: ${data.streak} day(s)`;
-        }
-
-        // Optionally alert
-        alert(`🔥 Welcome back, ${data.username}! Your current login streak is ${data.streak} day(s).`);
-
         // Redirect to dashboard
         window.location.href = 'dashboard.html';
       } else {
@@ -1236,6 +1227,19 @@ function initialiseSettingsModal() {
   });
 }
 
+// update daily streak
+function updateDailyStreak() {
+  const userData = JSON.parse(localStorage.getItem('user_profile'));
+  const streakDiv = document.getElementById('dailyStreak');
+
+  if (userData && streakDiv) {
+    streakDiv.textContent = `🔥 Current daily login streak: ${userData.streak} day(s)`;
+  } else if (streakDiv) {
+    streakDiv.textContent = 'Login streak not available.';
+  }
+}
+
+
 
 const plantOptions = {
   flowers: [
@@ -1339,5 +1343,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Initialise dimming feature
     initialiseDimming();
+
+    updateDailyStreak();
   
 });
