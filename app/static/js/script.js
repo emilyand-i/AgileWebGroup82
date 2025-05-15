@@ -506,7 +506,6 @@ function renderPlantTab ({
       </div>
     </div>
     <div class="daily-streak text-center">
-      <h2 class="streak">Daily Streak: 0🔥</h2>
       <div class="plant-info-buttons">
         <div class="nav-link bi bi-info-circle fs-3" 
           role="button"
