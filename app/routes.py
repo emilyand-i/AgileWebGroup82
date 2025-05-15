@@ -2,9 +2,9 @@ from flask import Blueprint, request, jsonify
 from .models import *
 from flask import session
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import date, timedelta
 
 from flask_wtf.csrf import generate_csrf
-
 
 
 routes_bp = Blueprint('routes', __name__) # connect all related routes for later
@@ -55,63 +55,67 @@ def login():
     password = data.get('password')
     
     if not username or not password:
-        return jsonify({'error': 'Please enter username and password'})
+        return jsonify({'error': 'Please enter username and password'}), 400
     
     user = User.query.filter_by(username=username).first()
 
     if user and check_password_hash(user.password, password):
-        # store session info
         session['user_id'] = user.id
         session['username'] = user.username
-        
+
+        # 🔥 Daily login streak logic
+        today = date.today()
+        if user.last_login_date == today:
+            pass  # Already logged in today, do nothing
+        elif user.last_login_date == today - timedelta(days=1):
+            user.login_streak += 1  # Consecutive login
+            user.last_login_date = today
+        else:
+            user.login_streak = 1  # Reset streak
+            user.last_login_date = today
+
+        user_db.session.commit()
+
+        # Fetch related data (as in your original route)
         settings = UserSettings.query.filter_by(user_id=user.id).first()
         friends = FriendsList.query.filter_by(user_id=user.id).all()
         plants = Plants.query.filter_by(user_id=user.id).all()
         growth_entries = PlantGrowthEntry.query.filter_by(user_id=user.id).all()
         photos = uploadedPics.query.filter_by(user_id=user.id).all()
 
-        plant_data = [
-            {
-                'plant_name': plant.plant_name,
-                'plant_type': plant.plant_type,
-                'chosen_image_url': plant.chosen_image_url,
-                'plant_category': plant.plant_category,
-                'date_created': plant.date_created,
-                'id': plant.id
-            } for plant in plants
-        ]
+        plant_data = [{
+            'plant_name': plant.plant_name,
+            'plant_type': plant.plant_type,
+            'chosen_image_url': plant.chosen_image_url,
+            'plant_category': plant.plant_category,
+            'date_created': plant.date_created,
+            'id': plant.id
+        } for plant in plants]
 
-        growth_data = [
-            {
-                'plant_name': entry.plant_name,
-                'date_recorded': entry.date_recorded,
-                'cm_grown': entry.cm_grown
-            } for entry in growth_entries
-        ]
-        
-        friends_data = [
-            {
-                'user_id': friend.user_id,
-                'friend_id': friend.friend_id,
-                'status': friend.status
-            } for friend in friends
-        ]
+        growth_data = [{
+            'plant_name': entry.plant_name,
+            'date_recorded': entry.date_recorded,
+            'cm_grown': entry.cm_grown
+        } for entry in growth_entries]
 
-        photo_data = [
-            {
-                'photo_id': pic.photo_id,
-                'plant_id': pic.plant_id,
-                'image_url': pic.image_url,
-                'caption': pic.caption,
-                'datetime_uploaded': pic.datetime_uploaded
-            } for pic in photos
-        ]
+        friends_data = [{
+            'user_id': friend.user_id,
+            'friend_id': friend.friend_id,
+            'status': friend.status
+        } for friend in friends]
+
+        photo_data = [{
+            'photo_id': pic.photo_id,
+            'plant_id': pic.plant_id,
+            'image_url': pic.image_url,
+            'caption': pic.caption,
+            'datetime_uploaded': pic.datetime_uploaded
+        } for pic in photos]
 
         settings_data = {
             'is_profile_public': settings.is_profile_public if settings else True,
             'allow_friend_requests': settings.allow_friend_requests if settings else True
         }
-
 
         return jsonify({
             'message': 'Login successful',
@@ -121,8 +125,9 @@ def login():
             'growth_entries': growth_data,
             'friends': friends_data,
             'photos': photo_data,
-            'settings': settings_data
-            
+            'settings': settings_data,
+            'streak': user.login_streak,
+            'last_login_date': str(user.last_login_date)
         }), 200
     else:
         return jsonify({'error': 'Invalid credentials'}), 401

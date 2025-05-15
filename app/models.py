@@ -2,6 +2,8 @@ from flask_sqlalchemy import SQLAlchemy
 
 user_db = SQLAlchemy()
 
+from datetime import date
+
   
 # User: table in user_db
 # id: unique id fpr each user
