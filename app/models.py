@@ -2,6 +2,8 @@ from flask_sqlalchemy import SQLAlchemy
 
 user_db = SQLAlchemy()
 
+from datetime import date
+
   
 # User: table in user_db
 # id: unique id fpr each user
@@ -15,6 +17,9 @@ class User(user_db.Model):
   email = user_db.Column(user_db.String(120), unique = True, nullable = False)
   password = user_db.Column(user_db.String(120), nullable = False) # cant be left blank, also.
 
+  last_login_date = user_db.Column(user_db.Date, nullable=True)
+  login_streak = user_db.Column(user_db.Integer, default=0)
+
 #User Settings: table in user_db
 # user_id: foreign key to User table, links to the id of the user
 # is_profile_public: boolean, by default True, if True, profile is public
@@ -25,6 +30,7 @@ class UserSettings(user_db.Model):
   user_id = user_db.Column(user_db.Integer, user_db.ForeignKey('user.id'), primary_key=True, nullable=False)
   is_profile_public = user_db.Column(user_db.Boolean, default=True)
   allow_friend_requests = user_db.Column(user_db.Boolean, default=True)
+  
 
 #Friends List: table in user_db
 # user_id: foreign key to User table, links to the id of the user who sent the friend request
