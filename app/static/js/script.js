@@ -253,8 +253,8 @@ async function CsrfToken() {
 function loginForm() {
   const loginForm = document.getElementById('login-form');
   if (!loginForm) return;
-  
-  loginForm.addEventListener('submit', async function(e) {
+
+  loginForm.addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const username = document.getElementById('login-username').value;
@@ -262,27 +262,32 @@ function loginForm() {
 
     try {
       const fetch_login = await fetch('/api/login', {
-        method: 'POST', 
-        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
         credentials: 'include',
-        body: JSON.stringify({username, password})
+        body: JSON.stringify({ username, password })
       });
-      
+
       const data = await fetch_login.json();
       console.log("Storing user profile:", data);
+
       if (fetch_login.ok) {
+        // Store the entire profile including streak
         localStorage.setItem('user_profile', JSON.stringify(data));
+
+        // Redirect to dashboard
         window.location.href = 'dashboard.html';
       } else {
         alert(data.error || 'Login failed');
       }
     } catch (err) {
       console.log('Login error:', err);
-      alert('server error')
+      alert('Server error');
     }
   });
-
 }
+
+
 
 // Registration form
 function signupForm() {
@@ -348,14 +353,25 @@ async function loadSession() {
   });
   if (load.ok) {
     const user = await load.json();
-    console.log("📦 session loaded:", user.plants.map(p => p.plant_name));
-    localStorage.setItem('user_profile', JSON.stringify(user));
-    return user;
+
+    // Preserve streak data from existing profile
+    const existingProfile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+    const updatedProfile = {
+      ...user,
+      streak: existingProfile.streak || 0,
+      last_login_date: existingProfile.last_login_date
+    };
+
+    console.log("📦 session loaded:", updatedProfile.plants.map(p => p.plant_name));
+    // Store updatedProfile instead of user
+    localStorage.setItem('user_profile', JSON.stringify(updatedProfile));
+    return updatedProfile;
   } else {
     console.error('Session fetch failure');
     return null;
   }
 }
+
 
 /**
  * DASHBOARD FUNCTIONALITY
@@ -364,26 +380,26 @@ async function loadSession() {
 
 // Load dashboard content based on user profile
 async function loadDashboard() {
+  const profile = await loadSession();
   if (!window.location.pathname.includes('dashboard.html')) return;
   
-  const profile = await loadSession();
   if (!profile) return;
 
   const username = profile.username || 'username';
   document.querySelector('.welcome_to').textContent = `Welcome to ${username}'s Garden`;
 
+  const plantTabs = document.getElementById("plantTabs");
+  const plantTabsContent = document.getElementById("plantTabsContent");
   
+
   // Reset plant count when loading dashboard
   myPlantCount = 0;
   // Clear global plants dictionary to rebuild it from profile data
   globalPlants = {};
-  if (!globalPlants.growthData) globalPlants.growthData = {};
 
   profile.plants.forEach(plant => {
-    console.log("🌿 Rendering plant:", plant.plant_name);
     myPlantCount++;
-    const tabId = `plant${myPlantCount}`;
-    const contentId = tabId;
+    
     const plantName = plant.plant_name;
     const avatarImageSrc = plant.chosen_image_url;
     const plantCategory = plant.plant_category || 'Unknown';
@@ -391,8 +407,6 @@ async function loadDashboard() {
     
     // Add plant to global plants dictionary
     globalPlants[plantName] = {
-      tabId: tabId,
-      contentId: contentId,
       name: plantName,
       avatarSrc: avatarImageSrc,
       plantCategory: plantCategory,
@@ -404,6 +418,9 @@ async function loadDashboard() {
       waterData: [] // Add this line to store water data
     };
 
+    if (!globalPlants.growthData) globalPlants.growthData = {};
+    globalPlants.growthData[plantName] = [];
+
     // Add to dropdown for growth tracking
     const selector = document.getElementById('plantSelector');
     if (selector) {
@@ -413,8 +430,8 @@ async function loadDashboard() {
       selector.appendChild(option);
     }
 
-    // Add default empty growth data if missing
-    globalPlants.growthData[plantName] = [];
+    const tabId = `plant${myPlantCount}-tab`;
+    const contentId = `plant${myPlantCount}`;
 
     renderPlantTab({
       plantName,
@@ -422,17 +439,14 @@ async function loadDashboard() {
       plantCategory,
       plantType,
       tabId,
-      contentId,
-      streakCount: globalPlants[plantName].streakCount
+      contentId
     });
   });
-  console.log('Loaded plants:', Object.keys(globalPlants));
 }
 
 /**
  * Plant Management
  */
-
 async function savePlantinDB(plant_name, plant_type, chosen_image_url, plant_category) {
   try {
     const load = await fetch('/api/add-plant', {
@@ -453,9 +467,10 @@ async function savePlantinDB(plant_name, plant_type, chosen_image_url, plant_cat
       console.warn('Plant save failed:', data.error);
     }
   } catch (err) {
-    console.error("couldnt save plant", err);
+    console.error("couldnt save plant:", err);
   }
 }
+
 
 
 function renderPlantTab ({
@@ -464,9 +479,10 @@ function renderPlantTab ({
   plantCategory,
   plantType,
   tabId,
-  contentId,
-  streakCount = 0
+  contentId
 }) {
+  console.log("[renderPlantTab] Rendering", plantName);
+  console.trace();
   // Create new plant tab
   const newTab = document.createElement("li");
   newTab.role = "presentation";
@@ -490,7 +506,6 @@ function renderPlantTab ({
       </div>
     </div>
     <div class="daily-streak text-center">
-      <h2 class="streak">Daily Streak: 0🔥</h2>
       <div class="plant-info-buttons">
         <div class="nav-link bi bi-info-circle fs-3" 
           role="button"
@@ -515,13 +530,17 @@ function renderPlantTab ({
     </div>`;
 
   // Insert new plant before "Add Plant" tab
-  const addPlantTab = document.getElementById("add-plant-tab").parentNode;
-  plantTabs.insertBefore(newTab, addPlantTab);
-  plantTabsContent.appendChild(newTabContent);
-  
-  // Show the new plant tab
+  const addPlantTab = document.getElementById("add-plant-tab")?.parentNode;
+  if (addPlantTab) {
+    plantTabs.insertBefore(newTab, addPlantTab);
+    plantTabsContent.appendChild(newTabContent);
+  }
+
+  // Show the new plant tab safely
   const newTabButton = document.getElementById(tabId);
-  if (newTabButton) new bootstrap.Tab(newTabButton).show();
+  if (newTabButton && !newTabButton.classList.contains('active')) {
+    setTimeout(() => new bootstrap.Tab(newTabButton).show(), 0);
+  }
 }
 
 let myPlantCount = 0;
@@ -593,8 +612,12 @@ function initialisePlantManagement() {
       // Update growth tracking dropdown by removing the plant
       const selector = document.getElementById('plantSelector');
       if (selector) {
-        const option = Array.from(selector.options).find(opt => opt.value === currentPlantName);
-        if (option) selector.removeChild(option);
+        for (let i = 0; i < selector.options.length; i++) {
+          if (selector.options[i].value === currentPlantName) {
+            selector.remove(i);
+            break;
+          }
+        }
       }
 
       console.log(`Plant "${currentPlantName}" deleted from global registry`);
@@ -604,15 +627,14 @@ function initialisePlantManagement() {
       // No check for remaining tabs length before accessing remainingTabs[1] or [0] could cause error in plant deleteion section
       // so fixed with new implementation 
 
-      const remainingTabs = Array.from(document.querySelectorAll(".nav-link")).filter(tab => 
-        !tab.id.includes('add-plant')
-      );
-      if (remainingTabs.length > 0) {
-        const firstTab = remainingTabs[0];
-        const bsTab = new bootstrap.Tab(firstTab);
-        bsTab.show();
-      } else {
-        console.log("No plants left")
+      // Show another existing tab, if any
+      const tabLinks = document.querySelectorAll(".nav-link");
+      for (let i = 0; i < tabLinks.length; i++) {
+        const tab = tabLinks[i];
+        if (!tab.id.includes('add-plant')) {
+          new bootstrap.Tab(tab).show();
+          break;
+        }
       }
 
       // Delete from backend
@@ -679,7 +701,7 @@ function initialisePlantManagement() {
         waterData: [] // Add this line to store water data
       };
 
-      await savePlantinDB(plantName, plantType, avatarImageSrc);
+      await savePlantinDB(plantName, plantType, avatarImageSrc, plantCategory);
 
       renderPlantTab({
         plantName,
@@ -687,8 +709,7 @@ function initialisePlantManagement() {
         plantCategory,
         plantType,
         tabId,
-        contentId,
-        streakCount: 0
+        contentId
       });
 
       // Update share column content
@@ -757,54 +778,50 @@ function initialisePlantManagement() {
     const activeTab = event.target; // newly activated tab
     const previousTab = event.relatedTarget; // previous active tab
     
-    if (activeTab && !activeTab.id.includes('add-plant')) { // checks if tab is not add-plant tab
-      const plantName = activeTab.textContent.trim();
+        // Only proceed if tab is not "Add Plant" and already active
+      if (!activeTab || activeTab.id.includes('add-plant') || !activeTab.classList.contains('active')) return;
+
+      const plantName = activeTab.getAttribute("data-plant-name") || activeTab.textContent.trim();
       const plantData = globalPlants[plantName];
-      
-      if (plantData) {
-        // Update any UI elements that depend on the current plant
-        console.log(`Switched to plant: ${plantName}`);
-        
-        // Update share content if it exists
-        const shareContent = document.getElementById("share-content");
-        if (shareContent && plantData.avatarSrc) {
-          shareContent.innerHTML = `
-            <h3 class="text-white"> Share Your Plant! </h3>
-            <img src="${plantData.avatarSrc}" class="img-fluid text-center share-avatar">
-            <div class="share-controls text-center mt-4">
-              <a class="btn btn-success btn-lg" href="shareBoard.html">
-                <i class="bi bi-share me-2"></i> Share Plant
-              </a>
-            </div>
-          `;
-        }
 
-        // Update growth graph for the current plant
-        canvas = document.getElementById('plantGrowthGraph');
-        const graphHeader = document.getElementById('graphHeader');
-        if (canvas && graphHeader) {
-          // Update the graph header with the current plant name
-          graphHeader.textContent = plantName;
+      if (!plantData) return;
 
-          // Clear and redraw the graph with current plant's data
-          ctx = canvas.getContext('2d');
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          
-          // Draw the graph if growth data exists
-          if (globalPlants.growthData && globalPlants.growthData[plantName]) {
-            drawGraph(plantName);
-          } else {
-            // Show placeholder text if no data
-            ctx.font = "16px sans-serif";
-            ctx.textAlign = "center";
-            ctx.fillText(`No growth data for ${plantName} yet.`, canvas.width/2, canvas.height/2);
-          }
-        }
+      console.log(`✅ Switched to plant tab: ${plantName}`);
 
-        // Update photo display for the selected plant
-        updatePhotoDisplay(plantName);
+      // Update share content
+      const shareContent = document.getElementById("share-content");
+      if (shareContent && plantData.avatarSrc) {
+        shareContent.innerHTML = `
+          <h3 class="text-white"> Share Your Plant! </h3>
+          <img src="${plantData.avatarSrc}" class="img-fluid text-center share-avatar">
+          <div class="share-controls text-center mt-4">
+            <a class="btn btn-success btn-lg" href="shareBoard.html">
+              <i class="bi bi-share me-2"></i> Share Plant
+            </a>
+          </div>
+        `;
       }
-    }
+
+      // Update graph
+      const canvas = document.getElementById('plantGrowthGraph');
+      const graphHeader = document.getElementById('graphHeader');
+      if (canvas && graphHeader) {
+        graphHeader.textContent = plantName;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const data = globalPlants.growthData?.[plantName] || [];
+        if (data.length > 0) {
+          drawGraph(plantName);
+        } else {
+          ctx.font = "16px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(`No growth data for ${plantName} yet.`, canvas.width / 2, canvas.height / 2);
+        }
+      }
+
+      // Update photo display for the selected plant
+      updatePhotoDisplay(plantName);
   });
 }
 /**
@@ -1111,7 +1128,7 @@ function initialisePlantGrowthTracker() {
   canvas = document.getElementById('plantGrowthGraph');
   const plantSelector = document.getElementById('plantSelector');
   
-  if (!form || !canvas || !plantSelector) return;
+  if (!growthForm || !canvas || !plantSelector) return;
 
   ctx = canvas.getContext('2d');
   
@@ -1221,105 +1238,19 @@ function initialiseSettingsModal() {
   });
 }
 
-// Toggle options in settings modal
-function toggleOptions(id) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.style.display = el.style.display === 'block' ? 'none' : 'block';
+// update daily streak
+function updateDailyStreak() {
+  const userData = JSON.parse(localStorage.getItem('user_profile'));
+  const streakDiv = document.getElementById('dailyStreak');
+
+  if (userData && streakDiv) {
+    streakDiv.textContent = `Daily Streak: ${userData.streak} 🔥`;
+  } else if (streakDiv) {
+    streakDiv.textContent = 'Login streak not available.';
   }
 }
 
-// functions to switch tabs in the user settings modal 
-function openTab(evt, tabName) {
-  // Hide all tab contents
-  const tabContents = document.querySelectorAll('.tabcontent');
-  tabContents.forEach(tc => tc.classList.remove('active'));
 
-  // Remove active class from all tab buttons
-  const tabButtons = document.querySelectorAll('.tab button.tablinks');
-  tabButtons.forEach(btn => btn.classList.remove('active'));
-
-  // Show the selected tab content
-  const selectedContent = document.getElementById(tabName);
-  if (selectedContent) {
-    selectedContent.classList.add('active');
-  }
-
-  // Add active class to the clicked button
-  if (evt && evt.currentTarget) {
-    evt.currentTarget.classList.add('active');
-  }
-
-  // Optional: reload the friends list if we switched to that tab
-  if (tabName === 'Friends') {
-    loadFriendsList();
-  }
-}
-// other user settings functions 
-
-
-
-
-// dark mode functions
-
-// function to toggle dark mode
-// Toggle light intensity (dimming feature)
-/* function toggleLightIntensity() {
-  const overlay = document.getElementById("dark-overlay");
-  if (!overlay) return;
-
-  const isOn = overlay.style.display === "block";
-  overlay.style.display = isOn ? "none" : "block";
-}
-// event handler to set darkmode on page load
-document.addEventListener("DOMContentLoaded", () => {
-  const saved = localStorage.getItem("dimmed") === "true";
-
-// Initialize dimming from localStorage
-function initializeDimming() {
-  const overlay = document.getElementById("dark-overlay");
-  if (overlay) {
-    overlay.style.display = "none";
-  }
-} */
-
-/**
- * UI LAYOUT CONTROLS
- * Functions to control UI layout
- */
-
-// Toggle fullscreen mode
-function toggleFullscreen() {
-  const picsAndGraphs = document.getElementById('picsAndGraphs');
-  const leftCol = document.querySelector('.left_col');
-  const rightCol = document.querySelector('.right_col');
-  const picDiv = document.getElementById('picDiv');
-  
-  if (!leftCol || !rightCol) return;
-
-  const isExpanded = leftCol.classList.contains('col-12');
-
-  if (!isExpanded) { // if left column is not expanded
-    picsAndGraphs.classList.remove('flex-column');
-    picsAndGraphs.classList.add('gap-5');
-    picsAndGraphs.classList.add('p-5');
-
-    leftCol.classList.remove('col-3');
-    leftCol.classList.add('col-12', 'vh-100');
-    rightCol.classList.add('d-none');
-
-    // updatePicGrid();
-
-  } else { // if left column is expanded
-    picsAndGraphs.classList.add('flex-column');
-    picsAndGraphs.classList.remove('gap-5');
-    picsAndGraphs.classList.remove('p-5');
-    
-    leftCol.classList.remove('col-12', 'vh-100');
-    leftCol.classList.add('col-3');
-    rightCol.classList.remove('d-none');
-  }
-}
 
 const plantOptions = {
   flowers: [
@@ -1461,5 +1392,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Initialise dimming feature
     initialiseDimming();
+
+    updateDailyStreak();
   
 });
