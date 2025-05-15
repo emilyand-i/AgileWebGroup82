@@ -21,7 +21,7 @@ body {
     min-height: 100vh;
     margin: 0;
     padding: 0;
-    background-color: rgb(65, 90, 71);
+    background-color: #547642;
 }
 
 /*INDEX*/
@@ -213,17 +213,6 @@ main.main-info {
 }
 
 
-.btn {
-  border-radius: 10px;
-  color:aliceblue;
-
-}
-.btn:hover {
-  color: white;
-  background-color: rgba(124, 175, 124, 0.63);
-  cursor: pointer;
-}
-
 /* adjustments for mobile and ipad screen usage */
 
 @media (max-width: 768px) {
@@ -329,7 +318,7 @@ main.main-info {
 }
 
 #home-flower {
-  width: 10rem;
+  width: 15rem;
 }
 
 .mid-column {
@@ -338,7 +327,31 @@ main.main-info {
   flex-direction: column;
 }
 
-.nav-link, .add_stat, .logout_button {
+.plant-tabs {
+  width: 100%;    
+  padding: 0 1rem; 
+}
+
+
+
+.share-image {
+  max-width: 5rem;
+}
+.btn-success {
+  color: aliceblue;
+  font-size: 1rem;    
+  border-radius: 0.5rem; 
+  padding: 0.25rem 0.5rem; 
+  width: 10rem;         
+  text-align: center;
+  background-color: #729566;
+  border: none;
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow:clip; 
+}
+
+.nav-link, .add_stat {
   color: aliceblue;
   font-size: 1rem;    
   border-radius: 0.5rem; 
@@ -351,19 +364,19 @@ main.main-info {
   overflow: hidden;
   text-overflow: ellipsis; 
 }
-
-.plant-tabs {
-  width: 100%;    
-  padding: 0 1rem; 
-}
-
-.nav-link:hover, .logout_button:hover {
+.nav-link:hover {
   background-color: #66835c;
 }
 
+.btn {
+  border-radius: 10px;
+  color:aliceblue;
 
-.share-image {
-  max-width: 5rem;
+}
+.btn:hover {
+  color: white;
+  background-color: rgba(124, 175, 124, 0.63);
+  cursor: pointer;
 }
 
 /* Plant Graph Growth Section*/
@@ -476,30 +489,6 @@ main.main-info {
   margin: 0 auto;
 }
 
-
-/* Settings Page */
-.settings-container {
-  background: #6db07586;
-  border-radius: 8px;
-  padding: 20px;
-}
-
-.section {
-  margin-bottom: 15px;
-}
-
-.section button.section-toggle {
-  width: 100%;
-  text-align: left;
-  padding: 15px;
-  background: #00c24a;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
 .options {
   display: none;
   margin-top: 10px;
@@ -530,11 +519,24 @@ main.main-info {
 .modal-style {
   background-color: rgb(65, 90, 71);
   color: white;
+  border-radius: 18px;
+  background: #547642;
+  box-shadow:18px 18px 36px #111a0c,
+            -18px -18px 36px #182912;
   /* text-align: center; */
 }
 
+.save-plant {
+  background-color: rgba(83, 156, 27, 0.672);
+  border: none;
+}
+
+.btn-secondary {
+  background-color: rgba(83, 156, 27, 0.672);
+  border: none;
+}
 .delete-plant {
-  background-color: rgb(151, 29, 29);
+  background-color: rgba(151, 29, 29, 0.832);
 }
 
 /* dark mode classes */
@@ -563,11 +565,15 @@ main.main-info {
 }
 
 .graph-section {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
-    max-width: 100%;
+  padding: 15px;
+  margin-bottom: 20px;
+  max-width: 80%;
+  margin: auto;
+  border-radius: 42px;
+  background: linear-gradient(45deg, #5a7e47, #4c6a3b);
+  box-shadow:  16px -16px 31px #384f2c,
+              -16px 16px 31px #709d58;
+            
 }
 
 .graph-container {
@@ -696,13 +702,13 @@ main.main-info {
   color: #ffffff;
 }
 
-#user-settings-modal .modal-header,
-#user-settings-modal .modal-footer {
-  background-color: #355E3B;
+.modal-header,
+.modal-footer {
+  background-color: #547642;
   border: none;
 }
 
-#user-settings-modal .modal-title {
+.modal-title {
   font-weight: bold;
   font-size: 1.5rem;
   display: flex;
@@ -710,19 +716,19 @@ main.main-info {
   gap: 8px;
 }
 
-#user-settings-modal .modal-title::before {
+.modal-title::before {
   content: "🌿";
   font-size: 1.2rem;
 }
 
-#user-settings-modal .modal_main_section {
+.modal_main_section {
   background-color: #3f5f3f;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
-#user-settings-modal .nav-tabs .nav-link {
+.nav-tabs .nav-link {
   color: #c7eac7;
   background-color: #2f4f2f;
   border-radius: 5px 5px 0 0;
@@ -730,42 +736,61 @@ main.main-info {
   border: none;
 }
 
-#user-settings-modal .nav-tabs .nav-link.active {
+.nav-tabs .nav-link.active {
   background-color: #4a7c4a;
   color: #fff;
   font-weight: bold;
 }
 
-#user-settings-modal .form-check-label {
+.form-check-label {
   font-size: 1.1rem;
 }
 
-#user-settings-modal .btn-primary {
+.btn-primary .btn-success {
   background-color: #5fa35f;
   border: none;
   transition: background-color 0.3s ease;
 }
 
-#user-settings-modal .btn-primary:hover {
-  background-color: #7ac07a;
-}
 
-#user-settings-modal .btn-secondary {
-  background-color: #cccccc;
-  color: #333;
-  border: none;
-  transition: background-color 0.3s ease;
-}
-
-#user-settings-modal .btn-secondary:hover {
-  background-color: #eeeeee;
-}
-
-#user-settings-modal .list-group-item {
+.list-group-item {
   background-color: #4b6e4b;
   color: #fff;
   border: none;
 }
+
+/* SETTINGS BUTTON */
+.acc_settings_btn, .logout_button {
+  padding: 13px 40px;
+  border-radius: 50px;
+  background-color: #c7eac7;
+  cursor: pointer;
+  border: 0;
+  box-shadow: rgba(0, 28, 14, 0.14) 0 0 8px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transition: all 0.5s ease;
+}
+
+.acc_settings_btn:hover, .logout_button:hover {
+  letter-spacing: 3px;
+  background-color: hsla(126, 40%, 38%, 0.914);
+  color: #fff;
+  box-shadow: rgb(30, 158, 73) 0px 7px 29px 0px;
+  transform: scale(1.02);
+}
+
+
+
+.acc_settings_btn:active, .logout_button:active {
+  background-color: hsl(145, 50%, 45%);
+  color: #fff;
+  box-shadow: none;
+  transform: translateY(10px);
+  transition: 100ms;
+}
+
+
 
 
 
@@ -776,15 +801,4 @@ main.main-info {
 }
 .form-check-label {
 
-}
-
-
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
-.btn:hover .bi-gear {
-  animation: spin 1s linear infinite;
 }
