@@ -638,7 +638,7 @@ main.main-info {
 .date-select-button.active {
   background-color: #729566;
   color: white;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.246);
   z-index: 1;
 }
 
