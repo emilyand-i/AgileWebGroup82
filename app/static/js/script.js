@@ -5,7 +5,51 @@
 // Structure: { plantName: { tabId, contentId, avatarSrc, streakCount, creationDate, etc. } }
 let globalPlants = {};
 
+// Draw growth graph for selected plant
 
+let canvas;
+let ctx;
+function drawGraph(namePlant) {
+  console.log(`Drawing graph for ${namePlant}`);
+
+  canvas = document.getElementById('plantGrowthGraph');
+  if (!canvas) {
+    console.error("❌ Canvas element with id 'plantGrowthGraph' not found!");
+    return;
+  }
+  ctx = canvas.getContext('2d');
+  if (!ctx) {
+    console.error("❌ Failed to get canvas context!");
+    return;
+  }
+
+
+  const data = globalPlants.growthData[namePlant];
+  console.log("Retrieved data:", data);
+
+  if (!data || data.length < 2) {
+      console.log("Data is missing or too short:", data);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = "16px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(`Add at Least 2 Growth Points.`, canvas.width/2, canvas.height/2);
+      return;
+  }
+
+  try {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    console.log("Canvas cleared");
+  } catch (e) {
+    console.error("Error clearing canvas:", e);
+  }
+  
+  
+  const padding = 70;
+  const graphWidth = canvas.width - padding * 2;
+  const graphHeight = canvas.height - padding * 2;
+
+  const dates = data.map(d => new Date(d.date));
+  const heights = data.map(d => d.height);
 
 // --------------------------------------------------------------------------------------------------------
 
