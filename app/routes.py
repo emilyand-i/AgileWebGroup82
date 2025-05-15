@@ -231,24 +231,16 @@ def delete_plant():
     return jsonify({'message': "Plant has been deleted successfully"}), 200
 
 
-# Fetch 9 most recent public posts
-def get_recent_posts_public(limit=9):
-    # Query to get the most recent public posts from all users, ordered by datetime_uploaded
-    all_posts = user_db.session.query(uploadedPics).order_by(uploadedPics.datetime_uploaded.desc()).limit(limit).all()
-
-    return all_posts
 
 
-
-#demo for flask shareboard content. Needs to be updated with actual matching data
-#I'm still trying to wrap my head around flask logic
+#FOR FLASK SHAREBOARD PAGE - HASNOT BEEN TESTED PROPERLY!!!!!!!!
+ #NOTE: limit is hard coded for now, may be changed later (current only collects 9 posts)
 @routes_bp.route('api/update-social', methods=['GET'])
 def updateFeed():
     #get the current user's id
     user_id = session.get("user_id")
 
     # Fetch 9 most recent public posts
-    #NOTE: limit is hard coded for now, may be changed later
     public_posts = user_db.session.query(uploadedPics).order_by(uploadedPics.datetime_uploaded.desc()).limit(9).all()
 
     # Fetch 9 posts from friends
@@ -259,6 +251,8 @@ def updateFeed():
         & (FriendsList.user_id == user_id)).order_by(uploadedPics.datetime_uploaded.desc())\
         .limit(9).all()
 
+    #returning a jsonified object with the public and friends posts for now
+    #may need to be changed later
     return jsonify({
         'public_posts': [post.to_dict() for post in public_posts],
         'friends_posts': [post.to_dict() for post in friends_posts]
