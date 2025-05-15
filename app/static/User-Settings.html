@@ -56,8 +56,8 @@
   <h5 class="modal-title text-white" id="userSettingsModal">User Settings</h5>
   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
-<div class="modal-body" style="background-color: rgb(69, 97, 71); color: #fff;">
-  <ul class="nav nav-tabs" id="userSettingsTabs" role="tablist">
+<div class="modal_main_section" style="background-color: rgb(69, 97, 71); color: #fff;">
+  <form class="nav nav-tabs" id="userSettingsForm">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settingsTab" type="button" role="tab">
         Account Settings
@@ -68,7 +68,7 @@
         Friends List
       </button>
     </li>
-  </ul>
+  </form>
   <div class="tab-content mt-3" id="userSettingsTabsContent">
     <div class="tab-pane fade show active" id="settingsTab" role="tabpanel">
       <h2>Account Settings</h2>
@@ -125,16 +125,16 @@
   <script>
 
     // JavaScript to handle tab switching
-    function openTab(evt, tabName) {
-      const tabcontents = document.querySelectorAll('.tabcontent');
-      const tablinks = document.querySelectorAll('.tablinks');
+    //function openTab(evt, tabName) {
+      //const tabcontents = document.querySelectorAll('.tabcontent');
+      //const tablinks = document.querySelectorAll('.tablinks');
 
-      tabcontents.forEach(content => content.classList.remove('active'));
-      tablinks.forEach(link => link.classList.remove('active'));
+      //tabcontents.forEach(content => content.classList.remove('active'));
+      //tablinks.forEach(link => link.classList.remove('active'));
 
-      document.getElementById(tabName).classList.add('active');
-      evt.currentTarget.classList.add('active');
-    }
+      //document.getElementById(tabName).classList.add('active');
+      //evt.currentTarget.classList.add('active');
+    //}
   </script>
 
 </body>

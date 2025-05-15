@@ -1199,27 +1199,27 @@ function initialisePlantGrowthTracker() {
 
 // Initialise settings modal loading
 function initialiseSettingsModal() {
-  const modal = document.getElementById("User-Settings-Modal");
+  const modal = document.getElementById("acc_settings_modal");
   if (!modal) return;
 
   modal.addEventListener("show.bs.modal", () => {
     fetch("User-Settings.html")
       .then(response => response.text())
       .then(html => {
-        document.getElementById("SettingsModalContent").innerHTML = html;
+        document.getElementById("accountModalContent").innerHTML = html;
         initialiseSettingsForm();
       })
       .catch(error => {
-        document.getElementById("SettingsModalContent").innerHTML = `
-          <div class="modal-body text-danger">Failed to load settings content.</div>
+        document.getElementById("accountModalContent").innerHTML = `
+          <div class="modal_main_section text-danger">Failed to load settings content.</div>
         `;
         console.error("Error loading settings:", error);
       });
   });
 }
 function initialiseSettingsForm() {
-  const form = document.getElementById("settingsForm");
-  const saveBtn = document.getElementById("saveSettingsBtn");
+  const form = document.getElementById("userSettingsForm");
+  const saveBtn = document.getElementById("saveUserSettings");
 
   if (!form || !saveBtn) return;
 
