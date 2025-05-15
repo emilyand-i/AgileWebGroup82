@@ -83,6 +83,11 @@ document.addEventListener("DOMContentLoaded", function () {
             //get the references for our tab containers
             const publicContainer = document.getElementById('public-posts-container');
             const friendsContainer = document.getElementById('friends-posts-container');
+
+            //format the date and time (from JSON) before writting to the card
+            const uploadDate = new Date(post.datetime_uploaded);
+            const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            const formattedDate = uploadDate.toLocaleString(undefined, options);
         
             const makeCard = (post) => {
                 const card = document.createElement('div');
@@ -90,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 card.innerHTML = `
                     <img src="${post.image}" class="photo-img" alt="${post.username}'s plant photo">
                     <div class="card-body">
-                        <p class="card-text"><strong>${post.username} </strong><br>posted on 04/08/2025, 10:15 AM</p>
+                        <p class="card-text"><strong>${post.username} </strong><br>posted on ${formattedDate}</p>
                         <p class="card-text"><strong>Plant Name:</strong> ${post.plant_name || 'Unknown'}</p>
                         <p class="card-text">${post.caption || ''}</p>
                     </div>

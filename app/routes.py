@@ -253,6 +253,7 @@ def updateFeed():
 
     #returning a jsonified object with the public and friends posts for now
     #may need to be changed later
+    #possible that datetime may cause errors - althought I am unsure (to_dict() could cause issues??)
     return jsonify({
         'public_posts': [post.to_dict() for post in public_posts],
         'friends_posts': [post.to_dict() for post in friends_posts]
