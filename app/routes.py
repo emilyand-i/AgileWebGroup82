@@ -76,7 +76,7 @@ def login():
 
         user_db.session.commit()
 
-        # Fetch related data (as in your original route)
+        # Fetch related data (as in the original route)
         settings = UserSettings.query.filter_by(user_id=user.id).first()
         friends = FriendsList.query.filter_by(user_id=user.id).all()
         plants = Plants.query.filter_by(user_id=user.id).all()

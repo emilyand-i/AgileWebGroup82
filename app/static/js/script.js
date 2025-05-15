@@ -1207,6 +1207,7 @@ function initialiseSettingsModal() {
       .then(response => response.text())
       .then(html => {
         document.getElementById("SettingsModalContent").innerHTML = html;
+        initialiseSettingsForm();
       })
       .catch(error => {
         document.getElementById("SettingsModalContent").innerHTML = `
@@ -1214,6 +1215,51 @@ function initialiseSettingsModal() {
         `;
         console.error("Error loading settings:", error);
       });
+  });
+}
+function initialiseSettingsForm() {
+  const form = document.getElementById("settingsForm");
+  const saveBtn = document.getElementById("saveSettingsBtn");
+
+  if (!form || !saveBtn) return;
+
+  // Pre-fill from session
+  const profile = JSON.parse(localStorage.getItem('user_profile'));
+  if (profile?.settings) {
+    form.publicProfile.checked = profile.settings.is_profile_public;
+    form.allowFriendRequests.checked = profile.settings.allow_friend_requests;
+  }
+
+  saveBtn.addEventListener("click", async () => {
+    const data = {
+      is_profile_public: form.publicProfile.checked,
+      allow_friend_requests: form.allowFriendRequests.checked
+    };
+
+    try {
+      const response = await fetch("/api/settings", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+        },
+        credentials: 'include',
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        const updated = await response.json();
+        alert("✅ Settings saved.");
+        localStorage.setItem('user_profile', JSON.stringify({
+          ...profile,
+          settings: updated.settings
+        }));
+      } else {
+        alert("❌ Could not save settings.");
+      }
+    } catch (err) {
+      console.error("Settings update failed:", err);
+    }
   });
 }
 
