@@ -413,7 +413,7 @@ main.main-info {
 .photo-card {
   flex: 0 0 auto;
   width: 80%;
-  margin: 15px;
+  margin: auto;
   border: 2px solid rgb(80, 163, 71);
   padding: 5px;
   flex-direction: column;
@@ -465,7 +465,7 @@ main.main-info {
 .avatar-choice:hover {
   cursor: pointer;
   box-shadow: 0px 0px 4px 2px rgba(0, 0, 0, 0.5);
-  transform: scale(1.05);
+  transform: scale(1.07);
   transition: transform 0.3s ease;
 }
 
@@ -600,9 +600,9 @@ main.main-info {
     justify-content: center;
     align-items: center;
     margin-bottom: 10px;
-    background-color: rgb(106, 139, 124);
+    background-color: #c7eac7;
     border-radius: 1rem;
-    color: white;
+    color: rgb(5, 14, 0);
 }
 
 .graphHeader {
@@ -612,21 +612,43 @@ main.main-info {
     margin: 0;
 }
 
+.date-select-group {
+  display: inline-flex;
+  background-color: #4c6b48;
+  border-radius: 2rem;
+  padding: 4px;
+}
+
 .date-select-button {
-  background-color: #729566;
-  color: white;
+  background-color: transparent;
+  /*background-color: #729566;*/
+  color: #d0e8cd;
   border: none;
-  padding: 10px 20px;
+  padding: 10px 24px;
   border-radius: 1rem;
+  transition: all 0.5s ease;
+  border-radius: 2rem;
   cursor: pointer;
   font-size: 1rem;
-  margin: 0.5rem;
+}
+.date-select-button:hover {
+  background-color: #729566;
 }
 
 .date-select-button.active {
-  background-color: #45b470;
+  background-color: #729566;
   color: white;
-  border-color: #45b470;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+#todayBtn.active {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+#yesterdayBtn.active {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .left_col {
@@ -656,6 +678,8 @@ main.main-info {
   background-color: green;
   border-radius: 4px;
 }
+
+
 
 .carousel-control-prev-icon,
 .carousel-control-next-icon {
@@ -722,25 +746,26 @@ main.main-info {
 }
 
 .modal_main_section {
-  background-color: #3f5f3f;
+  background-color: #194d19;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .nav-tabs .nav-link {
-  color: #c7eac7;
-  background-color: #2f4f2f;
+  color: #000000;
+  background-color: #c7eac7;
   border-radius: 5px 5px 0 0;
   margin-right: 5px;
   border: none;
 }
 
 .nav-tabs .nav-link.active {
-  background-color: #4a7c4a;
+  background-color: #729566;
   color: #fff;
   font-weight: bold;
 }
+
 
 .form-check-label {
   font-size: 1.1rem;
@@ -752,6 +777,10 @@ main.main-info {
   transition: background-color 0.3s ease;
 }
 
+.addnewplant {
+  padding: 0.28rem 0.5rem; 
+  width: 14rem;
+}
 
 .list-group-item {
   background-color: #4b6e4b;
@@ -774,9 +803,9 @@ main.main-info {
 
 .acc_settings_btn:hover, .logout_button:hover {
   letter-spacing: 3px;
-  background-color: hsla(126, 40%, 38%, 0.914);
+  background-color: #729566ed;
   color: #fff;
-  box-shadow: rgb(30, 158, 73) 0px 7px 29px 0px;
+  box-shadow: rgb(56, 142, 56) 0px 7px 29px 0px;
   transform: scale(1.02);
 }
 
