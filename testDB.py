@@ -77,3 +77,13 @@ with app.app_context():
     #   )
     #   user_db.session.add(new_photo)
     #   user_db.session.commit()
+
+    # To create a new GROWTH ENTRY for a plant:
+#   new_entry = PlantGrowthEntry(
+#       user_id = <user_id>,
+#       plant_name = 'Sunflower',
+#       date_recorded = datetime.date(2025, 5, 5),
+#       cm_grown = 4.2
+#   )
+#   user_db.session.add(new_entry)
+#   user_db.session.commit()

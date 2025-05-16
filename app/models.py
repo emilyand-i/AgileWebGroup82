@@ -117,13 +117,3 @@ class PlantGrowthEntry(user_db.Model):
   plant_name = user_db.Column(user_db.String(100), nullable=False)  # same as JS `plantName`
   date_recorded = user_db.Column(user_db.Date, nullable=False)      # same as JS `plantDate`
   cm_grown = user_db.Column(user_db.Float, nullable=False)          # same as JS `plantHeight`
-
-# To create a new GROWTH ENTRY for a plant:
-#   new_entry = PlantGrowthEntry(
-#       user_id = <user_id>,
-#       plant_name = 'Sunflower',
-#       date_recorded = datetime.date(2025, 5, 5),
-#       cm_grown = 4.2
-#   )
-#   user_db.session.add(new_entry)
-#   user_db.session.commit()
