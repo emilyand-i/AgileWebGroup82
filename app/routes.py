@@ -114,7 +114,7 @@ def login():
             'image_url': pic.image_url,
             'caption': pic.caption,
             'datetime_uploaded': pic.datetime_uploaded
-        } for pic in photos],
+        } for pic in photos]
         shared_plant_data = [{
             'plant_id': shared.plant_id,
             'plant_name': Plants.query.get(shared.plant_id).plant_name,
@@ -129,7 +129,7 @@ def login():
             'timestamp': notif.timestamp.strftime('%Y-%m-%d %H:%M'),
             'plant_id': notif.plant_id,
             'is_read': notif.is_read
-        } for notif in notifications],
+        } for notif in notifications]
         
 
         settings_data = {
