@@ -334,6 +334,27 @@ window.addEventListener('DOMContentLoaded', async () => {
   await CsrfToken();
   loginForm();
   signupForm();
+
+  const searchInput = document.getElementById('friendSearch');
+  if (searchInput) {
+    searchInput.addEventListener('input', async () => {
+      const query = searchInput.value.trim();
+      if (!query) {
+        document.getElementById('searchResults').innerHTML = '';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/search-users?q=${encodeURIComponent(query)}`, {
+          credentials: 'include'
+        });
+        const data = await res.json();
+        renderFriendSearchResults(data.results || []);
+      } catch (err) {
+        console.error('Search failed:', err);
+      }
+    });
+  }
 });
 
 
@@ -359,6 +380,15 @@ async function loadSession() {
 
     console.log("📦 session loaded:", updatedProfile.plants.map(p => p.plant_name));
     // Store updatedProfile instead of user
+    if (updatedProfile.photos) {
+      updatedProfile.photos = updatedProfile.photos.map(p => ({
+        photo_id: p.photo_id,
+        plant_id: p.plant_id,
+        image_url: '', // or skip this if it's base64
+        caption: p.caption,
+        datetime_uploaded: p.datetime_uploaded
+      }));
+    }
     localStorage.setItem('user_profile', JSON.stringify(updatedProfile));
     return updatedProfile;
   } else {
@@ -370,10 +400,10 @@ async function loadSession() {
 async function addFriend(friendId, username) {
   const load = await fetch('/api/add-friend', {
     method: 'POST',
-    credentials: 'include',
     headers: {
       'Content-Type': 'application/json'
     },
+    credentials: 'include',
     body: JSON.stringify({ friend_id: friendId})
   });
   const result = await load.json();
@@ -431,6 +461,27 @@ async function removeFriend(friendId, username, btn) {
   }
 }
 
+function renderFriendSearchResults(users) {
+  const resultsContainer = document.getElementById('searchResults');
+
+  if (!resultsContainer) return;
+
+  if (users.length === 0) {
+    resultsContainer.innerHTML = `<li class="list-group-item text-muted">No users found.</li>`;
+    return;
+  }
+
+  resultsContainer.innerHTML = users.map(user => `
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      ${user.username}
+      <button class="btn btn-sm btn-success"
+              onclick="addFriend(${user.user_id}, '${user.username}')">
+        Add
+      </button>
+    </li>
+  `).join('');
+}
+
 
 /**
  * DASHBOARD FUNCTIONALITY
@@ -476,6 +527,7 @@ async function loadDashboard() {
     
     // Add plant to global plants dictionary
     globalPlants[plantName] = {
+      id: plant.id,
       name: plantName,
       avatarSrc: avatarImageSrc,
       plantCategory: plantCategory,
@@ -900,76 +952,114 @@ function initialisePlantManagement() {
 
 // Initialise photo upload functionality
 function initialisePhotoUpload() {
-    const photoForm = document.getElementById('photoForm');
-    const input = document.getElementById('photoInput');
-    const display = document.getElementById('latestPhotoContainer');
-    const noPhotoMessage = document.getElementById('noPhotoMessage');
+  const photoForm = document.getElementById('photoForm');
+  const input = document.getElementById('photoInput');
+  const display = document.getElementById('latestPhotoContainer');
+  if (!photoForm || !input || !display) return;
 
-    if (!photoForm || !input || !display) return;
+  photoForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
 
-    photoForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
+    const file = input.files[0];
+    if (!file) return;
 
-        const file = input.files[0];
-        if (!file) return;
+    const currentPlant = getCurrentActivePlantName();
+    if (!currentPlant || !globalPlants[currentPlant]) {
+      alert('Please select a plant first');
+      console.warn("🌱 No plant selected or plant missing from global state");
+      return;
+    }
 
-        const currentPlant = getCurrentActivePlantName();
-        if (!currentPlant || !globalPlants[currentPlant]) {
-            alert('Please select a plant first');
-            return;
+    const comments = document.getElementById('comments')?.value;
+    console.log("📤 Upload started for plant:", currentPlant);
+    console.log("📝 Comments:", comments);
+
+    const reader = new FileReader();
+    reader.onload = async function (event) {
+      const imgSrc = event.target.result;
+      const date = new Date().toLocaleString(undefined, {
+        hour: 'numeric',
+        minute: 'numeric',
+        day: '2-digit',
+        month: '2-digit',
+        year: '2-digit',
+      });
+
+      // Create photo object
+      const photoData = {
+        src: imgSrc,
+        date: date,
+        comments: comments || '',
+      };
+
+      // Add to plant's photos array
+      if (!globalPlants[currentPlant].photos) {
+        globalPlants[currentPlant].photos = [];
+      }
+      globalPlants[currentPlant].photos.push(photoData); // Add new photo at the beginning
+
+      console.log("✅ Photo added to globalPlants:", photoData);
+      console.log("📸 Total photos now:", globalPlants[currentPlant].photos.length);
+      console.log("📦 Uploading to backend:", {
+        plant_id: globalPlants[currentPlant].id,
+        image_url: imgSrc,
+        caption: comments || ''
+      });
+
+      try {
+        const response = await fetch('/api/add-photo', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            plant_id: globalPlants[currentPlant].id,
+            image_url: imgSrc,
+            caption: comments || ''
+          })
+        });
+    
+        const result = await response.json();
+        if (response.ok) {
+          console.log("✅ Photo saved to backend:", result);
+        } else {
+          console.error("❌ Upload failed:", result);
         }
+      } catch (err) {
+        console.error("⚠️ Error uploading photo:", err);
+      }
 
-        const comments = document.getElementById('comments')?.value;
+      // Update display
+      updatePhotoDisplay(currentPlant);
 
-        const reader = new FileReader();
-        reader.onload = function (event) {
-            const imgSrc = event.target.result;
-            const date = new Date().toLocaleString(undefined, {
-                hour: 'numeric',
-                minute: 'numeric',
-                day: '2-digit',
-                month: '2-digit',
-                year: '2-digit',
-            });
-
-            // Create photo object
-            const photoData = {
-                src: imgSrc,
-                date: date,
-                comments: comments || '',
-            };
-
-            // Add to plant's photos array
-            if (!globalPlants[currentPlant].photos) {
-                globalPlants[currentPlant].photos = [];
-            }
-            globalPlants[currentPlant].photos.push(photoData); // Add new photo at the beginning
-
-            // Update display
-            updatePhotoDisplay(currentPlant);
-
-            photoForm.reset();
-            const modal = bootstrap.Modal.getInstance(document.getElementById('pictureModal'));
-            modal?.hide();
-        };
-
-        reader.readAsDataURL(file);
-    });
+      photoForm.reset();
+      const modal = bootstrap.Modal.getInstance(document.getElementById('pictureModal'));
+      document.activeElement?.blur();
+      modal?.hide();
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 function updatePhotoDisplay(currentPlant) {
   const picDiv = document.getElementById('picDiv');
   if (!currentPlant || !globalPlants[currentPlant]) {
     picDiv.innerHTML = `<p class="text-white">Select a plant to view its photos.</p>`;
+    console.warn("🌿 No plant selected for photo display.");
     return;
   }
 
   const photos = globalPlants[currentPlant].photos;
   if (!photos || photos.length === 0) {
     picDiv.innerHTML = `<p class="text-white">No photos available.</p>`;
+    console.info("📷 No photos to display for:", currentPlant);
     return;
   }
+
+  console.log(`🖼️ Displaying ${photos.length} photos for ${currentPlant}`);
 
   // Reverse the array so the latest photo appears first
   const carouselItems = photos.slice().reverse().map((photo, i) => `
@@ -990,10 +1080,10 @@ function updatePhotoDisplay(currentPlant) {
         ${carouselItems}
       </div>
       <button class="carousel-control-prev" type="button" data-bs-target="#photoCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="carousel-control-prev-icon"></span>
       </button>
       <button class="carousel-control-next" type="button" data-bs-target="#photoCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="carousel-control-next-icon"></span>
       </button>
     </div>
   `;
@@ -1131,7 +1221,8 @@ function initialisePlantGrowthTracker() {
     waterDateInput.valueAsDate = new Date();
     const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
     if (modal) {
-      modal.hide();
+      document.activeElement?.blur();
+      modal?.hide();
     }
   }
 
@@ -1170,7 +1261,8 @@ function initialisePlantGrowthTracker() {
     growthDateInput.valueAsDate = new Date();
     const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
     if (modal) {
-      modal.hide();
+      document.activeElement?.blur();
+      modal?.hide();
     }
     
 
@@ -1255,7 +1347,8 @@ function initialisePlantGrowthTracker() {
 
     // Close the modal using Bootstrap's API
     const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
-    modal.hide();
+    document.activeElement?.blur();
+    modal?.hide();
     
     // Update the graph
     console.log("draw graph called")
