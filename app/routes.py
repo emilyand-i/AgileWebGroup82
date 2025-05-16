@@ -114,7 +114,7 @@ def login():
             'image_url': pic.image_url,
             'caption': pic.caption,
             'datetime_uploaded': pic.datetime_uploaded
-        } for pic in photos],
+        } for pic in photos]
         shared_plant_data = [{
             'plant_id': shared.plant_id,
             'plant_name': Plants.query.get(shared.plant_id).plant_name,
@@ -129,7 +129,7 @@ def login():
             'timestamp': notif.timestamp.strftime('%Y-%m-%d %H:%M'),
             'plant_id': notif.plant_id,
             'is_read': notif.is_read
-        } for notif in notifications],
+        } for notif in notifications]
         
 
         settings_data = {
@@ -253,12 +253,13 @@ def get_all_users():
         print("❌ Not logged in")
         return jsonify({'error': 'Not logged in'}), 401
 
-    # Fetch all users except the current user
     users = User.query.filter(User.id != user_id).all()
-    print(f"👥 Users fetched for user_id {user_id}: {[u.username for u in users]}")
 
     user_list = [{'user_id': u.id, 'username': u.username} for u in users]
+    print(f"👥 Found {len(user_list)} users (excluding current user_id {user_id})")
+
     return jsonify({'users': user_list}), 200
+
 
 
 @routes_bp.route('/api/friends', methods=['GET'])
