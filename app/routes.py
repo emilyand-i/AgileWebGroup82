@@ -375,14 +375,14 @@ def remove_friend(user_id):
 def search_users():
     query = request.args.get('q', '').strip()
 
-    user_id = session.get('user_id')   # ✅ Get logged-in user ID from session
+    user_id = session.get('user_id')   #  Get logged-in user ID from session
     if not user_id:
         return jsonify({'error': 'Not logged in'}), 401
 
     if not query:
         return jsonify([])
 
-    # ✅ Exclude self from results
+    #  Exclude self from results
     results = User.query.filter(
         User.username.ilike(f'%{query}%'),
         User.id != user_id
@@ -395,6 +395,3 @@ def search_users():
 
 from flask import current_app, send_from_directory
 
-@routes_bp.route('/')
-def serve_index():
-    return send_from_directory(current_app.static_folder, 'index.html')
