@@ -27,7 +27,17 @@
           </button>
           
           <header class="about-info-dash px-2">
-              <h1 class="display-5 column-title mt-3 mb-4">Stats</h1>
+            <div class="d-flex align-items-center justify-content-center gap-3">
+                <h1 class="display-5 column-title mt-3 mb-4">Stats</h1>
+                <div class="d-flex gap-2">
+                    <a href="#picDiv" class="text-white text-decoration-none">
+                        <i class="bi bi-camera-fill fs-3"></i>
+                    </a>
+                    <a href="#graphDiv" class="text-white text-decoration-none">
+                        <i class="bi bi-graph-up fs-3"></i>
+                    </a>
+                </div>
+            </div>
           </header>
 
           <!--User photo diary section-->
@@ -45,6 +55,7 @@
             </div>
   
             <!-- Plant Growth Graph Display -->
+             
             <div class="container outer-graph-section mt-4" id="graphDiv">
               <div class="graph-section">
                   <h6 class="plantheader">Growth Progress Graph</h6>
@@ -52,7 +63,7 @@
                         <div value="" id="graphHeader"></div>
                   </div>
                   <div class="graph-container">
-                      <canvas id="plantGrowthGraph" width="300" height="200"></canvas>
+                      <canvas id="plantGrowthGraph" width="300" height="300"></canvas>
                   </div>
                   <div class="graph-legend mt-2 text-white">
                       <small>X-axis: Time | Y-axis: Growth Value</small>
@@ -65,7 +76,7 @@
               <div class="graph-section">
                   <h6 class="plantheader">Water Time!</h6>
                   <div class="graph-container">
-                      <canvas id="waterTrackingGraph" width="300" height="150"></canvas>
+                      <canvas id="waterTrackingGraph" width="300" height="300"></canvas>
                   </div>
                   <div class="graph-legend mt-2 text-white">
                       <small>💧 = Day Watered</small>

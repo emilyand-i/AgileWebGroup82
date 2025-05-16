@@ -421,7 +421,7 @@ main.main-info {
 
 /* When fullscreen class is present on picDiv, adjust the photo cards */
 #picDiv.fullscreen .photo-card {
-  width: 50%;
+  width: 40%;
   max-width: 700px; /* optional */
   margin-left: auto;
   margin-right: auto;
@@ -661,7 +661,8 @@ main.main-info {
   width: 100%;
   padding-right: 6px;
   scrollbar-width: thin;            /* Firefox */
-  scrollbar-color: rgb(255, 255, 255) transparent; /* Firefox */
+  scrollbar-color: rgb(37, 67, 38) transparent; /* Firefox */
+  scroll-behavior: smooth;
 }
 
 /* Chrome, Edge, Safari */
@@ -820,9 +821,12 @@ main.main-info {
   transition: 100ms;
 }
 
-
-
-
+#waterTrackingGraph {
+  overflow: hidden;
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
 
 
 /* Checkboxes */
@@ -831,4 +835,15 @@ main.main-info {
 }
 .form-check-label {
 
+}
+
+.bi-camera-fill:hover, .bi-graph-up:hover {
+    color: #198754 !important;
+    transition: color 0.3s ease;
+}
+
+/* Add smooth scrolling for icon navigation */
+a[href^="#"] {
+    scroll-behavior: smooth;
+    scroll-padding-top: 2rem;
 }
