@@ -394,6 +394,7 @@ async function CsrfToken() {
   csrfToken = data.csrf_token;
 }
 
+
 function loginForm() {
   const loginForm = document.getElementById('login-form');
   if (!loginForm) return;
@@ -498,114 +499,116 @@ async function loadNotifications() {
 
 
 // ✅ JavaScript: Final `addFriend` Function
-async function addFriend(friendId, username) {
+window.addFriendByUsername = async function(username) {
   try {
+    console.log("📤 Sending follow request for:", username);
+    console.log("🔐 Using CSRF token:", csrfToken);
+
     const response = await fetch('/api/add-friend', {
       method: 'POST',
+      credentials: 'include',  // ✅ include cookies
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken  // ✅ CRUCIAL
       },
-      credentials: 'include',
-      body: JSON.stringify({ friend_id: friendId })
+      body: JSON.stringify({ username })
     });
 
-    const result = await response.json();
+    const raw = await response.text();
+    console.log("📥 Raw response:", raw);
 
-    if (response.status === 201) {
+    let result;
+    try {
+      result = JSON.parse(raw);
+    } catch (e) {
+      console.error("❌ Could not parse JSON:", e);
+      alert("❌ Invalid response from server.");
+      return;
+    }
+
+    if (response.ok) {
       alert(`✅ You're now following ${username}`);
-
-      // Optional: refresh search results to reflect new status
-      document.getElementById("friendSearch").dispatchEvent(new Event('input'));
-
-      // ✅ Update localStorage
-      const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
-      profile.friends = profile.friends || [];
-      profile.friends.push({ friend_id: friendId, friend_username: username });
-      localStorage.setItem('user_profile', JSON.stringify(profile));
+    } else {
+      alert(`⚠️ ${result.error || result.message || 'Unknown error'}`);
     }
-
-    else if (response.status === 403) {
-      alert(`🚫 ${username} is not accepting follows.`);
-    }
-
-    else if (response.status === 400) {
-      alert(`⚠️ Invalid request: ${result.error}`);
-    }
-
-    else if (response.status === 404) {
-      alert(`❌ User not found.`);
-    }
-
-    else {
-      alert(`❌ Something went wrong: ${result.error || 'Unknown error'}`);
-    }
-
   } catch (err) {
-    console.error("Follow request failed:", err);
-    alert("❌ Could not follow user due to a network error.");
+    console.error("❌ Fetch failed:", err);
+    alert("❌ Could not follow user.");
   }
+};
+
+// 🔁 Used to get search input
+function getSearchedUsername() {
+  const input = document.getElementById("friendSearch");
+  return input ? input.value.trim() : '';
 }
 
-// 🔁 Called inside renderFriendSearchResults() when the Follow button is clicked
+// 🔍 Search and render results
 function initialiseFriendSearch() {
   const input = document.getElementById("friendSearch");
-  const resultsContainer = document.getElementById("searchResults");
-
-  if (!input || !resultsContainer) return;
-
   const button = document.getElementById("friendSearchButton");
+  const results = document.getElementById("searchResults");
 
-  async function searchExactUsername() {
-    console.log("🔍 Searching for exact match...");
-    const query = input.value.trim();
-    resultsContainer.innerHTML = '';
+  if (!input || !button || !results) return;
 
-    if (!query) {
-      resultsContainer.innerHTML = `<li class="list-group-item text-danger">Please enter a username.</li>`;
+  async function search() {
+    const username = getSearchedUsername();
+    results.innerHTML = '';
+
+    if (!username) {
+      results.innerHTML = `<li class="list-group-item text-danger">Please enter a username.</li>`;
       return;
     }
 
     try {
-      const response = await fetch(`/api/search-users?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`/api/search-users?q=${encodeURIComponent(username)}`);
       const data = await response.json();
 
-      if (response.ok && data.results.length > 0) {
-        const exactMatch = data.results.find(u => u.username.toLowerCase() === query.toLowerCase());
-        if (!exactMatch) {
-          resultsContainer.innerHTML = `<li class="list-group-item text-muted">No user found with that exact name.</li>`;
-          return;
-        }
-
-        // ✅ Render only one exact match
-        resultsContainer.innerHTML = `
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            ${exactMatch.username}
-            <button class="btn btn-sm btn-${exactMatch.is_friend ? 'secondary' : 'success'}"
-              ${exactMatch.is_friend 
-                ? 'disabled' 
-                : `onclick="addFriend(${exactMatch.user_id}, '${exactMatch.username}')"`}>
-              ${exactMatch.is_friend ? 'Following' : 'Follow'}
-            </button>
-          </li>
-        `;
-      } else {
-        resultsContainer.innerHTML = `<li class="list-group-item text-muted">No user found.</li>`;
+      if (!response.ok || data.results.length === 0) {
+        results.innerHTML = `<li class="list-group-item text-muted">No user found.</li>`;
+        return;
       }
-    } catch (error) {
-      console.error("Search failed:", error);
-      resultsContainer.innerHTML = `<li class="list-group-item text-danger">Network error while searching.</li>`;
+
+      const match = data.results.find(u => u.username.toLowerCase() === username.toLowerCase());
+      if (!match) {
+        results.innerHTML = `<li class="list-group-item text-muted">No exact match found.</li>`;
+        return;
+      }
+
+      const li = document.createElement('li');
+      li.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = match.username;
+
+      const followBtn = document.createElement('button');
+      followBtn.className = 'btn btn-sm btn-success';
+      followBtn.textContent = 'Follow';
+
+      followBtn.addEventListener('click', async () => {
+        const result = await window.addFriendByUsername(match.username);
+
+        if (result && !result.error) {
+          followBtn.disabled = true;
+          followBtn.textContent = '✔ Following';
+        } else {
+          alert(`❌ Could not follow: ${result.error || result.message || 'Unknown error'}`);
+        }
+      });
+
+      li.appendChild(nameSpan);
+      li.appendChild(followBtn);
+      results.appendChild(li);
+
+    } catch (err) {
+      console.error("Search failed:", err);
+      results.innerHTML = `<li class="list-group-item text-danger">Network error.</li>`;
     }
   }
 
-  // Bind search to button and Enter key
-  if (button) {
-    button.addEventListener("click", searchExactUsername);
-  }
-
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      searchExactUsername();
-    }
+  button.addEventListener('click', search);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') search();
   });
 }
 
