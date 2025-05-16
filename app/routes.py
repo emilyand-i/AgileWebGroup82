@@ -82,6 +82,9 @@ def login():
         plants = Plants.query.filter_by(user_id=user.id).all()
         growth_entries = PlantGrowthEntry.query.filter_by(user_id=user.id).all()
         photos = uploadedPics.query.filter_by(user_id=user.id).all()
+        shared_entries = SharedPlant.query.filter_by(shared_with=user.id).all()
+        notifications = Notification.query.filter_by(receiver_id=user.id).order_by(Notification.timestamp.desc()).all()
+
 
         plant_data = [{
             'plant_name': plant.plant_name,
@@ -111,7 +114,23 @@ def login():
             'image_url': pic.image_url,
             'caption': pic.caption,
             'datetime_uploaded': pic.datetime_uploaded
-        } for pic in photos]
+        } for pic in photos],
+        shared_plant_data = [{
+            'plant_id': shared.plant_id,
+            'plant_name': Plants.query.get(shared.plant_id).plant_name,
+            'shared_by': User.query.get(shared.shared_by).username,
+            'datetime_shared': shared.datetime_shared.strftime('%Y-%m-%d %H:%M')
+        } for shared in shared_entries]
+
+        notifications_data = [{
+            'id': notif.id,
+            'sender': User.query.get(notif.sender_id).username,
+            'message': notif.message,
+            'timestamp': notif.timestamp.strftime('%Y-%m-%d %H:%M'),
+            'plant_id': notif.plant_id,
+            'is_read': notif.is_read
+        } for notif in notifications],
+        
 
         settings_data = {
             'is_profile_public': settings.is_profile_public if settings else True,
@@ -129,6 +148,8 @@ def login():
             'photos': photo_data,
             'settings': settings_data,
             'streak': user.login_streak,
+            'shared_plants': shared_plant_data,
+            'notifications': notifications_data,
             'last_login_date': str(user.last_login_date)
         }), 200
     else:
@@ -153,6 +174,9 @@ def session_data():
     plants = Plants.query.filter_by(user_id=user.id).all()
     growth_entries = PlantGrowthEntry.query.filter_by(user_id=user.id).all()
     photos = uploadedPics.query.filter_by(user_id=user.id).all()
+    shared_entries = SharedPlant.query.filter_by(shared_with=user.id).all()
+    notifications = Notification.query.filter_by(receiver_id=user.id).order_by(Notification.timestamp.desc()).all()
+
 
     # Prepare structured data
     plant_data = [{
@@ -184,6 +208,21 @@ def session_data():
         'friend_username': User.query.get(f.friend_id).username,
         'status': f.status
     } for f in friends]
+    shared_plant_data = [{
+        'plant_id': shared.plant_id,
+        'plant_name': Plants.query.get(shared.plant_id).plant_name,
+        'shared_by': User.query.get(shared.shared_by).username,
+        'datetime_shared': shared.datetime_shared.strftime('%Y-%m-%d %H:%M')
+    } for shared in shared_entries]
+
+    notifications_data = [{
+        'id': notif.id,
+        'sender': User.query.get(notif.sender_id).username,
+        'message': notif.message,
+        'timestamp': notif.timestamp.strftime('%Y-%m-%d %H:%M'),
+        'plant_id': notif.plant_id,
+        'is_read': notif.is_read
+    } for notif in notifications]
 
     settings_data = {
         'is_profile_public': settings.is_profile_public if settings else True,
@@ -200,7 +239,10 @@ def session_data():
         'friends': friends_data,
         'settings': settings_data,
         'streak': user.login_streak,
+        'shared_plants': shared_plant_data,
+        'notifications': notifications_data,
         'last_login_date': str(user.last_login_date)
+        
     }), 200
     
     
@@ -305,32 +347,6 @@ def remove_friend():
 
     return jsonify({'message': 'Friend removed successfully'}), 200
 
-@routes_bp.route('/api/search-users', methods=['GET'])
-def search_users():
-    query = request.args.get('q', '').strip()
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({'error': 'User not logged in'}), 401
-
-    if not query:
-        return jsonify({'results': []})
-
-    # Search for users whose usernames contain the query - excluding the current user
-    users = User.query.filter(User.username.ilike(f'%{query}%'), User.id != user_id).all()
-
-    # Fetch current user's friends
-    current_friends = FriendsList.query.filter_by(user_id=user_id).all()
-    friend_ids = {f.friend_id for f in current_friends}
-
-    results = []
-    for user in users:
-        results.append({
-            'user_id': user.id,
-            'username': user.username,
-            'is_friend': user.id in friend_ids
-        })
-
-    return jsonify({'results': results})
 
 @routes_bp.route('/api/settings', methods=['POST'])
 def update_settings():
@@ -390,6 +406,63 @@ def add_photo():
     print(f"📸 Uploaded new photo for plant {plant_id} by user {user_id}")
 
     return jsonify({'message': 'Photo saved', 'photo_id': new_photo.photo_id}), 201
+
+
+@routes_bp.route('/api/share-plant', methods=['POST'])
+def share_plant():
+    user_id = session.get('user_id')
+    data = request.get_json()
+
+    plant_id = data.get('plant_id')
+    shared_with = data.get('shared_with')
+
+    if not user_id or not plant_id or not shared_with:
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    # Ensure user owns the plant
+    plant = Plants.query.filter_by(id=plant_id, user_id=user_id).first()
+    if not plant:
+        return jsonify({'error': 'You can only share your own plants'}), 403
+
+    # Record the share
+    new_share = SharedPlant(plant_id=plant_id, shared_by=user_id, shared_with=shared_with)
+    user_db.session.add(new_share)
+
+    # Add a notification for the recipient
+    sender = User.query.get(user_id)
+    message = f"{sender.username} shared a plant with you!"
+    notif = Notification(
+        receiver_id=shared_with,
+        sender_id=user_id,
+        plant_id=plant_id,
+        message=message
+    )
+    user_db.session.add(notif)
+    user_db.session.commit()
+
+    return jsonify({'message': 'Plant shared and notification sent!'}), 200
+
+@routes_bp.route('/api/notifications', methods=['GET'])
+def get_notifications():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not logged in'}), 401
+
+    notifs = Notification.query.filter_by(receiver_id=user_id).order_by(Notification.timestamp.desc()).all()
+    notifications = []
+
+    for n in notifs:
+        notifications.append({
+            'id': n.id,
+            'sender': User.query.get(n.sender_id).username,
+            'message': n.message,
+            'timestamp': n.timestamp.strftime('%Y-%m-%d %H:%M'),
+            'plant_id': n.plant_id,
+            'is_read': n.is_read
+        })
+
+    return jsonify({'notifications': notifications}), 200
+
 
 #FOR FLASK SHAREBOARD PAGE - HASNOT BEEN TESTED PROPERLY!!!!!!!!
  #NOTE: limit is hard coded for now, may be changed later (current only collects 9 posts)

@@ -61,6 +61,24 @@ class Plants(user_db.Model):
   plant_category = user_db.Column(user_db.String(100), nullable = True)
 
 
+class Notification(user_db.Model):
+    __tablename__ = 'notifications'
+    id = user_db.Column(user_db.Integer, primary_key=True)
+    receiver_id = user_db.Column(user_db.Integer, user_db.ForeignKey('user.id'), nullable=False)
+    sender_id = user_db.Column(user_db.Integer, user_db.ForeignKey('user.id'), nullable=False)
+    plant_id = user_db.Column(user_db.Integer, user_db.ForeignKey('plants.id'), nullable=True)
+    message = user_db.Column(user_db.String(255), nullable=False)
+    is_read = user_db.Column(user_db.Boolean, default=False)
+    timestamp = user_db.Column(user_db.DateTime, default=user_db.func.now())
+
+class SharedPlant(user_db.Model):
+    __tablename__ = 'shared_plants'
+    id = user_db.Column(user_db.Integer, primary_key=True)
+    plant_id = user_db.Column(user_db.Integer, user_db.ForeignKey('plants.id'), nullable=False)
+    shared_by = user_db.Column(user_db.Integer, user_db.ForeignKey('user.id'), nullable=False)
+    shared_with = user_db.Column(user_db.Integer, user_db.ForeignKey('user.id'), nullable=False)
+    datetime_shared = user_db.Column(user_db.DateTime, default=user_db.func.now())
+
 # uploadedPics: table in user_db
 # photo_id: unique id for each photo (to be used in shared page to display them seperately)
 # user_id: foreign key to User table, links to the id of the user who uploaded the photo
