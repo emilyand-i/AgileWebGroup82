@@ -485,6 +485,27 @@ async function loadNotifications() {
     console.error("Notification load error:", err);
   }
 }
+function loadFriendsList() {
+  fetch('/api/friends') // Ensure this endpoint returns the user's friends
+    .then(response => response.json())
+    .then(data => {
+      const friendsList = document.getElementById('friends-list');
+      friendsList.innerHTML = '';
+      data.friends.forEach(friend => {
+        const listItem = document.createElement('li');
+        listItem.className = 'list-group-item bg-dark text-white d-flex justify-content-between align-items-center';
+        listItem.innerHTML = `
+          <div>
+            <strong>${friend.friend_username}</strong><br>
+            <small class="text-muted">${friend.status}</small>
+          </div>
+          <button class="btn btn-sm btn-outline-light" onclick="sharePlant(${friend.friend_id})">Share</button>
+        `;
+        friendsList.appendChild(listItem);
+      });
+    })
+    .catch(error => console.error('Error fetching friends list:', error));
+}
 
 
 // Logout function
