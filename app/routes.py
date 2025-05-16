@@ -63,7 +63,7 @@ def login():
         session['user_id'] = user.id
         session['username'] = user.username
 
-        # 🔥 Daily login streak logic
+        # Daily login streak logic
         today = date.today()
         if user.last_login_date == today:
             pass  # Already logged in today, do nothing
@@ -101,6 +101,7 @@ def login():
         friends_data = [{
             'user_id': friend.user_id,
             'friend_id': friend.friend_id,
+            'friend_username': User.query.get(friend.friend_id).username,
             'status': friend.status
         } for friend in friends]
 
@@ -135,6 +136,7 @@ def login():
 
 @routes_bp.route('/api/session', methods = ['GET'])
 def session_data():
+    print("🔍 Session contents:", dict(session))
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'error:' 'User not logged in'}), 401
@@ -173,6 +175,7 @@ def session_data():
         'friends': [{
             'user_id': friend.user_id,
             'friend_id': friend.friend_id,
+            'friend_username': User.query.get(friend.friend_id).username,
             'status': friend.status
         } for friend in friends],
         'settings': {
@@ -234,6 +237,47 @@ def delete_plant():
     user_db.session.commit()
     
     return jsonify({'message': "Plant has been deleted successfully"}), 200
+
+@routes_bp.route('/api/add-friend', methods=['POST'])
+def add_friend():
+    user_id = session.get('user_id')
+    data = request.get_json()
+    friend_id = data.get('friend_id')
+
+    if not user_id or not friend_id:
+        return jsonify({'error': 'User not found'}), 400
+
+    if user_id == friend_id:
+        return jsonify({'error': 'You cannot add yourself'}), 400
+
+    # Prevent duplicate
+    existing = FriendsList.query.filter_by(user_id=user_id, friend_id=friend_id).first()
+    if existing:
+        return jsonify({'error': 'Already friends'}), 409
+
+    new_friend = FriendsList(user_id=user_id, friend_id=friend_id, status='accepted')
+    user_db.session.add(new_friend)
+    user_db.session.commit()
+
+    return jsonify({'message': 'Friend added'}), 201
+
+@routes_bp.route('/api/remove-friend', methods=['POST'])
+def remove_friend():
+    user_id = session.get('user_id')
+    data = request.get_json()
+    friend_id = data.get('friend_id')
+
+    if not user_id or not friend_id:
+        return jsonify({'error': 'Missing user or friend ID'}), 400
+
+    friend_entry = FriendsList.query.filter_by(user_id=user_id, friend_id=friend_id).first()
+    if not friend_entry:
+        return jsonify({'error': 'Friend not found'}), 404
+
+    user_db.session.delete(friend_entry)
+    user_db.session.commit()
+
+    return jsonify({'message': 'Friend removed'}), 200
 
 @routes_bp.route('/api/settings', methods=['POST'])
 def update_settings():

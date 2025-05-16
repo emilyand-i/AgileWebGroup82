@@ -367,6 +367,44 @@ async function loadSession() {
   }
 }
 
+async function addFriend(friendId, username) {
+  const load = await fetch('/api/add-friend', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ friend_id: friendId})
+  });
+  const result = await load.json();
+
+  if (load.ok) {
+    alert(`Added ${username} as a friend`);
+  } else {
+    alert(`${result.error || 'Failed to add friend'}`)
+  }
+}
+
+async function removeFriend(friendId, username) {
+  const load = await fetch('/api/remove-friend', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ friend_id: friendId })
+  });
+
+  const result = await load.json();
+
+  if (load.ok) {
+    alert(`🗑️ Removed ${username} from your friends`);
+    // Optional: remove friend from DOM or reload
+  } else {
+    alert(`${result.error || 'Failed to remove friend'}`);
+  }
+}
+
 
 /**
  * DASHBOARD FUNCTIONALITY

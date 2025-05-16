@@ -412,12 +412,11 @@ main.main-info {
 
 .photo-card {
   flex: 0 0 auto;
-  width: 80%;
   margin: auto;
   border: 2px solid rgb(80, 163, 71);
   padding: 5px;
   flex-direction: column;
-  max-width: 100%;
+  max-width: 80%;
 }
 
 /* When fullscreen class is present on picDiv, adjust the photo cards */
@@ -429,7 +428,7 @@ main.main-info {
 }
 
 .photo-img {
-  max-width: 100%;
+  max-width: 80%;
   height: auto;
   margin-bottom: 5px;
 }
