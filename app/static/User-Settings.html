@@ -65,10 +65,18 @@
 
               <!-- find Friends -->
               <div class="col-6">
-                <h3>Find Friends</h3>
-                <ul class="list-group overflow-auto" style="max-height: 300px;" id="searchResults"></ul>
-                <p class="text-muted" id="noSearchResultsMessage">No users found.</p>
+                <h3>Find a Friend</h3>
+              
+                <div class="input-group mb-2">
+                  <input type="text" class="form-control" placeholder="Enter exact username" id="friendSearch">
+                  <button class="btn btn-outline-success btn-sm" id="friendSearchButton" type="button">Find</button>
+                </div>
+              
+                <ul class="list-group overflow-auto" style="max-height: 300px;" id="searchResults">
+                  <li class="list-group-item text-muted">Type a username and click Find</li>
+                </ul>
               </div>
+              
             </div>
           </div>
         </div>
