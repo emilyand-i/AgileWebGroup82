@@ -470,6 +470,7 @@ function signupForm() {
     }
   });
 }
+
 async function loadNotifications() {
   try {
     const response = await fetch('/api/notifications', {
@@ -485,6 +486,34 @@ async function loadNotifications() {
     console.error("Notification load error:", err);
   }
 }
+
+
+async function addFriend(friendId, username) {
+  try {
+    const response = await fetch('/api/add-friend', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify({ friend_id: friendId })
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      alert(`Added ${username} as a friend`);
+      // Optionally, refresh the friends list or update the UI accordingly
+    } else {
+      alert(result.error || 'Failed to add friend');
+    }
+  } catch (err) {
+    console.error("Error adding friend:", err);
+  }
+}
+
+
+
 function loadFriendsList() {
   fetch('/api/friends') // Ensure this endpoint returns the user's friends
     .then(response => response.json())
@@ -505,6 +534,32 @@ function loadFriendsList() {
       });
     })
     .catch(error => console.error('Error fetching friends list:', error));
+}
+
+
+async function loadAllUsers() {
+  try {
+    const response = await fetch('/api/users', {
+      credentials: 'include'
+    });
+    if (!response.ok) throw new Error("Failed to fetch users");
+
+    const data = await response.json();
+    const searchResults = document.getElementById('searchResults');
+    searchResults.innerHTML = '';
+
+    data.users.forEach(user => {
+      const listItem = document.createElement('li');
+      listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+      listItem.innerHTML = `
+        ${user.username}
+        <button class="btn btn-sm btn-success" onclick="addFriend(${user.user_id}, '${user.username}')">Add</button>
+      `;
+      searchResults.appendChild(listItem);
+    });
+  } catch (err) {
+    console.error("Error loading users:", err);
+  }
 }
 
 
@@ -578,90 +633,6 @@ async function loadSession() {
   }
 }
 
-async function addFriend(friendId, username) {
-  const load = await fetch('/api/add-friend', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    credentials: 'include',
-    body: JSON.stringify({ friend_id: friendId})
-  });
-  const result = await load.json();
-
-  if (load.ok) {
-    const friendsList = document.getElementById("friendsList");
-    friendsList.innerHTML += `
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        ${username}
-        <button class="btn btn-sm btn-danger" onclick="removeFriend(${friendId}, '${username}', this)">Remove</button>
-      </li>
-    `;
-    //clear the search
-    document.getElementById("friendSearch").value = '';
-    document.getElementById("searchResults").innerHTML = '';
-
-    // Update localStorage
-    const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
-    profile.friends = profile.friends || [];
-    profile.friends.push({ friend_id: friendId, friend_username: username });
-    localStorage.setItem('user_profile', JSON.stringify(profile));
-
-    alert(`Added ${username} as a friend`);
-  } else {
-    alert(`${result.error || 'Failed to add friend'}`)
-  }
-}
-
-async function removeFriend(friendId, username, btn) {
-  const load = await fetch('/api/remove-friend', {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ friend_id: friendId })
-  });
-
-  const result = await load.json();
-
-  if (load.ok) {
-    // remove from dom
-    btn.closest('li').remove();
-
-    // update loacal storage
-    const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
-    profile.friends = (profile.friends || []).filter(f => f.friend_id !== friendId);
-    localStorage.setItem('user_profile', JSON.stringify(profile));
-
-
-    alert(`Removed ${username} from your friends 🗑️`);
-    // Optional: remove friend from DOM or reload
-  } else {
-    alert(`${result.error || 'Failed to remove friend'}`);
-  }
-}
-
-function renderFriendSearchResults(users) {
-  const resultsContainer = document.getElementById('searchResults');
-
-  if (!resultsContainer) return;
-
-  if (users.length === 0) {
-    resultsContainer.innerHTML = `<li class="list-group-item text-muted">No users found.</li>`;
-    return;
-  }
-
-  resultsContainer.innerHTML = users.map(user => `
-    <li class="list-group-item d-flex justify-content-between align-items-center">
-      ${user.username}
-      <button class="btn btn-sm btn-success"
-              onclick="addFriend(${user.user_id}, '${user.username}')">
-        Add
-      </button>
-    </li>
-  `).join('');
-}
 
 
 /**
@@ -674,29 +645,12 @@ async function loadDashboard() {
   const profile = await loadSession();
   if (!window.location.pathname.includes('dashboard.html')) return;
   
-  if (!profile) return;
-  fetch('/api/notifications')
-  .then(response => response.json())
-  .then(data => {
-    // Display notifications to the user
-    console.log(data.notifications);
-  });
-  const friendsList = document.getElementById("friendsList");
-  if (profile.friends && friendsList) {
-    friendsList.innerHTML = profile.friends.map(friend => `
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        ${friend.friend_username}
-        <button class="btn btn-sm btn-danger" onclick="removeFriend(${friend.friend_id}, '${friend.friend_username}', this)">Remove</button>
-      </li>
-    `).join('');
-  }
 
-  
   const username = profile.username || 'username';
   document.querySelector('.welcome_to').textContent = `Welcome to ${username}'s Garden`;
 
-  const plantTabs = document.getElementById("plantTabs");
-  const plantTabsContent = document.getElementById("plantTabsContent");
+  loadNotifications();
+  loadFriendsList();
   
 
   // Reset plant count when loading dashboard

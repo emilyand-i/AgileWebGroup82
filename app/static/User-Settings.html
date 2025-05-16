@@ -27,7 +27,7 @@
           </li>
           <li class="nav-item" role="presentation">
             <button class="nav-link" id="friends-tab" data-bs-toggle="tab" data-bs-target="#friendsTab" type="button" role="tab">
-              Friends List
+              Add Friend
             </button>
           </li>
         </ul>
@@ -57,24 +57,16 @@
               <!-- Current Friends -->
               <div class="col-6">
                 <h3>My Friends</h3>
-                <ul class="list-group" id="friendsList">
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    John Doe 
-                    <button class="btn btn-sm btn-danger">Remove</button>
-                  </li>
-                  <!-- Additional current friends here -->
-                </ul>
+                <ul class="list-group overflow-auto" style="max-height: 300px;" id="friendsList"></ul>
+                <p class="text-muted" id="noFriendsMessage">No friends added yet.</p>
               </div>
-              <!-- Look Up Friends -->
+
+
+              <!-- find Friends -->
               <div class="col-6">
-                <h3>Look Up Friends</h3>
-                <input type="text" class="form-control mb-2" placeholder="Search for a friend..." id="friendSearch">
-                <ul class="list-group" id="searchResults">
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Emily Johnson 
-                    <button class="btn btn-sm addFriend_btn">Add</button>
-                  </li>
-                </ul>
+                <h3>Find Friends</h3>
+                <ul class="list-group overflow-auto" style="max-height: 300px;" id="searchResults"></ul>
+                <p class="text-muted" id="noSearchResultsMessage">No users found.</p>
               </div>
             </div>
           </div>

@@ -246,6 +246,17 @@ def session_data():
     }), 200
     
     
+@routes_bp.route('/api/users', methods=['GET'])
+def get_all_users():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not logged in'}), 401
+
+    users = User.query.filter(User.id != user_id).all()
+    user_list = [{'user_id': u.id, 'username': u.username} for u in users]
+    return jsonify({'users': user_list}), 200
+
+    
 @routes_bp.route('/api/logout', methods=['POST'])
 def logout():
     session.clear()
