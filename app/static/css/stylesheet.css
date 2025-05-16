@@ -981,3 +981,18 @@ main.main-info {
   box-shadow: 0 0 10px rgba(144, 238, 144, 0.5);
 }
 
+
+.find_btn {
+  margin-top:29px;
+  height:42px;
+  border:none;
+  box-shadow: 2px 4px 14px 0px rgba(57, 87, 57, 0.63);
+}
+
+.user_finder {
+  
+  border-radius: 26px;
+  background: #547642;
+  box-shadow: inset -6px 6px 67px #324728,
+              inset 6px -6px 67px #76a55c;
+}
