@@ -14,69 +14,73 @@
 
   <body>
 
-    <div id="user-settings-modal" class="user-settings-modal">
-      <div class="modal-header">
-        <h5 class="modal-title text-white" id="User-Settings-Modal">User Settings</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <div class="modal_main_section">
-        <ul class="nav nav-tabs">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settingsTab" type="button" role="tab">
-              Settings
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="friends-tab" data-bs-toggle="tab" data-bs-target="#friendsTab" type="button" role="tab">
-              Add Friend
-            </button>
-          </li>
-        </ul>
-        <div class="tab-content mt-3" id="userSettingsTabsContent">
-          <div class="tab-pane fade show active" id="settingsTab" role="tabpanel">
-            <h2>Account Settings</h2>
-            <form id="userSettingsForm">
-              <div class="form-group px-3 py-2">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="profilePublic" name="publicProfile">
-                  <label class="form-check-label" for="profilePublic">
-                    Profile Public
-                  </label>
-                </div>
-                <div class="form-check mt-2">
-                  <input class="form-check-input" type="checkbox" id="allowFriendRequests" name="allowFriendRequests">
-                  <label class="form-check-label" for="allowFriendRequests">
-                    Allow Friend Requests
-                  </label>
-                </div>
-              </div>
-            </form>
+    <div id="user-settings-modal" class="modal fade" aria-labelledby="user-settings-modal-title" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title text-white" id="user-settings-modal-title">User Settings</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
-          <div class="tab-pane fade" id="friendsTab" role="tabpanel">
-            <div class="row">
-              <!-- Current Friends -->
-              <div class="col-6">
-                <h3>My Friends</h3>
-                <ul class="list-group overflow-auto" style="max-height: 300px;" id="friendsList"></ul>
-                <p class="text-muted" id="noFriendsMessage">No friends added yet.</p>
+          <div class="modal_main_section">
+            <ul class="nav nav-tabs">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settingsTab" type="button" role="tab">
+                  Settings
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="friends-tab" data-bs-toggle="tab" data-bs-target="#friendsTab" type="button" role="tab">
+                  Add Friend
+                </button>
+              </li>
+            </ul>
+            <div class="tab-content mt-3" id="userSettingsTabsContent">
+              <div class="tab-pane fade show active" id="settingsTab" role="tabpanel">
+                <h2>Account Settings</h2>
+                <form id="userSettingsForm">
+                  <div class="form-group px-3 py-2">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="profilePublic" name="publicProfile">
+                      <label class="form-check-label" for="profilePublic">
+                        Profile Public
+                      </label>
+                    </div>
+                    <div class="form-check mt-2">
+                      <input class="form-check-input" type="checkbox" id="allowFriendRequests" name="allowFriendRequests">
+                      <label class="form-check-label" for="allowFriendRequests">
+                        Allow Friend Requests
+                      </label>
+                    </div>
+                  </div>
+                </form>
               </div>
 
+              <div class="tab-pane fade" id="friendsTab" role="tabpanel">
+                <div class="row">
+                  <!-- Current Friends -->
+                  <div class="col-6">
+                    <h3>My Friends</h3>
+                    <ul class="list-group overflow-auto" style="max-height: 300px;" id="friendsList"></ul>
+                    <p class="text-muted" id="noFriendsMessage">No friends added yet.</p>
+                  </div>
 
-              <!-- find Friends -->
-              <div class="col-6">
-                <h3>Find Friends</h3>
-                <ul class="list-group overflow-auto" style="max-height: 300px;" id="searchResults"></ul>
-                <p class="text-muted" id="noSearchResultsMessage">No users found.</p>
+
+                  <!-- find Friends -->
+                  <div class="col-6">
+                    <h3>Find Friends</h3>
+                    <ul class="list-group overflow-auto" style="max-height: 300px;" id="searchResults"></ul>
+                    <p class="text-muted" id="noSearchResultsMessage">No users found.</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+          <div class="modal-footer">
+            <button type="button" class="btn closeAcc_btn" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn saveAcc_btn" id="saveUserSettings">Save Changes</button>
+          </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn closeAcc_btn" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn saveAcc_btn" id="saveUserSettings">Save Changes</button>
       </div>
     </div>
     

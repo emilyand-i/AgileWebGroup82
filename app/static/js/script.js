@@ -1209,8 +1209,8 @@ function initialisePhotoUpload() {
 
       photoForm.reset();
       const modal = bootstrap.Modal.getInstance(document.getElementById('pictureModal'));
-      document.activeElement?.blur();
-      modal?.hide();
+      modal.hide();
+      document.activeElement?.blur(); 
     };
     reader.readAsDataURL(file);
   });
@@ -1440,10 +1440,9 @@ function initialisePlantGrowthTracker() {
     waterForm.reset();
     waterDateInput.valueAsDate = new Date();
     const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
-    if (modal) {
-      document.activeElement?.blur();
-      modal?.hide();
-    }
+    document.activeElement?.blur();
+    modal?.hide();
+    
 
     // Redraw the water tracking graph
     drawWaterGraph(name);
@@ -1483,10 +1482,9 @@ function initialisePlantGrowthTracker() {
     growthForm.reset();
     growthDateInput.valueAsDate = new Date();
     const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
-    if (modal) {
-      document.activeElement?.blur();
-      modal?.hide();
-    }
+    modal?.hide();
+    document.activeElement?.blur();
+    
     
 
     // Update graph
@@ -1570,8 +1568,8 @@ function initialisePlantGrowthTracker() {
 
     // Close the modal using Bootstrap's API
     const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
-    document.activeElement?.blur();
     modal?.hide();
+    document.activeElement?.blur();
     
     // Update the graph
     console.log("draw graph called")
@@ -1589,7 +1587,7 @@ function initialisePlantGrowthTracker() {
 
 // Initialise settings modal loading
 function initialiseSettingsModal() {
-  const modal = document.getElementById("User-Settings-Modal");
+  const modal = document.getElementById("user-settings-modal");
   if (!modal) return;
 
   modal.addEventListener("show.bs.modal", () => {
@@ -1785,6 +1783,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   initialiseDimming();
 
   updateDailyStreak();
+
+  const friendsTabButton = document.getElementById('friends-tab');
+  if (!friendsTabButton) {
+    console.warn("⚠️ Element with ID 'friends-tab' not found.");
+    return;
+  }
+
+  friendsTabButton.addEventListener('shown.bs.tab', () => {
+    console.log("🔄 'Add Friend' tab activated");
+    fetchAndDisplayUsers();
+  });
   
   const notifModal = document.getElementById('notificationsModal');
   if (notifModal) {
@@ -1828,4 +1837,5 @@ document.getElementById('waterForm')?.addEventListener('submit', function(e) {
   // Close the modal
   const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
   modal.hide();
+  document.activeElement?.blur();
 });
