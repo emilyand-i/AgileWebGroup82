@@ -7,6 +7,7 @@ let globalPlants = {};
 
 // At the top of script.js after global constants
 let growthChart = null;
+let waterChart = null;
 
 // Draw growth graph for selected plant
 
@@ -163,7 +164,95 @@ function drawGraph(namePlant) {
     });
 }
 
+function drawWaterGraph(namePlant) {
+    const chartCanvas = document.getElementById('waterTrackingGraph');
+    if (!chartCanvas) {
+        console.error('Water tracking canvas element not found');
+        return;
+    }
 
+    const plant = globalPlants[namePlant];
+    if (!plant || !plant.waterData) {
+        console.log("No water data available");
+        return;
+    }
+
+    // Destroy existing chart if it exists
+    if (waterChart) {
+        waterChart.destroy();
+    }
+
+    // Prepare data
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+    
+    // Create array of last 30 days
+    const dates = [];
+    const waterValues = [];
+    
+    for (let d = new Date(thirtyDaysAgo); d <= today; d.setDate(d.getDate() + 1)) {
+        dates.push(d.toLocaleDateString());
+        // Check if plant was watered on this date
+        const wasWatered = plant.waterData.some(water => 
+            new Date(water.date).toLocaleDateString() === d.toLocaleDateString()
+        );
+        waterValues.push(wasWatered ? 1 : 0);
+    }
+
+    // Create the water tracking chart
+    waterChart = new Chart(chartCanvas, {
+        type: 'bar',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Watering Days',
+                data: waterValues,
+                backgroundColor: 'rgba(0, 156, 255, 0.5)',
+                borderColor: 'rgba(0, 156, 255, 1)',
+                borderWidth: 1,
+                barThickness: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: ``,
+                    color: 'white',
+                    font: {
+                        size: 10,
+                        weight: 'bold'
+                    }
+                },
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 1,
+                    ticks: {
+                        stepSize: 1,
+                        color: 'white',
+                        callback: function(value) {
+                            return value === 1 ? '💧' : '';
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: 'white',
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            }
+        }
+    });
+}
 
 function getCurrentActivePlantName() {
   const activeTab = document.querySelector('#plantTabs .nav-link.active');
@@ -1037,6 +1126,8 @@ function initialisePlantManagement() {
 
       // Update photo display for the selected plant
       updatePhotoDisplay(plantName);
+
+      drawWaterGraph(plantName); // Add this line
   });
 }
 /**
@@ -1318,6 +1409,9 @@ function initialisePlantGrowthTracker() {
       document.activeElement?.blur();
       modal?.hide();
     }
+
+    // Redraw the water tracking graph
+    drawWaterGraph(name);
   }
 
 
@@ -1657,4 +1751,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     updateDailyStreak();
   
+});
+
+document.getElementById('waterForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const plantName = getCurrentActivePlantName();
+    if (!plantName) return;
+
+    const waterDate = document.getElementById('waterDate').value;
+    
+    // Initialize water data array if it doesn't exist
+    if (!globalPlants[plantName].waterData) {
+        globalPlants[plantName].waterData = [];
+    }
+    
+    // Add water data
+    globalPlants[plantName].waterData.push({
+        date: waterDate,
+        watered: true
+    });
+
+    // Redraw the water tracking graph
+    drawWaterGraph(plantName);
+    
+    // Close the modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
+    modal.hide();
 });
