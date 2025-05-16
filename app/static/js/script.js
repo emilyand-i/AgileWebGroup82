@@ -1842,3 +1842,27 @@ document.getElementById('waterForm')?.addEventListener('submit', function(e) {
   const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
   modal.hide();
 });
+
+function getCurrentSeason() {
+    const date = new Date();
+    const month = date.getMonth() + 1; // getMonth() returns 0-11
+
+    if (month >= 12 || month <= 2) return 'summer';
+    if (month >= 3 && month <= 5) return 'autumn';
+    if (month >= 6 && month <= 8) return 'winter';
+    if (month >= 9 && month <= 11) return 'spring';
+}
+
+function updateSeasonDisplay() {
+    const season = getCurrentSeason();
+    const seasonElement = document.createElement('div');
+    seasonElement.className = `season-text season-${season}`;
+    seasonElement.textContent = `Current Season: ${season.charAt(0).toUpperCase() + season.slice(1)}`;
+
+    // Find the element where you want to display the season
+    const targetElement = document.querySelector('.coming-soon-section');
+    if (targetElement) {
+        targetElement.prepend(seasonElement);
+    }
+}
+document.addEventListener('DOMContentLoaded', updateSeasonDisplay);
