@@ -1,5 +1,4 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
 
 user_db = SQLAlchemy()
 
@@ -98,17 +97,6 @@ class uploadedPics(user_db.Model):
   image_url = user_db.Column(user_db.String(255), nullable=False)
   caption = user_db.Column(user_db.String(255))
   datetime_uploaded = user_db.Column(user_db.DateTime, default=user_db.func.now())
-
-# Included this as datetime may cause errors when converting to JSON later
-  def to_dict(self):
-        return {
-            "photo_id": self.photo_id,
-            "user_id": self.user_id,
-            "plant_id": self.plant_id,
-            "image_url": self.image_url,
-            "caption": self.caption,
-            "datetime_uploaded": self.datetime_uploaded.isoformat() if self.datetime_uploaded else None
-        }
 
 class PlantGrowthEntry(user_db.Model):
   __tablename__ = 'plant_growth_entry'
