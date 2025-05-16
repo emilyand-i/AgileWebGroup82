@@ -482,7 +482,7 @@ async function loadNotifications() {
 
     renderNotifications(data.notifications);
   } catch (err) {
-    console.error("🚫 Notification load error:", err);
+    console.error("Notification load error:", err);
   }
 }
 
@@ -1273,6 +1273,30 @@ function updatePhotoDisplay(currentPlant) {
   `;
 }
 
+/**
+ * 
+ * Notifications Center render
+ */
+
+function renderNotifications(notifications) {
+  const container = document.getElementById('notification-container');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  notifications.forEach(notif => {
+    console.log(`📨 Notification: ${notif.sender} -> ${notif.message}`);
+    const div = document.createElement('div');
+    div.className = 'alert alert-info';
+    div.innerHTML = `
+      <strong>${notif.sender}</strong>: ${notif.message}<br>
+      <small>${notif.timestamp}</small>
+    `;
+    container.appendChild(div);
+  });
+}
+
+
 
 /**
  * PLANT GROWTH TRACKING
@@ -1724,66 +1748,64 @@ document.getElementById("plantCategory").addEventListener("change", function () 
  * Main initialisation
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    // Initialize canvas
-    canvas = document.getElementById('plantGrowthGraph');
-    if (canvas) {
-        ctx = canvas.getContext('2d');
-    }
+  // Initialize canvas
+  canvas = document.getElementById('plantGrowthGraph');
+  if (canvas) {
+      ctx = canvas.getContext('2d');
+  }
 
-    // Load dashboard - wait for initialisations to render first
-    loadDashboard();
-    
-    // Initialise plant management
-    initialisePlantManagement();
-    
-    // Initialise photo upload functionality
-    initialisePhotoUpload();
-    
-    // Initialise plant growth tracker
-    initialisePlantGrowthTracker();
-    
-    // Initialise settings modal
-    initialiseSettingsModal();
-    
-    // Initialise dimming feature
-    initialiseDimming();
-
-    updateDailyStreak();
-    
-    const notifModal = document.getElementById('notificationsModal');
-
-    if (notifModal) {
-      notifModal.addEventListener('show.bs.modal', () => {
-        console.log("📬 Notification modal opened");
-        loadNotifications();
-      });
-    }
+  // Load dashboard - wait for initialisations to render first
+  loadDashboard();
   
+  // Initialise plant management
+  initialisePlantManagement();
+  
+  // Initialise photo upload functionality
+  initialisePhotoUpload();
+  
+  // Initialise plant growth tracker
+  initialisePlantGrowthTracker();
+  
+  // Initialise settings modal
+  initialiseSettingsModal();
+  
+  // Initialise dimming feature
+  initialiseDimming();
+
+  updateDailyStreak();
+  
+  const notifModal = document.getElementById('notificationsModal');
+  if (notifModal) {
+    notifModal.addEventListener('show.bs.modal', () => {
+      console.log("📬 Notification modal opened");
+      loadNotifications();
+    });
+  }
 });
 
 document.getElementById('waterForm')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const plantName = getCurrentActivePlantName();
-    if (!plantName) return;
+  e.preventDefault();
+  
+  const plantName = getCurrentActivePlantName();
+  if (!plantName) return;
 
-    const waterDate = document.getElementById('waterDate').value;
-    
-    // Initialize water data array if it doesn't exist
-    if (!globalPlants[plantName].waterData) {
-        globalPlants[plantName].waterData = [];
-    }
-    
-    // Add water data
-    globalPlants[plantName].waterData.push({
-        date: waterDate,
-        watered: true
-    });
+  const waterDate = document.getElementById('waterDate').value;
+  
+  // Initialize water data array if it doesn't exist
+  if (!globalPlants[plantName].waterData) {
+      globalPlants[plantName].waterData = [];
+  }
+  
+  // Add water data
+  globalPlants[plantName].waterData.push({
+      date: waterDate,
+      watered: true
+  });
 
-    // Redraw the water tracking graph
-    drawWaterGraph(plantName);
-    
-    // Close the modal
-    const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
-    modal.hide();
+  // Redraw the water tracking graph
+  drawWaterGraph(plantName);
+  
+  // Close the modal
+  const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
+  modal.hide();
 });
