@@ -8,22 +8,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/stylesheet.css">
 
-<<<<<<< HEAD
-  <style>
-    body {
-      background-color: rgb(69, 97, 71);
-      font-family: Arial, sans-serif;
-      color: #39e653;
-      margin: 0;
-      padding: 0;
-    }
-=======
-  </head>
->>>>>>> c990c91192acf5b0c3f822939d783e31b615212d
+  
 
-  <body>
-
-<<<<<<< HEAD
+  
+    <style>
     .tab button {
       background-color: inherit;
       border: none;
@@ -60,212 +48,11 @@
     <i class="bi bi-plus-circle me-2"></i> Back to Dashboard
   </a> 
 
-  <div class="tab">
-    <button class="tablinks active" onclick="openTab(event, 'Settings')">User Settings</button>
-    <button class="tablinks" onclick="openTab(event, 'Friends')">Friends List</button>
-  </div>
+  
+  
 
-  <div id="Settings" class="tabcontent active">
-    <!-- Account Settings -->
-    <h2>Account Settings</h2>
-    <form>
-      <label>
-        <input type="checkbox" checked> Profile Public
-      </label>
-      <br>
-      <label>
-        <input type="checkbox" checked> Allow Friend Requests
-      </label>
-    </form>
+   
 
-    <!-- Display Settings -->
-    <h2>Display Settings</h2>
-    <div id="display-settings">
-      <form id="font-size-form">
-        <fieldset>
-          <legend>Font Size</legend>
-          <label><input type="radio" name="font-size" value="small"> Small</label><br>
-          <label><input type="radio" name="font-size" value="normal" checked> Default</label><br>
-          <label><input type="radio" name="font-size" value="large"> Large</label>
-        </fieldset>
-      </form>
-
-      <form>
-        <label><input type="checkbox" id="dark-mode-toggle"> Dark Mode</label>
-      </form>
-    </div>
-  </div> 
-
-  <div id="Friends" class="tabcontent">
-    <!-- Friends List -->
-     <!-- dinamically loaded through js when a freind request is sent -->
-    <h2>Friends List</h2>
-    <ul id="friends-list"></ul>
-
-    <h2>Friends</h2>
-
-   <!--  <div style="display: flex; justify-content: space-between;">
-      Current Friends 
-      <div style="flex: 1; margin: 10px;">
-        <h3>Current Friends</h3>
-        <ul>
-          <li>John Doe <button>Remove</button></li>
-           USE JINJA - TO give this html USER AND THEN CURRENT LIST FRIENDS -->
-          <!-- Remove should delete that friend connection from db -->
-           <!-- AIM FOR MAX OF 5 -->
-        <!-- </ul> -->
-      <!-- </div> -->
-
-      <!-- Look Up Friends -->
-      <div style="flex: 1; margin: 10px;">
-        <h3>Look Up Friends</h3>
-        <form id="add-friend-form" style="margin-bottom: 10px;">
-          <input type="text" id="friend-username" name="username" placeholder="Search for a friend..." required />
-          <button type="submit">Add Friend</button>
-        </form>
-        <ul id="search-results" style="margin-top: 10px;"></ul>
-        <div id="add-friend-message" style="margin-top: 10px; color: #fff;"></div>
-    </div>
-  </div>
-  </div>
-  <script>
-    function loadFriendsList() {
-      fetch("/api/friends")
-        .then(res => res.json())
-        .then(data => {
-          const list = document.getElementById("friends-list");
-          list.innerHTML = ""; // Clear list
-    
-          // Accepted friends
-          data.accepted.forEach(friend => {
-            const li = document.createElement("li");
-            li.innerHTML = `${friend.username} <button onclick="removeFriend(${friend.id})">Remove</button>`;
-            list.appendChild(li);
-          });
-    
-          // Pending requests
-          data.pending.forEach(request => {
-            const li = document.createElement("li");
-            li.innerHTML = `Pending: ${request.username} 
-              <button onclick="acceptRequest(${request.id})">Accept</button>
-              <button onclick="declineRequest(${request.id})">Decline</button>`;
-            list.appendChild(li);
-          });
-        });
-    }
-    
-    function acceptRequest(userId) {
-      fetch(`/api/friends/accept/${userId}`, { method: "POST" })
-        .then(() => loadFriendsList());
-    }
-    
-    function declineRequest(userId) {
-      fetch(`/api/friends/decline/${userId}`, { method: "POST" })
-        .then(() => loadFriendsList());
-    }
-    
-    function removeFriend(userId) {
-      fetch(`/api/friends/remove/${userId}`, { method: "POST" })
-        .then(() => loadFriendsList());
-    }
-    
-    // Load list when the tab is shown
-    document.addEventListener("DOMContentLoaded", loadFriendsList);
-    </script>
-
-
-  <script>
-
-    // JavaScript to handle tab switching
-    
-    function openTab(evt, tabName) {
-    // Hide all tab contents
-    const tabContents = document.querySelectorAll('.tabcontent');
-    tabContents.forEach(tc => tc.classList.remove('active'));
-
-    // Remove active class from all tab buttons
-    const tabButtons = document.querySelectorAll('.tab button.tablinks');
-    tabButtons.forEach(btn => btn.classList.remove('active'));
-
-    // Show the selected tab content
-    const selectedContent = document.getElementById(tabName);
-    if (selectedContent) {
-      selectedContent.classList.add('active');
-    }
-
-    // Add active class to the clicked button
-    if (evt && evt.currentTarget) {
-      evt.currentTarget.classList.add('active');
-    }
-
-    // Optional: reload the friends list if we switched to that tab
-    if (tabName === 'Friends') {
-      loadFriendsList();
-    }
-  }
-
-
-
-
-   // javascript to handle submitting the form to add a friend
-  document.getElementById("add-friend-form").addEventListener("submit", function (event) {
-  event.preventDefault(); // prevent page reload
-
-  const username = document.getElementById("friend-username").value;
-  const messageEl = document.getElementById("add-friend-message");
-
-  fetch("/api/friend-request", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ username: username })
-  })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        messageEl.textContent = "Friend request sent to " + username + "!";
-        document.getElementById("friend-username").value = ""; // clear input
-        loadFriendsList(); // update friend list UI
-      } else {
-        messageEl.textContent = "Error: " + data.error;
-      }
-    })
-    .catch(() => {
-      messageEl.textContent = "An unexpected error occurred.";
-    });
-});
-document.getElementById("friend-username").addEventListener("input", function () {
-  const query = this.value;
-  fetch(`/api/search-users?q=${encodeURIComponent(query)}`)
-    .then(res => res.json())
-    .then(users => {
-      const resultsContainer = document.getElementById("search-results");
-      resultsContainer.innerHTML = "";
-      users.forEach(user => {
-        const li = document.createElement("li");
-        li.innerHTML = `${user.username} <button onclick="sendFriendRequest('${user.username}')">Add</button>`;
-        resultsContainer.appendChild(li);
-      });
-    });
-});
-
-function sendFriendRequest(username) {
-  fetch("/api/friend-request", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ username })
-  })
-  .then(res => res.json())
-  .then(data => alert(data.message || data.error));
-}
-  </script>
-
-</body>
-
-</html>
 
 
 
@@ -274,7 +61,6 @@ function sendFriendRequest(username) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <!-- file with the javascript functions to open sub-options -->
 <script src="script.js"></script>
-=======
     <div id="user-settings-modal" class="user-settings-modal">
       <div class="modal-header">
         <h5 class="modal-title text-white" id="User-Settings-Modal">User Settings</h5>
@@ -313,6 +99,7 @@ function sendFriendRequest(username) {
                 </div>
               </div>
             </form>
+            
           </div>
 
           <div class="tab-pane fade" id="friendsTab" role="tabpanel">
@@ -352,4 +139,3 @@ function sendFriendRequest(username) {
   </body>
 
 </html>
->>>>>>> c990c91192acf5b0c3f822939d783e31b615212d
