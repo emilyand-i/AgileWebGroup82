@@ -121,6 +121,7 @@ def login():
         return jsonify({
             'message': 'Login successful',
             'username': user.username,
+            'email': user.email,
             'user_id': user.id,
             'plants': plant_data,
             'growth_entries': growth_data,
@@ -137,53 +138,72 @@ def login():
 @routes_bp.route('/api/session', methods = ['GET'])
 def session_data():
     print("🔍 Session contents:", dict(session))
+    
     user_id = session.get('user_id')
     if not user_id:
-        return jsonify({'error:' 'User not logged in'}), 401
-    
+        return jsonify({'error': 'User not logged in'}), 401
+
     user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    # Query all needed related data
     settings = UserSettings.query.filter_by(user_id=user.id).first()
     friends = FriendsList.query.filter_by(user_id=user.id).all()
     plants = Plants.query.filter_by(user_id=user.id).all()
     growth_entries = PlantGrowthEntry.query.filter_by(user_id=user.id).all()
     photos = uploadedPics.query.filter_by(user_id=user.id).all()
 
-    return jsonify({
-        'user_id': user.id,
-        'username': user.username,
-        'email': user.email,
-        'plants': [{
-            'plant_name': plant.plant_name,
-            'plant_type': plant.plant_type,
-            'chosen_image_url': plant.chosen_image_url,
-            'plant_category': plant.plant_category,
-            'id': plant.id,
-            'date_created': plant.date_created
-        } for plant in plants],
-        'growth_entries': [{
-            'plant_name': growth.plant_name,
-            'date_recorded': growth.date_recorded,
-            'cm_grown': growth.cm_grown
-        } for growth in growth_entries],
-        'photos': [{
-            'photo_id': pics.photo_id,
-            'plant_id': pics.plant_id,
-            'image_url': pics.image_url,
-            'caption': pics.caption,
-            'datetime_uploaded': pics.datetime_uploaded
-        } for pics in photos],
-        'friends': [{
-            'user_id': friend.user_id,
-            'friend_id': friend.friend_id,
-            'friend_username': User.query.get(friend.friend_id).username,
-            'status': friend.status
-        } for friend in friends],
-        'settings': {
-            'is_profile_public': settings.is_profile_public if settings else True,
-            'allow_friend_requests': settings.allow_friend_requests if settings else True
-        }
-    }), 200
+    # Prepare structured data
+    plant_data = [{
+        'plant_name': p.plant_name,
+        'plant_type': p.plant_type,
+        'chosen_image_url': p.chosen_image_url,
+        'plant_category': p.plant_category,
+        'id': p.id,
+        'date_created': p.date_created
+    } for p in plants]
 
+    growth_data = [{
+        'plant_name': g.plant_name,
+        'date_recorded': g.date_recorded,
+        'cm_grown': g.cm_grown
+    } for g in growth_entries]
+
+    photo_data = [{
+        'photo_id': pic.photo_id,
+        'plant_id': pic.plant_id,
+        'image_url': pic.image_url,
+        'caption': pic.caption,
+        'datetime_uploaded': pic.datetime_uploaded
+    } for pic in photos]
+
+    friends_data = [{
+        'user_id': f.user_id,
+        'friend_id': f.friend_id,
+        'friend_username': User.query.get(f.friend_id).username,
+        'status': f.status
+    } for f in friends]
+
+    settings_data = {
+        'is_profile_public': settings.is_profile_public if settings else True,
+        'allow_friend_requests': settings.allow_friend_requests if settings else True
+    }
+
+    return jsonify({
+        'username': user.username,
+        'user_id': user.id,
+        'email': user.email,
+        'plants': plant_data,
+        'growth_entries': growth_data,
+        'photos': photo_data,
+        'friends': friends_data,
+        'settings': settings_data,
+        'streak': user.login_streak,
+        'last_login_date': str(user.last_login_date)
+    }), 200
+    
+    
 @routes_bp.route('/api/logout', methods=['POST'])
 def logout():
     session.clear()
@@ -240,44 +260,77 @@ def delete_plant():
 
 @routes_bp.route('/api/add-friend', methods=['POST'])
 def add_friend():
-    user_id = session.get('user_id')
     data = request.get_json()
-    friend_id = data.get('friend_id')
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'User not logged in'}), 401
 
-    if not user_id or not friend_id:
-        return jsonify({'error': 'User not found'}), 400
+    friend_username = data.get('username')
+    if not friend_username:
+        return jsonify({'error': 'Username is required'}), 400
 
-    if user_id == friend_id:
-        return jsonify({'error': 'You cannot add yourself'}), 400
+    friend = User.query.filter_by(username=friend_username).first()
+    if not friend:
+        return jsonify({'error': 'User not found'}), 404
 
-    # Prevent duplicate
-    existing = FriendsList.query.filter_by(user_id=user_id, friend_id=friend_id).first()
+    # Check if already friends
+    existing = FriendsList.query.filter_by(user_id=user_id, friend_id=friend.id).first()
     if existing:
-        return jsonify({'error': 'Already friends'}), 409
+        return jsonify({'message': 'Already friends'}), 200
 
-    new_friend = FriendsList(user_id=user_id, friend_id=friend_id, status='accepted')
+    # Add friend
+    new_friend = FriendsList(user_id=user_id, friend_id=friend.id, status='accepted')
     user_db.session.add(new_friend)
     user_db.session.commit()
 
-    return jsonify({'message': 'Friend added'}), 201
+    return jsonify({'message': 'Friend added successfully'}), 201
 
 @routes_bp.route('/api/remove-friend', methods=['POST'])
 def remove_friend():
-    user_id = session.get('user_id')
     data = request.get_json()
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'User not logged in'}), 401
+
     friend_id = data.get('friend_id')
+    if not friend_id:
+        return jsonify({'error': 'Friend ID is required'}), 400
 
-    if not user_id or not friend_id:
-        return jsonify({'error': 'Missing user or friend ID'}), 400
-
-    friend_entry = FriendsList.query.filter_by(user_id=user_id, friend_id=friend_id).first()
-    if not friend_entry:
+    friend = FriendsList.query.filter_by(user_id=user_id, friend_id=friend_id).first()
+    if not friend:
         return jsonify({'error': 'Friend not found'}), 404
 
-    user_db.session.delete(friend_entry)
+    user_db.session.delete(friend)
     user_db.session.commit()
 
-    return jsonify({'message': 'Friend removed'}), 200
+    return jsonify({'message': 'Friend removed successfully'}), 200
+
+@routes_bp.route('/api/search-users', methods=['GET'])
+def search_users():
+    query = request.args.get('q', '').strip()
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'User not logged in'}), 401
+
+    if not query:
+        return jsonify({'results': []})
+
+    # Search for users whose usernames contain the query - excluding the current user
+    users = User.query.filter(User.username.ilike(f'%{query}%'), User.id != user_id).all()
+
+    # Fetch current user's friends
+    current_friends = FriendsList.query.filter_by(user_id=user_id).all()
+    friend_ids = {f.friend_id for f in current_friends}
+
+    results = []
+    for user in users:
+        results.append({
+            'user_id': user.id,
+            'username': user.username,
+            'is_friend': user.id in friend_ids
+        })
+
+    return jsonify({'results': results})
 
 @routes_bp.route('/api/settings', methods=['POST'])
 def update_settings():
@@ -311,4 +364,31 @@ def update_settings():
             'allow_friend_requests': settings.allow_friend_requests
         }
     }), 200
+    
+@routes_bp.route('/api/add-photo', methods=['POST'])
+def add_photo():
+    user_id = session.get('user_id')
+    data = request.get_json()
+    
+    plant_id = data.get('plant_id')
+    image_url = data.get('image_url')
+    caption = data.get('caption', '')
+    
+    if not plant_id or not image_url:
+        return jsonify({'error': 'Missing plant_id or image_url'}), 400
+
+    new_photo = uploadedPics(
+        user_id=user_id,
+        plant_id=plant_id,
+        image_url=image_url,  # base64 or cloud link
+        caption=caption
+    )
+
+    user_db.session.add(new_photo)
+    user_db.session.commit()
+    
+    print(f"📸 Uploaded new photo for plant {plant_id} by user {user_id}")
+
+    return jsonify({'message': 'Photo saved', 'photo_id': new_photo.photo_id}), 201
+
 
