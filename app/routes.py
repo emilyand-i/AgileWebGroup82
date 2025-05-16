@@ -230,14 +230,6 @@ def delete_plant():
     
     return jsonify({'message': "Plant has been deleted successfully"}), 200
 
-
-
-
-
-
-
-
-
 @routes_bp.route('/api/add-friend', methods=['POST'])
 def add_friend():
     user_id = session.get('user_id')
@@ -311,8 +303,6 @@ def update_settings():
             'allow_friend_requests': settings.allow_friend_requests
         }
     }), 200
-
-
 
 #FOR FLASK SHAREBOARD PAGE - HASNOT BEEN TESTED PROPERLY!!!!!!!!
  #NOTE: limit is hard coded for now, may be changed later (current only collects 9 posts)
