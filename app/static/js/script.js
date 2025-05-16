@@ -379,13 +379,30 @@ async function addFriend(friendId, username) {
   const result = await load.json();
 
   if (load.ok) {
+    const friendsList = document.getElementById("friendsList");
+    friendsList.innerHTML += `
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        ${username}
+        <button class="btn btn-sm btn-danger" onclick="removeFriend(${friendId}, '${username}', this)">Remove</button>
+      </li>
+    `;
+    //clear the search
+    document.getElementById("friendSearch").value = '';
+    document.getElementById("searchResults").innerHTML = '';
+
+    // Update localStorage
+    const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+    profile.friends = profile.friends || [];
+    profile.friends.push({ friend_id: friendId, friend_username: username });
+    localStorage.setItem('user_profile', JSON.stringify(profile));
+
     alert(`Added ${username} as a friend`);
   } else {
     alert(`${result.error || 'Failed to add friend'}`)
   }
 }
 
-async function removeFriend(friendId, username) {
+async function removeFriend(friendId, username, btn) {
   const load = await fetch('/api/remove-friend', {
     method: 'POST',
     credentials: 'include',
@@ -398,7 +415,16 @@ async function removeFriend(friendId, username) {
   const result = await load.json();
 
   if (load.ok) {
-    alert(`🗑️ Removed ${username} from your friends`);
+    // remove from dom
+    btn.closest('li').remove();
+
+    // update loacal storage
+    const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+    profile.friends = (profile.friends || []).filter(f => f.friend_id !== friendId);
+    localStorage.setItem('user_profile', JSON.stringify(profile));
+
+
+    alert(`Removed ${username} from your friends 🗑️`);
     // Optional: remove friend from DOM or reload
   } else {
     alert(`${result.error || 'Failed to remove friend'}`);
@@ -417,7 +443,17 @@ async function loadDashboard() {
   if (!window.location.pathname.includes('dashboard.html')) return;
   
   if (!profile) return;
+  const friendsList = document.getElementById("friendsList");
+  if (profile.friends && friendsList) {
+    friendsList.innerHTML = profile.friends.map(friend => `
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        ${friend.friend_username}
+        <button class="btn btn-sm btn-danger" onclick="removeFriend(${friend.friend_id}, '${friend.friend_username}', this)">Remove</button>
+      </li>
+    `).join('');
+  }
 
+  
   const username = profile.username || 'username';
   document.querySelector('.welcome_to').textContent = `Welcome to ${username}'s Garden`;
 
