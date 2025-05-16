@@ -2,6 +2,7 @@ import unittest
 from app import create_app, user_db
 from app.models import User
 
+#should run with this: python -m unittest tests/test_basic.py
 
 #Basic Checks intended for the introductary view (index.html)
 class BasicTestCase(unittest.TestCase):
@@ -22,9 +23,22 @@ class BasicTestCase(unittest.TestCase):
             user_db.drop_all()
 
     def test_homepage_loads(self):
+        #This test checks if the homepage loads successfully and if it responds
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
         #Checks that the phrase “Welcome to Plantly!” appears somewhere in the page’s HTML
+        self.assertIn(b'Welcome to Plantly!', response.data)
+
+    #Two functions below are basic "smoke tests" to check if the login and signup forms are present
+    def test_login_form_present(self):
+        response = self.client.get('/')
+        self.assertIn(b'id="login-form"', response.data)
+        self.assertIn(b'Username', response.data)
+
+    def test_signup_form_present(self):
+        response = self.client.get('/')
+        self.assertIn(b'id="signup-form"', response.data)
+        self.assertIn(b'Confirm Password', response.data)
 
 
     #an example more related to our app currently
