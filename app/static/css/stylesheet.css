@@ -889,13 +889,50 @@ main.main-info {
 
 #picsAndGraphs.fullscreen .photo-card {
     height: 100%;
+    width: 100%;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    max-width: 100%;
+    margin: 0;
 }
 
-#picsAndGraphs.fullscreen .photo-img {
-    max-height: calc(100% - 4rem);
+#picsAndGraphs.fullscreen .photo-img,
+#picsAndGraphs.fullscreen .carousel-item img {
+    max-width: 50%;  /* Reduced from 70% */
+    max-height: 50%; /* Reduced from 70% */
+    width: auto;
+    height: auto;
     object-fit: contain;
+    margin: auto;
+    display: block;
+}
+
+#picsAndGraphs.fullscreen .carousel {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#picsAndGraphs.fullscreen .carousel-inner {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+#picsAndGraphs.fullscreen .graph-section {
+    height: 100%;
+    padding: 1rem;
+    margin: 0;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 #placeholderDiv {
