@@ -496,6 +496,7 @@ async function loadNotifications() {
 }
 
 
+// ✅ JavaScript: Final `addFriend` Function
 async function addFriend(friendId, username) {
   try {
     const response = await fetch('/api/add-friend', {
@@ -509,15 +510,102 @@ async function addFriend(friendId, username) {
 
     const result = await response.json();
 
-    if (response.ok) {
-      alert(`Added ${username} as a friend`);
-      // Optionally, refresh the friends list or update the UI accordingly
-    } else {
-      alert(result.error || 'Failed to add friend');
+    if (response.status === 201) {
+      alert(`✅ You're now following ${username}`);
+
+      // Optional: refresh search results to reflect new status
+      document.getElementById("friendSearch").dispatchEvent(new Event('input'));
+
+      // ✅ Update localStorage
+      const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+      profile.friends = profile.friends || [];
+      profile.friends.push({ friend_id: friendId, friend_username: username });
+      localStorage.setItem('user_profile', JSON.stringify(profile));
     }
+
+    else if (response.status === 403) {
+      alert(`🚫 ${username} is not accepting follows.`);
+    }
+
+    else if (response.status === 400) {
+      alert(`⚠️ Invalid request: ${result.error}`);
+    }
+
+    else if (response.status === 404) {
+      alert(`❌ User not found.`);
+    }
+
+    else {
+      alert(`❌ Something went wrong: ${result.error || 'Unknown error'}`);
+    }
+
   } catch (err) {
-    console.error("Error adding friend:", err);
+    console.error("Follow request failed:", err);
+    alert("❌ Could not follow user due to a network error.");
   }
+}
+
+// 🔁 Called inside renderFriendSearchResults() when the Follow button is clicked
+function initialiseFriendSearch() {
+  const input = document.getElementById("friendSearch");
+  const resultsContainer = document.getElementById("searchResults");
+
+  if (!input || !resultsContainer) return;
+
+  const button = document.getElementById("friendSearchButton");
+
+  async function searchExactUsername() {
+    console.log("🔍 Searching for exact match...");
+    const query = input.value.trim();
+    resultsContainer.innerHTML = '';
+
+    if (!query) {
+      resultsContainer.innerHTML = `<li class="list-group-item text-danger">Please enter a username.</li>`;
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/search-users?q=${encodeURIComponent(query)}`);
+      const data = await response.json();
+
+      if (response.ok && data.results.length > 0) {
+        const exactMatch = data.results.find(u => u.username.toLowerCase() === query.toLowerCase());
+        if (!exactMatch) {
+          resultsContainer.innerHTML = `<li class="list-group-item text-muted">No user found with that exact name.</li>`;
+          return;
+        }
+
+        // ✅ Render only one exact match
+        resultsContainer.innerHTML = `
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            ${exactMatch.username}
+            <button class="btn btn-sm btn-${exactMatch.is_friend ? 'secondary' : 'success'}"
+              ${exactMatch.is_friend 
+                ? 'disabled' 
+                : `onclick="addFriend(${exactMatch.user_id}, '${exactMatch.username}')"`}>
+              ${exactMatch.is_friend ? 'Following' : 'Follow'}
+            </button>
+          </li>
+        `;
+      } else {
+        resultsContainer.innerHTML = `<li class="list-group-item text-muted">No user found.</li>`;
+      }
+    } catch (error) {
+      console.error("Search failed:", error);
+      resultsContainer.innerHTML = `<li class="list-group-item text-danger">Network error while searching.</li>`;
+    }
+  }
+
+  // Bind search to button and Enter key
+  if (button) {
+    button.addEventListener("click", searchExactUsername);
+  }
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      searchExactUsername();
+    }
+  });
 }
 
 function loadFriendsList() {
@@ -1598,6 +1686,7 @@ function initialiseSettingsModal() {
       .then(html => {
         document.getElementById("accountModalContent").innerHTML = html;
         initialiseSettingsForm();
+        initialiseFriendSearch();
       })
       .catch(error => {
         document.getElementById("accountModalContent").innerHTML = `

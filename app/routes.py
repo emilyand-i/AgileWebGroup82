@@ -397,6 +397,31 @@ def update_settings():
             'allow_friend_requests': settings.allow_friend_requests
         }
     }), 200
+    #serch user
+@routes_bp.route('/api/search-users', methods=['GET'])
+def search_users():
+    query = request.args.get('q', '').strip()
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'User not logged in'}), 401
+
+    if not query:
+        return jsonify({'results': []})
+
+    users = User.query.filter(User.username.ilike(f'%{query}%'), User.id != user_id).all()
+
+    current_friends = FriendsList.query.filter_by(user_id=user_id).all()
+    friend_ids = {f.friend_id for f in current_friends}
+
+    results = []
+    for user in users:
+        results.append({
+            'user_id': user.id,
+            'username': user.username,
+            'is_friend': user.id in friend_ids
+        })
+
+    return jsonify({'results': results})
     
 @routes_bp.route('/api/add-photo', methods=['POST'])
 def add_photo():

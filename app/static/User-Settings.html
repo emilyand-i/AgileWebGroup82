@@ -66,18 +66,18 @@
 
               <!-- find Friends -->
               <div class="col-6">
-                <h3>Find Friends</h3>
-                <!-- 🔹 Add this search box -->
-                <input type="text" class="form-control mb-2" placeholder="Search for a friend..." id="friendSearch">
+                <h3>Find a Friend</h3>
               
-                <!-- 🔹 Replace empty UL with a placeholder entry -->
+                <div class="input-group mb-2">
+                  <input type="text" class="form-control" placeholder="Enter exact username" id="friendSearch">
+                  <button class="btn btn-outline-success btn-sm" id="friendSearchButton" type="button">Find</button>
+                </div>
+              
                 <ul class="list-group overflow-auto" style="max-height: 300px;" id="searchResults">
-                  <li class="list-group-item d-flex justify-content-between align-items-center text-muted">
-                    Start typing to find friends
-                    <button class="btn btn-sm btn-secondary" disabled>Add</button>
-                  </li>
+                  <li class="list-group-item text-muted">Type a username and click Find</li>
                 </ul>
               </div>
+              
             </div>
           </div>
         </div>
