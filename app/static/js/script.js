@@ -1859,42 +1859,64 @@ function updateSeasonDisplay() {
     const seasonPicture = document.getElementById('season-picture');
     const seasonSection = document.querySelector('.coming-soon-section');
 
+    // Common style properties
+    const commonStyles = `
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover; 
+        border-radius: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        opacity: 0.7;
+        transition: all 0.3s ease;
+        filter: brightness(0.9) saturate(1.1);
+    `;
+
     if (season === 'autumn') {
-      seasonPicture.innerHTML = `
-          <img 
-          src="assets/Seasons/autumn.jpeg" 
-          alt="Autumn Season" 
-          style="width: 100%; height: 100%; object-fit: cover; border-radius: 0.5rem;">
-      `;
-      seasonSection.textContent = "Autumn Season";
-  } else if (season === 'summer') {
-      seasonPicture.innerHTML = `
-          <img 
-          src="assets/Seasons/summer.png" 
-          alt="Summer Season" 
-          style="width: 100%; height: 100%; object-fit: cover; border-radius: 0.5rem;">
-      `;
-      seasonSection.textContent = "Summer Season";
-  } else if (season === 'winter') {
-      seasonPicture.innerHTML = `
-          <img 
-          src="assets/Seasons/winter.jpeg" 
-          alt="Winter Season" 
-          style="width: 100%; height: 100%; object-fit: cover; border-radius: 0.5rem;">
-      `;
-      seasonSection.textContent = "Winter Season";
-  } else if (season === 'spring') {
-      seasonPicture.innerHTML = `
-          <img 
-          src="assets/Seasons/spring.jpeg" 
-          alt="Spring Season" 
-          style="width: 100%; height: 100%; object-fit: cover; border-radius: 0.5rem;">
-      `;
-      seasonSection.textContent = "Spring Season";
-  }
+        seasonPicture.innerHTML = `
+            <img 
+            src="assets/Seasons/autumn.jpeg" 
+            alt="Autumn Season" 
+            style="${commonStyles}">
+        `;
+        seasonSection.textContent = "Autumn Season";
+    } else if (season === 'summer') {
+        seasonPicture.innerHTML = `
+            <img 
+            src="assets/Seasons/summer.png" 
+            alt="Summer Season" 
+            style="${commonStyles}">
+        `;
+        seasonSection.textContent = "Summer Season";
+    } else if (season === 'winter') {
+        seasonPicture.innerHTML = `
+            <img 
+            src="assets/Seasons/winter.jpeg" 
+            alt="Winter Season" 
+            style="${commonStyles}">
+        `;
+        seasonSection.textContent = "Winter Season";
+    } else if (season === 'spring') {
+        seasonPicture.innerHTML = `
+            <img 
+            src="assets/Seasons/spring.jpeg" 
+            alt="Spring Season" 
+            style="${commonStyles}">
+        `;
+        seasonSection.textContent = "Spring Season";
+    }
 
-
+    // Add hover effect to the image
+    const img = seasonPicture.querySelector('img');
+    if (img) {
+        img.addEventListener('mouseenter', () => {
+            img.style.opacity = '1';
+            img.style.transform = 'scale(1.02)';
+        });
+        img.addEventListener('mouseleave', () => {
+            img.style.opacity = '0.85';
+            img.style.transform = 'scale(1)';
+        });
+    }
 }
-
 // Call when DOM is loaded
 document.addEventListener('DOMContentLoaded', updateSeasonDisplay);
