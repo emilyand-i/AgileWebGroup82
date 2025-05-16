@@ -253,12 +253,13 @@ def get_all_users():
         print("❌ Not logged in")
         return jsonify({'error': 'Not logged in'}), 401
 
-    # Fetch all users except the current user
     users = User.query.filter(User.id != user_id).all()
-    print(f"👥 Users fetched for user_id {user_id}: {[u.username for u in users]}")
 
     user_list = [{'user_id': u.id, 'username': u.username} for u in users]
+    print(f"👥 Found {len(user_list)} users (excluding current user_id {user_id})")
+
     return jsonify({'users': user_list}), 200
+
 
 
 @routes_bp.route('/api/friends', methods=['GET'])

@@ -543,37 +543,33 @@ function loadFriendsList() {
 }
 
 
-async function loadAllUsers() {
-  try {
-    const response = await fetch('/api/users', {
-      credentials: 'include'
-    });
-    if (!response.ok) throw new Error("Failed to fetch users");
-
-    const data = await response.json();
-    const searchResults = document.getElementById('searchResults');
-    const noResultsMessage = document.getElementById('noSearchResultsMessage');
-    searchResults.innerHTML = '';
-
-    if (data.users.length === 0) {
-      noResultsMessage.style.display = 'block';
+function loadAllUsers() {
+  fetch('/api/users', {
+    method: 'GET',
+    credentials: 'include'
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.error) {
+      console.error("❌ Error loading users:", data.error);
       return;
-    } else {
-      noResultsMessage.style.display = 'none';
     }
 
+    const userList = document.getElementById('userList'); // Replace with your actual container ID
+    userList.innerHTML = ''; // Clear existing list
+
     data.users.forEach(user => {
-      const listItem = document.createElement('li');
-      listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
-      listItem.innerHTML = `
-        ${user.username}
-        <button class="btn btn-sm btn-success" onclick="addFriend(${user.user_id}, '${user.username}')">Add</button>
-      `;
-      searchResults.appendChild(listItem);
+      const li = document.createElement('li');
+      li.className = 'list-group-item';
+      li.textContent = user.username;
+      userList.appendChild(li);
     });
-  } catch (err) {
-    console.error("Error loading users:", err);
-  }
+
+    console.log("✅ Users loaded:", data.users);
+  })
+  .catch(err => {
+    console.error("❌ Failed to fetch users:", err);
+  });
 }
 
 
