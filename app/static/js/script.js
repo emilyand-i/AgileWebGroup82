@@ -1829,3 +1829,81 @@ document.getElementById('waterForm')?.addEventListener('submit', function(e) {
   const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
   modal.hide();
 });
+
+function getCurrentSeason() {
+    const date = new Date();
+    const month = date.getMonth() + 1; // getMonth() returns 0-11
+    
+    // Southern Hemisphere seasons
+    if (month >= 3 && month <= 5) return 'autumn';
+    if (month >= 6 && month <= 8) return 'winter';
+    if (month >= 9 && month <= 11) return 'spring';
+    return 'summer'; // December to February
+}
+
+function updateSeasonDisplay() {
+    const season = getCurrentSeason();
+    const seasonPicture = document.getElementById('season-picture');
+    const seasonSection = document.querySelector('.coming-soon-section');
+
+    // Common style properties
+    const commonStyles = `
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover; 
+        border-radius: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        opacity: 0.7;
+        transition: all 0.3s ease;
+        filter: brightness(0.9) saturate(1.1);
+    `;
+
+    if (season === 'autumn') {
+        seasonPicture.innerHTML = `
+            <img 
+            src="assets/Seasons/autumn.jpeg" 
+            alt="Autumn Season" 
+            style="${commonStyles}">
+        `;
+        seasonSection.textContent = "Autumn Season";
+    } else if (season === 'summer') {
+        seasonPicture.innerHTML = `
+            <img 
+            src="assets/Seasons/summer.png" 
+            alt="Summer Season" 
+            style="${commonStyles}">
+        `;
+        seasonSection.textContent = "Summer Season";
+    } else if (season === 'winter') {
+        seasonPicture.innerHTML = `
+            <img 
+            src="assets/Seasons/winter.jpeg" 
+            alt="Winter Season" 
+            style="${commonStyles}">
+        `;
+        seasonSection.textContent = "Winter Season";
+    } else if (season === 'spring') {
+        seasonPicture.innerHTML = `
+            <img 
+            src="assets/Seasons/spring.jpeg" 
+            alt="Spring Season" 
+            style="${commonStyles}">
+        `;
+        seasonSection.textContent = "Spring Season";
+    }
+
+    // Add hover effect to the image
+    const img = seasonPicture.querySelector('img');
+    if (img) {
+        img.addEventListener('mouseenter', () => {
+            img.style.opacity = '1';
+            img.style.transform = 'scale(1.02)';
+        });
+        img.addEventListener('mouseleave', () => {
+            img.style.opacity = '0.85';
+            img.style.transform = 'scale(1)';
+        });
+    }
+}
+// Call when DOM is loaded
+document.addEventListener('DOMContentLoaded', updateSeasonDisplay);
