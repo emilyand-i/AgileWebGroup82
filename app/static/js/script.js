@@ -512,8 +512,6 @@ async function addFriend(friendId, username) {
   }
 }
 
-
-
 function loadFriendsList() {
   fetch('/api/friends') // Ensure this endpoint returns the user's friends
     .then(response => response.json())
@@ -546,7 +544,15 @@ async function loadAllUsers() {
 
     const data = await response.json();
     const searchResults = document.getElementById('searchResults');
+    const noResultsMessage = document.getElementById('noSearchResultsMessage');
     searchResults.innerHTML = '';
+
+    if (data.users.length === 0) {
+      noResultsMessage.style.display = 'block';
+      return;
+    } else {
+      noResultsMessage.style.display = 'none';
+    }
 
     data.users.forEach(user => {
       const listItem = document.createElement('li');
@@ -578,6 +584,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   await CsrfToken();
   loginForm();
   signupForm();
+
+  const addFriendTab = document.getElementById('friends-tab');
+  if (addFriendTab) {
+    addFriendTab.addEventListener('shown.bs.tab', () => {
+      console.log("🔄 'Add Friend' tab activated");
+      loadAllUsers(); // Function to fetch and display all users
+    });
+  }
 });
 
 
@@ -1778,6 +1792,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     notifModal.addEventListener('show.bs.modal', () => {
       console.log("📬 Notification modal opened");
       loadNotifications();
+    });
+  }
+
+  const friendModal = document.getElementById('friendsModal');
+  if (friendModal) {
+    friendModal.addEventListener('show.bs.modal', () => {
+      console.log("Friend model opened");
+      loadFriendsList();
     });
   }
 });
