@@ -613,11 +613,30 @@ function initialiseFriendSearch() {
 }
 
 function loadFriendsList() {
-  fetch('/api/friends') // Ensure this endpoint returns the user's friends
+  const friendsList = document.getElementById('friendsList');
+  const noFriendsMessage = document.getElementById('noFriendsMessage');
+
+  if (!friendsList || !noFriendsMessage) {
+    console.warn("⚠️ Missing friendsList or noFriendsMessage element.");
+    return;
+  }
+
+  // Show loading state
+  friendsList.innerHTML = '';
+  noFriendsMessage.textContent = 'Loading friends...';
+
+  fetch('/api/friends', { credentials: 'include' })
     .then(response => response.json())
     .then(data => {
-      const friendsList = document.getElementById('friends-list');
       friendsList.innerHTML = '';
+
+      if (!data.friends || data.friends.length === 0) {
+        noFriendsMessage.textContent = 'No friends added yet.';
+        return;
+      }
+
+      noFriendsMessage.style.display = 'none'; // hide fallback message
+
       data.friends.forEach(friend => {
         const listItem = document.createElement('li');
         listItem.className = 'list-group-item bg-dark text-white d-flex justify-content-between align-items-center';
@@ -631,9 +650,12 @@ function loadFriendsList() {
         friendsList.appendChild(listItem);
       });
     })
-    .catch(error => console.error('Error fetching friends list:', error));
+    .catch(error => {
+      console.error('❌ Error fetching friends list:', error);
+      friendsList.innerHTML = '';
+      noFriendsMessage.textContent = 'Failed to load friends.';
+    });
 }
-
 
 async function loadAllUsers() {
   try {
@@ -1749,6 +1771,7 @@ function initialiseSettingsForm() {
       console.error("Settings update failed:", err);
     }
   });
+  loadFriendsList();
 }
 
 // update daily streak
