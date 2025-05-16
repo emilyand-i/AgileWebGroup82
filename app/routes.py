@@ -233,6 +233,87 @@ def delete_plant():
 
 
 
+
+
+
+
+
+@routes_bp.route('/api/add-friend', methods=['POST'])
+def add_friend():
+    user_id = session.get('user_id')
+    data = request.get_json()
+    friend_id = data.get('friend_id')
+
+    if not user_id or not friend_id:
+        return jsonify({'error': 'User not found'}), 400
+
+    if user_id == friend_id:
+        return jsonify({'error': 'You cannot add yourself'}), 400
+
+    # Prevent duplicate
+    existing = FriendsList.query.filter_by(user_id=user_id, friend_id=friend_id).first()
+    if existing:
+        return jsonify({'error': 'Already friends'}), 409
+
+    new_friend = FriendsList(user_id=user_id, friend_id=friend_id, status='accepted')
+    user_db.session.add(new_friend)
+    user_db.session.commit()
+
+    return jsonify({'message': 'Friend added'}), 201
+
+@routes_bp.route('/api/remove-friend', methods=['POST'])
+def remove_friend():
+    user_id = session.get('user_id')
+    data = request.get_json()
+    friend_id = data.get('friend_id')
+
+    if not user_id or not friend_id:
+        return jsonify({'error': 'Missing user or friend ID'}), 400
+
+    friend_entry = FriendsList.query.filter_by(user_id=user_id, friend_id=friend_id).first()
+    if not friend_entry:
+        return jsonify({'error': 'Friend not found'}), 404
+
+    user_db.session.delete(friend_entry)
+    user_db.session.commit()
+
+    return jsonify({'message': 'Friend removed'}), 200
+
+@routes_bp.route('/api/settings', methods=['POST'])
+def update_settings():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Plantly doesn`t know you'}), 401
+
+    data = request.get_json()
+    is_profile_public = data.get('is_profile_public', True)
+    allow_friend_requests = data.get('allow_friend_requests', True)
+
+    settings = UserSettings.query.filter_by(user_id=user_id).first()
+
+    if not settings:
+        # Create a new settings record if it doesn't exist
+        settings = UserSettings(
+            user_id=user_id,
+            is_profile_public=is_profile_public,
+            allow_friend_requests=allow_friend_requests)
+        
+        user_db.session.add(settings)
+    else:
+        settings.is_profile_public = is_profile_public
+        settings.allow_friend_requests = allow_friend_requests
+
+    user_db.session.commit()
+
+    return jsonify({
+        'settings': {
+            'is_profile_public': settings.is_profile_public,
+            'allow_friend_requests': settings.allow_friend_requests
+        }
+    }), 200
+
+
+
 #FOR FLASK SHAREBOARD PAGE - HASNOT BEEN TESTED PROPERLY!!!!!!!!
  #NOTE: limit is hard coded for now, may be changed later (current only collects 9 posts)
 @routes_bp.route('api/update-social', methods=['GET'])
