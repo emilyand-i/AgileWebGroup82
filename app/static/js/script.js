@@ -369,8 +369,6 @@ function toggleFullscreen() {
 
 
 
-
-
 /**
  * Authentication / Sessions
  */
@@ -415,7 +413,7 @@ function loginForm() {
           slimProfile.photos = slimProfile.photos.map(photo => ({
             photo_id: photo.photo_id,
             plant_id: photo.plant_id,
-            image_url: photo.image_url.startsWith('data:image') ? '' : photo.image_url,  // ✅ avoid base64
+            image_url: (photo.image_url && typeof photo.image_url === 'string' && photo.image_url.startsWith('data:image'))? '': photo.image_url,
             caption: photo.caption,
             datetime_uploaded: photo.datetime_uploaded
           }));
@@ -472,6 +470,22 @@ function signupForm() {
     }
   });
 }
+async function loadNotifications() {
+  try {
+    const response = await fetch('/api/notifications', {
+      credentials: 'include'
+    });
+    if (!response.ok) throw new Error("Failed to fetch notifications");
+
+    const data = await response.json();
+    console.log("🔔 Notifications received:", data.notifications);
+
+    renderNotifications(data.notifications);
+  } catch (err) {
+    console.error("Notification load error:", err);
+  }
+}
+
 
 // Logout function
 async function logout() {
@@ -488,27 +502,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   await CsrfToken();
   loginForm();
   signupForm();
-
-  const searchInput = document.getElementById('friendSearch');
-  if (searchInput) {
-    searchInput.addEventListener('input', async () => {
-      const query = searchInput.value.trim();
-      if (!query) {
-        document.getElementById('searchResults').innerHTML = '';
-        return;
-      }
-
-      try {
-        const res = await fetch(`/api/search-users?q=${encodeURIComponent(query)}`, {
-          credentials: 'include'
-        });
-        const data = await res.json();
-        renderFriendSearchResults(data.results || []);
-      } catch (err) {
-        console.error('Search failed:', err);
-      }
-    });
-  }
 });
 
 
@@ -550,7 +543,7 @@ async function loadSession() {
       slimProfile.photos = slimProfile.photos.map(photo => ({
         photo_id: photo.photo_id,
         plant_id: photo.plant_id,
-        image_url: photo.image_url.startsWith('data:image') ? '' : photo.image_url,  // strip base64
+        image_url: (photo.image_url && typeof photo.image_url === 'string' && photo.image_url.startsWith('data:image'))? '': photo.image_url,
         caption: photo.caption,
         datetime_uploaded: photo.datetime_uploaded
       }));
@@ -661,6 +654,12 @@ async function loadDashboard() {
   if (!window.location.pathname.includes('dashboard.html')) return;
   
   if (!profile) return;
+  fetch('/api/notifications')
+  .then(response => response.json())
+  .then(data => {
+    // Display notifications to the user
+    console.log(data.notifications);
+  });
   const friendsList = document.getElementById("friendsList");
   if (profile.friends && friendsList) {
     friendsList.innerHTML = profile.friends.map(friend => `
@@ -1274,6 +1273,54 @@ function updatePhotoDisplay(currentPlant) {
   `;
 }
 
+/**
+ * 
+ * Notifications Center render
+ */
+
+function renderNotifications(notifications) {
+  const container = document.getElementById('notification-container');
+  if (!container) return;
+
+  container.innerHTML = ''; // Clear container first
+
+  if (!notifications || notifications.length === 0) {
+    container.innerHTML = `
+      <li class="list-group-item bg-dark text-white text-center">
+        <strong>No new notifications</strong>
+      </li>
+    `;
+    return;
+  }
+
+  notifications.forEach(notif => {
+    console.log(`📨 Notification: ${notif.sender} -> ${notif.message}`);
+    const item = document.createElement('li');
+    item.className = 'list-group-item bg-dark text-white d-flex justify-content-between align-items-center';
+    item.innerHTML = `
+      <div>
+        <strong>${notif.sender}</strong>: ${notif.message}<br>
+        <small class="text-muted">${notif.timestamp}</small>
+      </div>
+      <button class="btn btn-sm btn-outline-light">Dismiss</button>
+    `;
+
+    // Add remove notification option
+    item.querySelector('button').addEventListener('click', () => {
+      item.remove();
+      if (container.children.length === 0) {
+        container.innerHTML = `
+          <li class="list-group-item bg-dark text-white text-center">
+            <strong>No new notifications</strong>
+          </li>
+        `;
+      }
+    });
+    container.appendChild(item);
+  });
+}
+
+
 
 /**
  * PLANT GROWTH TRACKING
@@ -1725,57 +1772,64 @@ document.getElementById("plantCategory").addEventListener("change", function () 
  * Main initialisation
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    // Initialize canvas
-    canvas = document.getElementById('plantGrowthGraph');
-    if (canvas) {
-        ctx = canvas.getContext('2d');
-    }
+  // Initialize canvas
+  canvas = document.getElementById('plantGrowthGraph');
+  if (canvas) {
+      ctx = canvas.getContext('2d');
+  }
 
-    // Load dashboard - wait for initialisations to render first
-    loadDashboard();
-    
-    // Initialise plant management
-    initialisePlantManagement();
-    
-    // Initialise photo upload functionality
-    initialisePhotoUpload();
-    
-    // Initialise plant growth tracker
-    initialisePlantGrowthTracker();
-    
-    // Initialise settings modal
-    initialiseSettingsModal();
-    
-    // Initialise dimming feature
-    initialiseDimming();
-
-    updateDailyStreak();
+  // Load dashboard - wait for initialisations to render first
+  loadDashboard();
   
+  // Initialise plant management
+  initialisePlantManagement();
+  
+  // Initialise photo upload functionality
+  initialisePhotoUpload();
+  
+  // Initialise plant growth tracker
+  initialisePlantGrowthTracker();
+  
+  // Initialise settings modal
+  initialiseSettingsModal();
+  
+  // Initialise dimming feature
+  initialiseDimming();
+
+  updateDailyStreak();
+  
+  const notifModal = document.getElementById('notificationsModal');
+  if (notifModal) {
+    notifModal.addEventListener('show.bs.modal', () => {
+      console.log("📬 Notification modal opened");
+      loadNotifications();
+    });
+  }
 });
 
 document.getElementById('waterForm')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const plantName = getCurrentActivePlantName();
-    if (!plantName) return;
+  e.preventDefault();
+  
+  const plantName = getCurrentActivePlantName();
+  if (!plantName) return;
 
-    const waterDate = document.getElementById('waterDate').value;
-    
-    // Initialize water data array if it doesn't exist
-    if (!globalPlants[plantName].waterData) {
-        globalPlants[plantName].waterData = [];
-    }
-    
-    // Add water data
-    globalPlants[plantName].waterData.push({
-        date: waterDate,
-        watered: true
-    });
+  const waterDate = document.getElementById('waterDate').value;
+  
+  // Initialize water data array if it doesn't exist
+  if (!globalPlants[plantName].waterData) {
+      globalPlants[plantName].waterData = [];
+  }
+  
+  // Add water data
+  globalPlants[plantName].waterData.push({
+      date: waterDate,
+      watered: true
+  });
 
-    // Redraw the water tracking graph
-    drawWaterGraph(plantName);
-    
-    // Close the modal
-    const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
-    modal.hide();
+  // Redraw the water tracking graph
+  drawWaterGraph(plantName);
+  
+  // Close the modal
+  const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
+  modal.hide();
 });
