@@ -6,111 +6,163 @@
 let globalPlants = {};
 
 // At the top of script.js after global constants
-let canvas = document.getElementById('plantGrowthGraph');
-let ctx;
-
-if (canvas) {
-    ctx = canvas.getContext('2d');
-}
+let growthChart = null;
 
 // Draw growth graph for selected plant
 
 function drawGraph(namePlant) {
-    if (!ctx || !canvas) {
-        console.error('Canvas or context not initialized');
+    const chartCanvas = document.getElementById('plantGrowthGraph');
+    if (!chartCanvas) {
+        console.error('Canvas element not found');
         return;
     }
 
-    console.log(`Drawing graph for ${namePlant}`);
     const data = globalPlants.growthData[namePlant];
     console.log("Retrieved data:", data);
 
+    // Destroy existing chart if it exists
+    if (growthChart) {
+        growthChart.destroy();
+    }
+
+    // If there's not enough data, show an empty message chart
     if (!data || data.length < 2) {
-        console.log("Data is missing or too short:", data);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.font = "16px sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(`Add at Least 2 Growth Points.`, canvas.width/2, canvas.height/2);
+        growthChart = new Chart(chartCanvas, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    label: 'Growth Progress'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `Add At Least 2 Growth Points`,
+                        color: 'white',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        labels: {
+                            color: 'white'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: 'white'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Time Spent Growing',
+                            color: 'white',
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: 'white'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Height Grown',
+                            color: 'white',
+                            font: {
+                                size: 14
+                            }
+                        }
+                    }
+                }
+            }
+        });
         return;
     }
 
-    try {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        console.log("Canvas cleared");
-    } catch (e) {
-        console.error("Error clearing canvas:", e);
-    }
-    
-    
-    const padding = 70;
-    const graphWidth = canvas.width - padding * 2;
-    const graphHeight = canvas.height - padding * 2;
-
-    const dates = data.map(d => new Date(d.date));
+    // Prepare data for the chart
+    const dates = data.map(d => new Date(d.date).toLocaleDateString());
     const heights = data.map(d => d.height);
 
-    const minDate = Math.min(...dates.map(d => d.getTime()));
-    const maxDate = Math.max(...dates.map(d => d.getTime()));
-    const minHeight = Math.min(...heights);
-    const maxHeight = Math.max(...heights);
-    console.log("minDate", minDate);
-
-    function getX(date) {
-        return padding + ((date.getTime() - minDate) / (maxDate - minDate)) * graphWidth;
-    }
-
-    function getY(height) {
-        return canvas.height - padding - ((height - minHeight) / (maxHeight - minHeight)) * graphHeight;
-    }
-
-    // Draw axes
-    ctx.beginPath();
-    ctx.moveTo(padding, padding);
-    ctx.lineTo(padding, canvas.height - padding);
-    ctx.lineTo(canvas.width - padding, canvas.height - padding);
-    ctx.stroke();
-    console.log("axes drawn");
-
-    // Plot points and connect them
-    ctx.beginPath();
-    ctx.strokeStyle = '#28a745';
-    ctx.lineWidth = 4;
-    data.forEach((point, index) => {
-        const x = getX(new Date(point.date));
-        const y = getY(point.height);
-
-        if (index === 0){
-            ctx.moveTo(x, y);
+    // Create the growth chart
+    growthChart = new Chart(chartCanvas, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Plant Growth',
+                data: heights,
+                borderColor: '#28a745',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                tension: 0.3,
+                fill: true,
+                pointRadius: 5,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: `${namePlant}'s Growth Journey`,
+                    color: 'white',
+                    font: {
+                        size: 10,
+                        weight: 'bold'
+                    }
+                },
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    bodyColor: 'white',
+                    titleColor: 'white',
+                    backgroundColor: '#333'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: 'white'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Height Grown',
+                        color: 'white',
+                        font: {
+                            size: 9
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: 'white'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Time Spent Growing',
+                        color: 'white',
+                        font: {
+                            size: 9
+                        }
+                    }
+                }
+            }
         }
-        else {
-            ctx.lineTo(x, y);
-        }
-
-        ctx.arc(x, y, 5, 0, 2 * Math.PI);
     });
-    ctx.stroke();
-    console.log("points plotted");
-
-    // Y-Axis label
-    ctx.save();
-    ctx.translate(20, canvas.height / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.textAlign = "center";
-    ctx.font = "14px sans-serif";
-    ctx.fillText("Height Grown", 0, 0);
-    ctx.restore();
-    console.log("y-axis label drawn");
-
-    // X-Axis label
-    ctx.font = "14px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("Time Spent Growing", canvas.width / 2, canvas.height - 10);
-    console.log("x-axis label drawn");
-
-    // Graph title
-    ctx.font = "bold 18px sans-serif";
-    ctx.fillText(`${namePlant}'s Growth Journey`, canvas.width / 2, padding - 15);
 }
+
 
 
 function getCurrentActivePlantName() {

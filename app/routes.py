@@ -394,7 +394,7 @@ def add_photo():
 
 #FOR FLASK SHAREBOARD PAGE - HASNOT BEEN TESTED PROPERLY!!!!!!!!
  #NOTE: limit is hard coded for now, may be changed later (current only collects 9 posts)
-@routes_bp.route('api/update-social', methods=['GET'])
+@routes_bp.route('/api/update-social', methods=['GET'])
 def updateFeed():
     #get the current user's id
     user_id = session.get("user_id")
@@ -405,10 +405,8 @@ def updateFeed():
     # Fetch 9 posts from friends
     #link friend ID to the user ID in photoTable (uploaded friend photos)
     #also ensures friend list is specific to the current user
-    friends_posts = user_db.session.query(uploadedPics)\
-        .join(FriendsList, (FriendsList.friend_id == uploadedPics.user_id)\ 
-        & (FriendsList.user_id == user_id)).order_by(uploadedPics.datetime_uploaded.desc())\
-        .limit(9).all()
+    friends_posts = user_db.session.query(uploadedPics).join(FriendsList, (FriendsList.friend_id == uploadedPics.user_id)
+    & (FriendsList.user_id == user_id)).order_by(uploadedPics.datetime_uploaded.desc()).limit(9).all()
 
     #returning a jsonified object with the public and friends posts for now
     #may need to be changed later
