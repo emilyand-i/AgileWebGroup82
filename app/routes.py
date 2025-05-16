@@ -246,6 +246,36 @@ def session_data():
     }), 200
     
     
+@routes_bp.route('/api/users', methods=['GET'])
+def get_all_users():
+    user_id = session.get('user_id')
+    if not user_id:
+        print("❌ Not logged in")
+        return jsonify({'error': 'Not logged in'}), 401
+
+    # Fetch all users except the current user
+    users = User.query.filter(User.id != user_id).all()
+    print(f"👥 Users fetched for user_id {user_id}: {[u.username for u in users]}")
+
+    user_list = [{'user_id': u.id, 'username': u.username} for u in users]
+    return jsonify({'users': user_list}), 200
+
+
+@routes_bp.route('/api/friends', methods=['GET'])
+def get_friends():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not logged in'}), 401
+
+    friends = FriendsList.query.filter_by(user_id=user_id).all()
+
+    friend_users = [{
+        'friend_id': f.friend_id,
+        'friend_username': User.query.get(f.friend_id).username
+    } for f in friends]
+
+    return jsonify({'friends': friend_users}), 200
+    
 @routes_bp.route('/api/logout', methods=['POST'])
 def logout():
     session.clear()
