@@ -415,7 +415,7 @@ function loginForm() {
           slimProfile.photos = slimProfile.photos.map(photo => ({
             photo_id: photo.photo_id,
             plant_id: photo.plant_id,
-            image_url: photo.image_url.startsWith('data:image') ? '' : photo.image_url,  // ✅ avoid base64
+            image_url: (photo.image_url && typeof photo.image_url === 'string' && photo.image_url.startsWith('data:image'))? '': photo.image_url,
             caption: photo.caption,
             datetime_uploaded: photo.datetime_uploaded
           }));
@@ -550,7 +550,7 @@ async function loadSession() {
       slimProfile.photos = slimProfile.photos.map(photo => ({
         photo_id: photo.photo_id,
         plant_id: photo.plant_id,
-        image_url: photo.image_url.startsWith('data:image') ? '' : photo.image_url,  // strip base64
+        image_url: (photo.image_url && typeof photo.image_url === 'string' && photo.image_url.startsWith('data:image'))? '': photo.image_url,
         caption: photo.caption,
         datetime_uploaded: photo.datetime_uploaded
       }));

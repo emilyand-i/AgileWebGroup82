@@ -408,7 +408,7 @@ def add_photo():
     return jsonify({'message': 'Photo saved', 'photo_id': new_photo.photo_id}), 201
 
 
-@routes_bp.route('/api/share-plant', methods=['POST'])
+@routes_bp.route('/api/share_plant', methods=['POST'])
 def share_plant():
     user_id = session.get('user_id')
     data = request.get_json()
