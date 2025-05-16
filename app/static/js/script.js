@@ -1282,17 +1282,41 @@ function renderNotifications(notifications) {
   const container = document.getElementById('notification-container');
   if (!container) return;
 
-  container.innerHTML = '';
+  container.innerHTML = ''; // Clear container first
+
+  if (!notifications || notifications.length === 0) {
+    container.innerHTML = `
+      <li class="list-group-item bg-dark text-white text-center">
+        <strong>No new notifications</strong>
+      </li>
+    `;
+    return;
+  }
 
   notifications.forEach(notif => {
     console.log(`📨 Notification: ${notif.sender} -> ${notif.message}`);
-    const div = document.createElement('div');
-    div.className = 'alert alert-info';
-    div.innerHTML = `
-      <strong>${notif.sender}</strong>: ${notif.message}<br>
-      <small>${notif.timestamp}</small>
+    const item = document.createElement('li');
+    item.className = 'list-group-item bg-dark text-white d-flex justify-content-between align-items-center';
+    item.innerHTML = `
+      <div>
+        <strong>${notif.sender}</strong>: ${notif.message}<br>
+        <small class="text-muted">${notif.timestamp}</small>
+      </div>
+      <button class="btn btn-sm btn-outline-light">Dismiss</button>
     `;
-    container.appendChild(div);
+
+    // Add remove notification option
+    item.querySelector('button').addEventListener('click', () => {
+      item.remove();
+      if (container.children.length === 0) {
+        container.innerHTML = `
+          <li class="list-group-item bg-dark text-white text-center">
+            <strong>No new notifications</strong>
+          </li>
+        `;
+      }
+    });
+    container.appendChild(item);
   });
 }
 
