@@ -303,7 +303,7 @@ def update_settings():
             'allow_friend_requests': settings.allow_friend_requests
         }
     }), 200
-
+    
 @routes_bp.route('/api/add-photo', methods=['POST'])
 def add_photo():
     user_id = session.get('user_id')
@@ -330,10 +330,9 @@ def add_photo():
 
     return jsonify({'message': 'Photo saved', 'photo_id': new_photo.photo_id}), 201
 
-
 #FOR FLASK SHAREBOARD PAGE - HASNOT BEEN TESTED PROPERLY!!!!!!!!
  #NOTE: limit is hard coded for now, may be changed later (current only collects 9 posts)
-@routes_bp.route('api/update-social', methods=['GET'])
+@routes_bp.route('/api/update-social', methods=['GET'])
 def updateFeed():
     #get the current user's id
     user_id = session.get("user_id")
