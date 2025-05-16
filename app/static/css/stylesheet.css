@@ -404,7 +404,17 @@ main.main-info {
   border: 2px solid rgb(80, 163, 71);
   padding: 5px;
   flex-direction: column;
+  max-width: 100%;
 }
+
+/* When fullscreen class is present on picDiv, adjust the photo cards */
+#picDiv.fullscreen .photo-card {
+  width: 50%;
+  max-width: 700px; /* optional */
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .photo-img {
   max-width: 100%;
   height: auto;
@@ -641,50 +651,33 @@ main.main-info {
   border-radius: 4px;
 }
 
-
-.carousel-item img {
-  height: 15rem;
-  width: 100%;
-  object-fit: cover;
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  background-size: 100% 100%;
 }
 
-/* creating the font size dropdown menue */
-.hidden {
-  display: none;
+.carousel-control-prev,
+.carousel-control-next {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5%; 
 }
 
-.dropdown {
-  margin-top: 0.5rem;
-  background: #f0f0f0;
-  border: 1px solid #ccc;
-  padding: 0.5rem;
-  border-radius: 4px;
+.carousel-inner {
+  padding-left: 1rem;  /* smaller or equal padding on both sides */
+  padding-right: 1rem;
 }
 
-/* setting application for changing the font size*/
-/* classes applied to the <html> elements to control the base font size for the whole site */
-html.font-small {
-  font-size: 85%;
+
+.carousel-control-next {
+  right: 1rem;
 }
 
-html.font-normal {
-  font-size: 100%;
+.share-icon:hover {
+  cursor: pointer;
+  transform: scale(1.2);
+  transition: transform 0.5s ease;
 }
 
-html.font-large {
-  font-size: 115%;
-}
-
-/* hides any element via display: none using java Script */
-.hidden {
-  display: none;
-}
-
-/* drop down options for font size options */
-#font-size-options {
-  margin-top: 0.5rem;
-  background: #f8f8f8;
-  border: 1px solid #ccc;
-  padding: 0.5rem;
-  border-radius: 4px;
-}

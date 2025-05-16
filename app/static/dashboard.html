@@ -21,7 +21,7 @@
       <div class="row vh-100 text-center">
         <!-- Left Column -->
         <div class="col-3 bckgrnd border-end border-success d-flex flex-column align-items-center justify-content-start left_col position-relative">
-          <button class="btn btn-sm fullscreen-toggle" onclick="toggleFullscreen()">
+          <button class="btn btn-sm fullscreen-toggle" id="fullScreenBtn" onclick="toggleFullscreen()">
             <i class="bi bi-arrows-fullscreen me-1"></i>
           </button>
           
@@ -37,7 +37,6 @@
             <div class="container mt-1" id="picDiv">
               <!-- Latest Photo -->
               <div class="recent-photo mb-1">
-                <h3 class="plantheader">Latest Photo</h3>
                 <div id="latestPhotoContainer" class="text-center d-flex justify-content-center">
                   <p class="text-white text-center" id="noPhotoMessage">No photos yet</p>
                 </div>
@@ -279,15 +278,33 @@
         </div>
 
         <!-- Right Column -->
-        <div class="col-3 bckgrnd border-start border-success d-flex flex-column align-items-center justify-content-start right_col">
-            <header class="about-info-dash px-2">
-              <h1 class="display-6 column-title mt-3 mb-4">Share</h1>
-            </header>
-            <div id="share-content" class="text-center">
-              <h3 class="text-center text-white mt-5">Create A Plant First In Order To Share It!</h3>
-            </div>
-            <button onclick="logout()" class="btn mt-3 logout_button position-absolute bottom-0 mb-5">Logout</button>
+        <div class="col-3 bckgrnd border-start border-success d-flex flex-column align-items-center justify-content-start right_col position-relative">
+          <!-- Icons container top-left -->
+          <div class="position-absolute top-0 start-0 m-4 d-flex gap-3">
+            <!-- Notification Icon -->
+            <button type="button" class="btn p-0 border-0 bg-transparent" data-bs-toggle="modal" data-bs-target="#notificationsModal">
+              <i class="bi bi-bell-fill share-icon" style="font-size: 1.5rem; color: white;"></i>
+            </button>
+
+            <!-- Friends List Icon -->
+            <button type="button" class="btn p-0 border-0 bg-transparent" data-bs-toggle="modal" data-bs-target="#friendsModal">
+              <i class="bi bi-people-fill share-icon" style="font-size: 1.5rem; color: white;"></i>
+            </button>
           </div>
+
+
+          <header class="about-info-dash px-2">
+            <h1 class="display-6 column-title mt-3 mb-4">Share</h1>
+          </header>
+
+          <div id="share-content" class="text-center">
+            <h3 class="text-center text-white mt-5">Create A Plant First In Order To Share It!</h3>
+          </div>
+
+          <button onclick="logout()" class="btn mt-3 logout_button position-absolute bottom-0 mb-5">Logout</button>
+        </div>
+
+
           
 
           
@@ -328,8 +345,9 @@
                 <!-- Comments -->
                 <div class="mb-3">
                   <label for="comments" class="form-label plantheader">Comments</label>
-                  <textarea id="comments" class="form-control" placeholder="Share your thoughts about this growth update (optional)"></textarea>
+                  <textarea id="comments" class="form-control" maxlength="50" placeholder="Share your thoughts about this growth update (optional)"></textarea>
                 </div>
+
 
                 <div class="d-flex justify-content-end">
                   <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
@@ -382,6 +400,71 @@
       </div>
     </div>
 
-    
+    <!-- Notifications Modal -->
+    <div class="modal fade" id="notificationsModal" tabindex="-1" aria-labelledby="notificationsLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content bg-dark text-white modal-style">
+          <div class="modal-header">
+            <h5 class="modal-title" id="notificationsLabel">Notifications</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body modal-style">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>You Have a New Follower!</strong><br>
+                  <small class="text-muted">Online</small>
+                </div>
+                <button class="btn btn-sm btn-outline-light">Dismiss</button>
+              </li>
+              <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>You reached a daily streak of 5!</strong><br>
+                  <small class="text-muted">Offline</small>
+                </div>
+                <button class="btn btn-sm btn-outline-light" disabled>Dismiss</button>
+              </li>
+            </ul>
+            <!-- Add dynamic notification content here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Friends List Modal -->
+    <div class="modal fade" id="friendsModal" tabindex="-1" aria-labelledby="friendsLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content bg-dark text-white modal-style">
+          <div class="modal-header">
+            <h5 class="modal-title" id="friendsLabel">Friends List</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body modal-style">
+
+
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>Jimmy</strong><br>
+                  <small class="text-muted">Online</small>
+                </div>
+                <button class="btn btn-sm btn-outline-light">Share</button>
+              </li>
+              <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>Laura</strong><br>
+                  <small class="text-muted">Offline</small>
+                </div>
+                <button class="btn btn-sm btn-outline-light" disabled>Share</button>
+              </li>
+            </ul>
+
+
+            <!-- Add dynamic friends list content here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
   </body>
 </html>
