@@ -11,23 +11,29 @@ let waterChart = null;
 
 // Draw growth graph for selected plant
 
-function drawGraph(namePlant) {
+function drawGraph(plantName) {
+    console.log('🎨 drawGraph called for:', plantName);
+    
     const chartCanvas = document.getElementById('plantGrowthGraph');
     if (!chartCanvas) {
-        console.error('Canvas element not found');
+        console.error('❌ Canvas element not found');
         return;
     }
 
-    const data = globalPlants.growthData[namePlant];
-    console.log("Retrieved data:", data);
+    const data = globalPlants.growthData?.[plantName] || [];
+    console.log('📊 Growth data array:', data);
+    console.log('📊 Number of data points:', data.length);
+    console.log('📊 Raw data points:', JSON.stringify(data, null, 2));
 
     // Destroy existing chart if it exists
     if (growthChart) {
+        console.log('🗑️ Destroying existing chart');
         growthChart.destroy();
     }
 
     // If there's not enough data, show an empty message chart
     if (!data || data.length < 2) {
+        console.log('⚠️ Insufficient data points, showing empty chart');
         growthChart = new Chart(chartCanvas, {
             type: 'line',
             data: {
@@ -43,44 +49,10 @@ function drawGraph(namePlant) {
                 plugins: {
                     title: {
                         display: true,
-                        text: `Add At Least 2 Growth Points`,
+                        text: 'Add At Least 2 Growth Points',
                         color: 'white',
                         font: {
                             size: 16
-                        }
-                    },
-                    legend: {
-                        labels: {
-                            color: 'white'
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        ticks: {
-                            color: 'white'
-                        },
-                        title: {
-                            display: true,
-                            text: 'Time Spent Growing',
-                            color: 'white',
-                            font: {
-                                size: 14
-                            }
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            color: 'white'
-                        },
-                        title: {
-                            display: true,
-                            text: 'Height Grown',
-                            color: 'white',
-                            font: {
-                                size: 14
-                            }
                         }
                     }
                 }
@@ -92,6 +64,9 @@ function drawGraph(namePlant) {
     // Prepare data for the chart
     const dates = data.map(d => new Date(d.date).toLocaleDateString());
     const heights = data.map(d => d.height);
+    
+    console.log('📅 Processed dates:', dates);
+    console.log('📏 Processed heights:', heights);
 
     // Create the growth chart
     growthChart = new Chart(chartCanvas, {
@@ -104,9 +79,7 @@ function drawGraph(namePlant) {
                 borderColor: '#28a745',
                 backgroundColor: 'rgba(40, 167, 69, 0.1)',
                 tension: 0.3,
-                fill: true,
-                pointRadius: 5,
-                pointHoverRadius: 8
+                fill: true
             }]
         },
         options: {
@@ -115,49 +88,22 @@ function drawGraph(namePlant) {
             plugins: {
                 title: {
                     display: true,
-                    text: `${namePlant}'s Growth Journey`,
+                    text: `${plantName}'s Growth Journey`,
                     color: 'white',
                     font: {
-                        size: 10,
-                        weight: 'bold'
+                        size: 16
                     }
-                },
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    bodyColor: 'white',
-                    titleColor: 'white',
-                    backgroundColor: '#333'
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    ticks: {
-                        color: 'white'
-                    },
-                    title: {
-                        display: true,
-                        text: 'Height Grown',
-                        color: 'white',
-                        font: {
-                            size: 9
-                        }
-                    }
+                    ticks: { color: 'white' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
                 },
                 x: {
-                    ticks: {
-                        color: 'white'
-                    },
-                    title: {
-                        display: true,
-                        text: 'Time Spent Growing',
-                        color: 'white',
-                        font: {
-                            size: 9
-                        }
-                    }
+                    ticks: { color: 'white' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
                 }
             }
         }
@@ -821,6 +767,29 @@ async function loadDashboard() {
       contentId
     });
   });
+
+  // Initialize growth data structure
+  globalPlants.growthData = {};
+
+  // Process growth entries from profile
+  if (profile.growth_entries) {
+      profile.growth_entries.forEach(entry => {
+          if (!globalPlants.growthData[entry.plant_name]) {
+              globalPlants.growthData[entry.plant_name] = [];
+          }
+          globalPlants.growthData[entry.plant_name].push({
+              date: entry.date_recorded,
+              height: entry.cm_grown
+          });
+      });
+
+      // Sort growth data for each plant
+      Object.keys(globalPlants.growthData).forEach(plantName => {
+          globalPlants.growthData[plantName].sort((a, b) => 
+              new Date(a.date) - new Date(b.date)
+          );
+      });
+  }
 }
 
 /**
@@ -1540,46 +1509,72 @@ function initialisePlantGrowthTracker() {
   function handleGrowthDataSubmit(e) {
     e.preventDefault();
     e.stopPropagation();
-
-    // Check if canvas and context are available
-    if (!canvas || !ctx) {
-        console.error('Canvas or context not initialized');
-        return;
-    }
+    console.log('🌱 Growth data submission triggered');
 
     const name = getCurrentActivePlantName();
     const date = document.getElementById('growthDate').value;
     const height = parseFloat(document.getElementById('growthHeight').value);
 
+    console.log('📝 Submission details:', { name, date, height });
+    console.log('🗃️ Current globalPlants.growthData state:', 
+        JSON.stringify(globalPlants.growthData, null, 2));
+
     if (!name || !date || isNaN(height)) {
-      alert('Please fill in all fields correctly');
-      return;
+        console.error('❌ Invalid form data');
+        alert('Please fill in all fields correctly');
+        return;
     }
 
-    if (!globalPlants.growthData[name]) {
-      globalPlants.growthData[name] = [];
-    }
-    globalPlants.growthData[name].push({ date, height });
-    globalPlants.growthData[name].sort((a, b) => new Date(a.date) - new Date(b.date));
+    // Submit to backend first
+    submitGrowthData(name, date, height)
+        .then(result => {
+            console.log('✅ Backend save successful:', result);
 
-    if (globalPlants[name]) {
-      globalPlants[name].lastUpdated = new Date().toISOString();
-    }
+            // Only update local data after successful backend save
+            if (!globalPlants.growthData[name]) {
+                console.log('📦 Initializing growth data array for:', name);
+                globalPlants.growthData[name] = [];
+            }
 
-    // Clear form and close modal
-    growthForm.reset();
-    growthDateInput.valueAsDate = new Date();
-    const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
-    modal?.hide();
-    document.activeElement?.blur();
-    
-    
+            console.log('➕ Adding new data point:', { date, height });
+            console.log('📊 Growth data before push:', 
+                JSON.stringify(globalPlants.growthData[name], null, 2));
 
-    // Update graph
-    console.log(`Added growth data for ${name}:`, globalPlants.growthData[name]);
-    console.log("draw graph called")
-    drawGraph(name);
-  }
+            // Add new data point
+            globalPlants.growthData[name].push({
+                date: date,
+                height: height
+            });
+
+            console.log('📊 Growth data after push:', 
+                JSON.stringify(globalPlants.growthData[name], null, 2));
+
+            // Sort data by date
+            globalPlants.growthData[name].sort((a, b) => 
+                new Date(a.date) - new Date(b.date)
+            );
+
+            if (globalPlants[name]) {
+                globalPlants[name].lastUpdated = new Date().toISOString();
+            }
+
+            // Clear form and close modal
+            growthForm.reset();
+            growthDateInput.valueAsDate = new Date();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
+            modal?.hide();
+            document.activeElement?.blur();
+
+            // Update graph
+            console.log('📈 Calling drawGraph with final data:', 
+                JSON.stringify(globalPlants.growthData[name], null, 2));
+            drawGraph(name);
+        })
+        .catch(error => {
+            console.error('❌ Error submitting growth data:', error);
+            alert(error.message || 'Failed to save growth data. Please try again.');
+        });
+}
 
   canvas = document.getElementById('plantGrowthGraph');
   const plantSelector = document.getElementById('plantSelector');
@@ -1621,52 +1616,41 @@ function initialisePlantGrowthTracker() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
   });
-
-  // Handle form submission for new growth data
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const name = getCurrentActivePlantName(); // Get currently active plant name
-    const date = document.getElementById('growthDate').value;
-    const height = parseFloat(document.getElementById('growthHeight').value);
-
-    if (!name || !date || isNaN(height)) {
-      alert('Please fill in all fields correctly');
-      return;
-    }
-
-    // Initialise growth data for this plant if it doesn't exist
-    if (!globalPlants.growthData[name]) {
-      globalPlants.growthData[name] = [];
-    }
-
-    // Add new growth data point
-    globalPlants.growthData[name].push({ date, height });
-
-    // Sort by date
-    globalPlants.growthData[name].sort((a, b) => new Date(a.date) - new Date(b.date));
-    
-    // Update last updated timestamp for the plant
-    if (globalPlants[name]) {
-      globalPlants[name].lastUpdated = new Date().toISOString();
-    }
-
-    // Clear form
-    form.reset();
-
-    // Close the modal using Bootstrap's API
-    const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
-    modal?.hide();
-    document.activeElement?.blur();
-    
-    // Update the graph
-    console.log("draw graph called")
-    drawGraph(name);
-  });
   
   // Initial population of dropdown
   populatePlantDropdown();
 }
+
+// Add these functions to script.js
+
+// Update the submitGrowthData function with better error handling
+function submitGrowthData(plantName, date, height) {
+    console.log('Submitting growth data:', { plantName, date, height });
+    
+    return fetch('/api/add-growth', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+            plant_name: plantName,
+            date: date,
+            height: height
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.error || 'Failed to save growth data');
+            });
+        }
+        return response.json();
+    });
+}
+
+
 
 /**
  * SETTINGS & PREFERENCES

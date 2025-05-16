@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from .models import *
 from flask import session
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 from flask_wtf.csrf import generate_csrf
 
@@ -547,3 +547,52 @@ def updateFeed():
         'public_posts': [post.to_dict() for post in public_posts],
         'friends_posts': [post.to_dict() for post in friends_posts]
     }), 200
+
+from datetime import datetime  # Add this import at the top
+
+@routes_bp.route('/api/add-growth', methods=['POST'])
+def add_growth_data():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not logged in'}), 401
+
+    try:
+        data = request.get_json()
+        plant_name = data.get('plant_name')
+        date_str = data.get('date')
+        height = float(data.get('height'))
+
+        # Validate required fields
+        if not all([plant_name, date_str, height]):
+            return jsonify({'error': 'Missing required fields'}), 400
+
+        # Convert date string to Python date object
+        try:
+            date_recorded = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+
+        # Create new growth entry
+        new_entry = PlantGrowthEntry(
+            user_id=user_id,
+            plant_name=plant_name,
+            date_recorded=date_recorded,  # Now using proper date object
+            cm_grown=height
+        )
+
+        user_db.session.add(new_entry)
+        user_db.session.commit()
+
+        return jsonify({
+            'message': 'Growth data added successfully',
+            'entry': {
+                'plant_name': plant_name,
+                'date_recorded': date_str,  # Return the original string format for the frontend
+                'cm_grown': height
+            }
+        }), 201
+
+    except Exception as e:
+        print(f"Error adding growth data: {str(e)}")
+        user_db.session.rollback()
+        return jsonify({'error': 'Failed to save growth data'}), 500
