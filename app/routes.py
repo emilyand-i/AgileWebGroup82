@@ -304,6 +304,34 @@ def update_settings():
         }
     }), 200
 
+@routes_bp.route('/api/add-photo', methods=['POST'])
+def add_photo():
+    user_id = session.get('user_id')
+    data = request.get_json()
+    
+    plant_id = data.get('plant_id')
+    image_url = data.get('image_url')
+    caption = data.get('caption', '')
+    
+    if not plant_id or not image_url:
+        return jsonify({'error': 'Missing plant_id or image_url'}), 400
+
+    new_photo = uploadedPics(
+        user_id=user_id,
+        plant_id=plant_id,
+        image_url=image_url,  # base64 or cloud link
+        caption=caption
+    )
+
+    user_db.session.add(new_photo)
+    user_db.session.commit()
+    
+    print(f"📸 Uploaded new photo for plant {plant_id} by user {user_id}")
+
+    return jsonify({'message': 'Photo saved', 'photo_id': new_photo.photo_id}), 201
+
+
+
 #FOR FLASK SHAREBOARD PAGE - HASNOT BEEN TESTED PROPERLY!!!!!!!!
  #NOTE: limit is hard coded for now, may be changed later (current only collects 9 posts)
 @routes_bp.route('api/update-social', methods=['GET'])
