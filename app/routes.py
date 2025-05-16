@@ -391,7 +391,6 @@ def add_photo():
 
     return jsonify({'message': 'Photo saved', 'photo_id': new_photo.photo_id}), 201
 
-
 #FOR FLASK SHAREBOARD PAGE - HASNOT BEEN TESTED PROPERLY!!!!!!!!
  #NOTE: limit is hard coded for now, may be changed later (current only collects 9 posts)
 @routes_bp.route('/api/update-social', methods=['GET'])
