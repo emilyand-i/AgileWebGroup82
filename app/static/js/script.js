@@ -367,6 +367,70 @@ async function loadSession() {
   }
 }
 
+async function addFriend(friendId, username) {
+  const load = await fetch('/api/add-friend', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ friend_id: friendId})
+  });
+  const result = await load.json();
+
+  if (load.ok) {
+    const friendsList = document.getElementById("friendsList");
+    friendsList.innerHTML += `
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        ${username}
+        <button class="btn btn-sm btn-danger" onclick="removeFriend(${friendId}, '${username}', this)">Remove</button>
+      </li>
+    `;
+    //clear the search
+    document.getElementById("friendSearch").value = '';
+    document.getElementById("searchResults").innerHTML = '';
+
+    // Update localStorage
+    const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+    profile.friends = profile.friends || [];
+    profile.friends.push({ friend_id: friendId, friend_username: username });
+    localStorage.setItem('user_profile', JSON.stringify(profile));
+
+    alert(`Added ${username} as a friend`);
+  } else {
+    alert(`${result.error || 'Failed to add friend'}`)
+  }
+}
+
+async function removeFriend(friendId, username, btn) {
+  const load = await fetch('/api/remove-friend', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ friend_id: friendId })
+  });
+
+  const result = await load.json();
+
+  if (load.ok) {
+    // remove from dom
+    btn.closest('li').remove();
+
+    // update loacal storage
+    const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+    profile.friends = (profile.friends || []).filter(f => f.friend_id !== friendId);
+    localStorage.setItem('user_profile', JSON.stringify(profile));
+
+
+    alert(`Removed ${username} from your friends 🗑️`);
+    // Optional: remove friend from DOM or reload
+  } else {
+    alert(`${result.error || 'Failed to remove friend'}`);
+  }
+}
+
 
 /**
  * DASHBOARD FUNCTIONALITY
@@ -379,7 +443,17 @@ async function loadDashboard() {
   if (!window.location.pathname.includes('dashboard.html')) return;
   
   if (!profile) return;
+  const friendsList = document.getElementById("friendsList");
+  if (profile.friends && friendsList) {
+    friendsList.innerHTML = profile.friends.map(friend => `
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        ${friend.friend_username}
+        <button class="btn btn-sm btn-danger" onclick="removeFriend(${friend.friend_id}, '${friend.friend_username}', this)">Remove</button>
+      </li>
+    `).join('');
+  }
 
+  
   const username = profile.username || 'username';
   document.querySelector('.welcome_to').textContent = `Welcome to ${username}'s Garden`;
 
@@ -1209,13 +1283,68 @@ function initialiseSettingsModal() {
         document.getElementById("SettingsModalContent").innerHTML = html;
 
         attachFontScaleControls();
+        document.getElementById("accountModalContent").innerHTML = html;
+        initialiseSettingsForm();
       })
       .catch(error => {
-        document.getElementById("SettingsModalContent").innerHTML = `
-          <div class="modal-body text-danger">Failed to load settings content.</div>
+        document.getElementById("accountModalContent").innerHTML = `
+          <div class="modal_main_section text-danger">Failed to load settings content.</div>
         `;
         console.error("Error loading settings:", error);
       });
+  });
+}
+function initialiseSettingsForm() {
+  const form = document.getElementById("userSettingsForm");
+  let saveBtn = document.getElementById("saveUserSettings");
+
+  if (!form || !saveBtn) return;
+
+  const profile = JSON.parse(localStorage.getItem('user_profile'));
+  if (profile?.settings) {
+    const profilePublicCheckbox = document.getElementById("profilePublic");
+    const allowFriendRequestsCheckbox = document.getElementById("allowFriendRequests");
+    if (profilePublicCheckbox) {
+      profilePublicCheckbox.checked = profile.settings.is_profile_public;
+    }
+    if (allowFriendRequestsCheckbox) {
+      allowFriendRequestsCheckbox.checked = profile.settings.allow_friend_requests;
+    }
+  }
+
+  saveBtn.replaceWith(saveBtn.cloneNode(true));
+  saveBtn = document.getElementById("saveUserSettings");
+
+  saveBtn.addEventListener("click", async () => {
+    const data = {
+      is_profile_public: form.publicProfile.checked,
+      allow_friend_requests: form.allowFriendRequests.checked
+    };
+
+    try {
+      const response = await fetch("/api/settings", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+        },
+        credentials: 'include',
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        const updated = await response.json();
+        alert("✅ Settings saved.");
+        localStorage.setItem('user_profile', JSON.stringify({
+          ...profile,
+          settings: updated.settings
+        }));
+      } else {
+        alert("❌ Could not save settings.");
+      }
+    } catch (err) {
+      console.error("Settings update failed:", err);
+    }
   });
 }
 

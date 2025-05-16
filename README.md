@@ -16,7 +16,7 @@ You can log your plants growth measurements, upload photos to your album, track 
 - Andoni (24314657) GIT: Donaks1
 - Eli (student_id)
 - Emily (23723242) GIT: emilyand-i
-- Luke (23814635)
+- Luke (23814635) GIT: alligator-byte
 
 -- Virtual Environment Setup --
 - Make sure Python3 installed

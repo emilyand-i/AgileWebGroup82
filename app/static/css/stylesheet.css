@@ -115,10 +115,11 @@ body {
   max-height: 85vh;
   padding-bottom: 0;
   scrollbar-width: none;
-  background-color: rgba(73, 105, 81, 0.573);
-  box-shadow: 1px 0px 14px 7px rgba(57, 87, 57, 0.63);
-  border-radius: 3rem;
   height: 95vh;
+  border-radius: 20px;
+  background: linear-gradient(225deg, rgba(73, 105, 81, 0.573), rgba(73, 105, 81, 0.573));
+  box-shadow:  -39px 39px 69px #2a3b21,
+              39px -39px 69px #7eb163;
 }
 
 
@@ -169,8 +170,7 @@ main.main-info {
 
 .form-card {
   position: absolute;
-  border-radius: 10px;
-
+  border-radius: 1rem;
   width: 100%;
   height: 100%;
   padding: 1px 12px;
@@ -212,17 +212,6 @@ main.main-info {
   border-radius: 0.5rem;
 }
 
-
-.btn {
-  border-radius: 10px;
-  color:aliceblue;
-
-}
-.btn:hover {
-  color: white;
-  background-color: rgba(124, 175, 124, 0.63);
-  cursor: pointer;
-}
 
 /* adjustments for mobile and ipad screen usage */
 
@@ -329,7 +318,7 @@ main.main-info {
 }
 
 #home-flower {
-  width: 10rem;
+  width: 15rem;
 }
 
 .mid-column {
@@ -338,7 +327,31 @@ main.main-info {
   flex-direction: column;
 }
 
-.nav-link, .add_stat, .logout_button {
+.plant-tabs {
+  width: 100%;    
+  padding: 0 1rem; 
+}
+
+
+
+.share-image {
+  max-width: 5rem;
+}
+.btn-success {
+  color: aliceblue;
+  font-size: 1rem;    
+  border-radius: 0.5rem; 
+  padding: 0.25rem 0.5rem; 
+  width: 10rem;         
+  text-align: center;
+  background-color: #729566;
+  border: none;
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow:clip; 
+}
+
+.nav-link, .add_stat {
   color: aliceblue;
   font-size: 1rem;    
   border-radius: 0.5rem; 
@@ -351,19 +364,19 @@ main.main-info {
   overflow: hidden;
   text-overflow: ellipsis; 
 }
-
-.plant-tabs {
-  width: 100%;    
-  padding: 0 1rem; 
-}
-
-.nav-link:hover, .logout_button:hover {
+.nav-link:hover {
   background-color: #66835c;
 }
 
+.btn {
+  border-radius: 10px;
+  color:aliceblue;
 
-.share-image {
-  max-width: 5rem;
+}
+.btn:hover {
+  color: white;
+  background-color: rgba(124, 175, 124, 0.63);
+  cursor: pointer;
 }
 
 /* Plant Graph Growth Section*/
@@ -399,12 +412,11 @@ main.main-info {
 
 .photo-card {
   flex: 0 0 auto;
-  width: 80%;
-  margin: 15px;
+  margin: auto;
   border: 2px solid rgb(80, 163, 71);
   padding: 5px;
   flex-direction: column;
-  max-width: 100%;
+  max-width: 80%;
 }
 
 /* When fullscreen class is present on picDiv, adjust the photo cards */
@@ -416,7 +428,7 @@ main.main-info {
 }
 
 .photo-img {
-  max-width: 100%;
+  max-width: 80%;
   height: auto;
   margin-bottom: 5px;
 }
@@ -452,7 +464,7 @@ main.main-info {
 .avatar-choice:hover {
   cursor: pointer;
   box-shadow: 0px 0px 4px 2px rgba(0, 0, 0, 0.5);
-  transform: scale(1.05);
+  transform: scale(1.07);
   transition: transform 0.3s ease;
 }
 
@@ -474,30 +486,6 @@ main.main-info {
 #addPlantForm {
   width: 20rem;
   margin: 0 auto;
-}
-
-
-/* Settings Page */
-.settings-container {
-  background: #6db07586;
-  border-radius: 8px;
-  padding: 20px;
-}
-
-.section {
-  margin-bottom: 15px;
-}
-
-.section button.section-toggle {
-  width: 100%;
-  text-align: left;
-  padding: 15px;
-  background: #00c24a;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
 }
 
 .options {
@@ -530,11 +518,24 @@ main.main-info {
 .modal-style {
   background-color: rgb(65, 90, 71);
   color: white;
+  border-radius: 18px;
+  background: #547642;
+  box-shadow:18px 18px 36px #111a0c,
+            -18px -18px 36px #182912;
   /* text-align: center; */
 }
 
+.save-plant {
+  background-color: rgba(83, 156, 27, 0.672);
+  border: none;
+}
+
+.btn-secondary {
+  background-color: rgba(83, 156, 27, 0.672);
+  border: none;
+}
 .delete-plant {
-  background-color: rgb(151, 29, 29);
+  background-color: rgba(151, 29, 29, 0.832);
 }
 
 /* dark mode dimming feature */
@@ -563,11 +564,15 @@ main.main-info {
 }
 
 .graph-section {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
-    max-width: 100%;
+  padding: 15px;
+  margin-bottom: 20px;
+  max-width: 80%;
+  margin: auto;
+  border-radius: 42px;
+  background: linear-gradient(45deg, #5a7e47, #4c6a3b);
+  box-shadow:  16px -16px 31px #384f2c,
+              -16px 16px 31px #709d58;
+            
 }
 
 .graph-container {
@@ -594,9 +599,9 @@ main.main-info {
     justify-content: center;
     align-items: center;
     margin-bottom: 10px;
-    background-color: rgb(106, 139, 124);
+    background-color: #c7eac7;
     border-radius: 1rem;
-    color: white;
+    color: rgb(5, 14, 0);
 }
 
 .graphHeader {
@@ -606,21 +611,43 @@ main.main-info {
     margin: 0;
 }
 
+.date-select-group {
+  display: inline-flex;
+  background-color: #4c6b48;
+  border-radius: 2rem;
+  padding: 4px;
+}
+
 .date-select-button {
-  background-color: #729566;
-  color: white;
+  background-color: transparent;
+  /*background-color: #729566;*/
+  color: #d0e8cd;
   border: none;
-  padding: 10px 20px;
+  padding: 10px 24px;
   border-radius: 1rem;
+  transition: all 0.5s ease;
+  border-radius: 2rem;
   cursor: pointer;
   font-size: 1rem;
-  margin: 0.5rem;
+}
+.date-select-button:hover {
+  background-color: #729566;
 }
 
 .date-select-button.active {
-  background-color: #45b470;
+  background-color: #729566;
   color: white;
-  border-color: #45b470;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+#todayBtn.active {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+#yesterdayBtn.active {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .left_col {
@@ -650,6 +677,8 @@ main.main-info {
   background-color: green;
   border-radius: 4px;
 }
+
+
 
 .carousel-control-prev-icon,
 .carousel-control-next-icon {
@@ -681,3 +710,125 @@ main.main-info {
   transition: transform 0.5s ease;
 }
 
+
+/* User Account Settings Modal */
+
+.user-settings-modal {
+  background-color: rgb(69, 97, 71);
+  font-family: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+
+.user-settings-modal {
+  color: #ffffff;
+}
+
+.modal-header,
+.modal-footer {
+  background-color: #547642;
+  border: none;
+}
+
+.modal-title {
+  font-weight: bold;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-title::before {
+  content: "🌿";
+  font-size: 1.2rem;
+}
+
+.modal_main_section {
+  background-color: #729566;
+  padding: 20px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+#user-settings-modal .nav-link {
+  color: #fff;
+  background-color: #729566;
+  border-radius: 5px 5px 0 0;
+  margin-right: 5px;
+  border: none;
+}
+#user-settings-modal .nav-link:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+#user-settings-modal .nav-link.active {
+  background-color: #c7eac7;
+  color: #000000;
+  font-weight: bold;
+}
+
+
+.form-check-label {
+  font-size: 1.1rem;
+}
+
+.btn-primary .btn-success {
+  background-color: #5fa35f;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.addnewplant {
+  padding: 0.28rem 0.5rem; 
+  width: 14rem;
+}
+
+.list-group-item {
+  background-color: #4b6e4b;
+  color: #fff;
+  border: none;
+}
+
+/* SETTINGS BUTTON */
+.acc_settings_btn, .logout_button {
+  padding: 13px 40px;
+  border-radius: 50px;
+  background-color: #c7eac7;
+  cursor: pointer;
+  border: 0;
+  box-shadow: rgba(0, 28, 14, 0.14) 0 0 8px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transition: all 0.5s ease;
+}
+
+.acc_settings_btn:hover, .logout_button:hover {
+  letter-spacing: 3px;
+  background-color: #729566ed;
+  color: #fff;
+  box-shadow: rgb(56, 142, 56) 0px 7px 29px 0px;
+  transform: scale(1.02);
+}
+
+
+
+.acc_settings_btn:active, .logout_button:active {
+  background-color: hsl(145, 50%, 45%);
+  color: #fff;
+  box-shadow: none;
+  transform: translateY(10px);
+  transition: 100ms;
+}
+
+
+
+
+
+
+/* Checkboxes */
+.form-check-input {
+  
+}
+.form-check-label {
+
+}

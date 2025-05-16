@@ -16,7 +16,6 @@ class User(user_db.Model):
   username = user_db.Column(user_db.String(80), unique = True, nullable = False) # no two users can have the same username, cant be left blank
   email = user_db.Column(user_db.String(120), unique = True, nullable = False)
   password = user_db.Column(user_db.String(120), nullable = False) # cant be left blank, also.
-
   last_login_date = user_db.Column(user_db.Date, nullable=True)
   login_streak = user_db.Column(user_db.Integer, default=0)
 
