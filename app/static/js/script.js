@@ -421,8 +421,7 @@ function loginForm() {
         if (slimProfile.photos) {
           slimProfile.photos = slimProfile.photos.map(photo => ({
             photo_id: photo.photo_id,
-            plant_id: photo.plant_id,
-            image_url: (photo.image_url && typeof photo.image_url === 'string' && photo.image_url.startsWith('data:image'))? '': photo.image_url,
+            image_url: photo.image_url.startsWith('data:image') ? '' : photo.image_url,
             caption: photo.caption,
             datetime_uploaded: photo.datetime_uploaded
           }));
@@ -593,14 +592,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   await CsrfToken();
   loginForm();
   signupForm();
-
-  const addFriendTab = document.getElementById('friends-tab');
-  if (addFriendTab) {
-    addFriendTab.addEventListener('shown.bs.tab', () => {
-      console.log("🔄 'Add Friend' tab activated");
-      loadAllUsers(); // Function to fetch and display all users
-    });
-  }
 });
 
 
@@ -671,11 +662,10 @@ async function loadDashboard() {
 
   const username = profile.username || 'username';
   document.querySelector('.welcome_to').textContent = `Welcome to ${username}'s Garden`;
+  
 
   loadNotifications();
   loadFriendsList();
-  
-
   // Reset plant count when loading dashboard
   myPlantCount = 0;
   // Clear global plants dictionary to rebuild it from profile data
