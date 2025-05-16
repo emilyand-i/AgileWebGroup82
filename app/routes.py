@@ -1,18 +1,19 @@
 from flask import Blueprint, request, jsonify
 from .models import *
 from flask import session
+
+from flask_login import login_required, current_user
+
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date, timedelta
 
 from flask_wtf.csrf import generate_csrf
 
 
-routes_bp = Blueprint('routes', __name__) # connect all related routes for later
 
-@routes_bp.route('/api/csrf-token', methods = ['GET'])
-def get_csrf():
-    token = generate_csrf()
-    return jsonify({'csrf_token': token })
+
+
+routes_bp = Blueprint('routes', __name__) # connect all related routes for later
 
 
 @routes_bp.route('/api/register', methods=['POST']) #post route to /api/register - user sending user and pass data
@@ -31,10 +32,7 @@ def register(): # run once fetch request added, once POST to /api/register
     if User.query.filter_by(email = email).first():
         return jsonify({'error': 'Email already registered'})
 
-    hashed_pass = generate_password_hash(password)
-
-
-    new_user = User(username=username, email=email, password=hashed_pass) # user is added to our 'user.db' database
+    new_user = User(username=username, email=email, password=password) # user is added to our 'user.db' database
     user_db.session.add(new_user)
     user_db.session.commit()
 
@@ -55,11 +53,11 @@ def login():
     password = data.get('password')
     
     if not username or not password:
-        return jsonify({'error': 'Please enter username and password'}), 400
-    
-    user = User.query.filter_by(username=username).first()
+        return jsonify({'error': 'Please enter username and password'})
 
-    if user and check_password_hash(user.password, password):
+    user = User.query.filter_by(username=username, password=password).first()
+    if user:
+        # store session info
         session['user_id'] = user.id
         session['username'] = user.username
 
@@ -83,14 +81,15 @@ def login():
         growth_entries = PlantGrowthEntry.query.filter_by(user_id=user.id).all()
         photos = uploadedPics.query.filter_by(user_id=user.id).all()
 
-        plant_data = [{
-            'plant_name': plant.plant_name,
-            'plant_type': plant.plant_type,
-            'chosen_image_url': plant.chosen_image_url,
-            'plant_category': plant.plant_category,
-            'date_created': plant.date_created,
-            'id': plant.id
-        } for plant in plants]
+        plant_data = [
+            {
+                'plant_name': plant.plant_name,
+                'plant_type': plant.plant_type,
+                'chosen_image_url': plant.chosen_image_url,
+                'date_created': plant.date_created,
+                'id': plant.id
+            } for plant in plants
+        ]
 
         growth_data = [{
             'plant_name': entry.plant_name,
@@ -101,7 +100,6 @@ def login():
         friends_data = [{
             'user_id': friend.user_id,
             'friend_id': friend.friend_id,
-            'friend_username': User.query.get(friend.friend_id).username,
             'status': friend.status
         } for friend in friends]
 
@@ -115,7 +113,8 @@ def login():
 
         settings_data = {
             'is_profile_public': settings.is_profile_public if settings else True,
-            'allow_friend_requests': settings.allow_friend_requests if settings else True
+            'allow_friend_requests': settings.allow_friend_requests if settings else True,
+            'font_size': settings.font_size if settings else 'normal'
         }
 
         return jsonify({
@@ -124,12 +123,9 @@ def login():
             'email': user.email,
             'user_id': user.id,
             'plants': plant_data,
+            'growth_entries': growth_data
             'growth_entries': growth_data,
-            'friends': friends_data,
-            'photos': photo_data,
-            'settings': settings_data,
-            'streak': user.login_streak,
-            'last_login_date': str(user.last_login_date)
+            'settings': settings_data
         }), 200
     else:
         return jsonify({'error': 'Invalid credentials'}), 401
@@ -211,29 +207,33 @@ def logout():
 
 @routes_bp.route('/api/add-plant', methods=['POST'])
 def add_plant():
-    data = request.get_json()
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'error': 'Plantly doesn`t know you'}), 401
 
+    data = request.get_json()
+    data = request.get_json()
     plant_name = data.get('plant_name')
     plant_type = data.get('plant_type')
     chosen_image_url = data.get('chosen_image_url')
-    plant_category = data.get('plant_category')
 
-    if not plant_name or not plant_type or not chosen_image_url or not plant_category:
-        return jsonify({'error': 'Missing required fields'}), 400
+    if not plant_name or not plant_type:
+        return jsonify({'error': 'Missing plant name or type'}), 400
+    if not plant_name or not plant_type:
+        return jsonify({'error': 'Missing plant name or type'}), 400
 
     new_plant = Plants(
         user_id=user_id,
         plant_name=plant_name,
         plant_type=plant_type,
-        chosen_image_url=chosen_image_url,
-        plant_category=plant_category
+        chosen_image_url=chosen_image_url
+        user_id=user_id,
+        plant_name=plant_name,
+        plant_type=plant_type,
+        chosen_image_url=chosen_image_url
     )
     user_db.session.add(new_plant)
     user_db.session.commit()
-    
 
     return jsonify({'message': 'Plant added successfully'}), 201
 

@@ -538,7 +538,7 @@ main.main-info {
   background-color: rgba(151, 29, 29, 0.832);
 }
 
-/* dark mode classes */
+/* dark mode dimming feature */
 #dark-overlay {
   position: fixed;
   top: 0;

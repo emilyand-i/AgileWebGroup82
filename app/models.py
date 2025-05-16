@@ -30,6 +30,7 @@ class UserSettings(user_db.Model):
   user_id = user_db.Column(user_db.Integer, user_db.ForeignKey('user.id'), primary_key=True, nullable=False)
   is_profile_public = user_db.Column(user_db.Boolean, default=True)
   allow_friend_requests = user_db.Column(user_db.Boolean, default=True)
+  font_size = user_db.Column(user_db.String(10), default='normal')
   
 
 #Friends List: table in user_db
@@ -101,11 +102,11 @@ class PlantGrowthEntry(user_db.Model):
   cm_grown = user_db.Column(user_db.Float, nullable=False)          # same as JS `plantHeight`
 
 # To create a new GROWTH ENTRY for a plant:
-#   new_entry = PlantGrowthEntry(
-#       user_id = <user_id>,
-#       plant_name = 'Sunflower',
-#       date_recorded = datetime.date(2025, 5, 5),
-#       cm_grown = 4.2
-#   )
-#   user_db.session.add(new_entry)
-#   user_db.session.commit()
+  """ new_entry = PlantGrowthEntry(
+       user_id = <user_id>,
+       plant_name = 'Sunflower',
+       date_recorded = datetime.date(2025, 5, 5),
+       cm_grown = 4.2
+   )
+   user_db.session.add(new_entry)
+   user_db.session.commit() """

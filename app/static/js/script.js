@@ -1558,9 +1558,12 @@ function initialiseSettingsModal() {
   if (!modal) return;
 
   modal.addEventListener("show.bs.modal", () => {
-    fetch("User-Settings.html")
+    fetch("/static/User-Settings.html")
       .then(response => response.text())
       .then(html => {
+        document.getElementById("SettingsModalContent").innerHTML = html;
+
+        attachFontScaleControls();
         document.getElementById("accountModalContent").innerHTML = html;
         initialiseSettingsForm();
       })
@@ -1626,6 +1629,59 @@ function initialiseSettingsForm() {
   });
 }
 
+//load friends list function 
+function loadFriendsList() {
+  fetch("/api/friends")
+    .then(res => res.json())
+    .then(data => {
+      const list = document.getElementById("friends-list");
+      list.innerHTML = ""; // Clear list
+
+      // Accepted friends
+      data.accepted.forEach(friend => {
+        const li = document.createElement("li");
+        li.innerHTML = `${friend.username} <button onclick="removeFriend(${friend.id})">Remove</button>`;
+        list.appendChild(li);
+      });
+
+      // Pending requests
+      data.pending.forEach(request => {
+        const li = document.createElement("li");
+        li.innerHTML = `Pending: ${request.username} 
+          <button onclick="acceptRequest(${request.id})">Accept</button>
+          <button onclick="declineRequest(${request.id})">Decline</button>`;
+        list.appendChild(li);
+      });
+    });
+}
+
+function openTab(evt, tabName) {
+  // Hide all tab contents
+  const tabContents = document.querySelectorAll('.tabcontent');
+  tabContents.forEach(tc => tc.classList.remove('active'));
+
+  // Remove active class from all tab buttons
+  const tabButtons = document.querySelectorAll('.tab button.tablinks');
+  tabButtons.forEach(btn => btn.classList.remove('active'));
+
+  // Show the selected tab content
+  const selectedContent = document.getElementById(tabName);
+  if (selectedContent) {
+    selectedContent.classList.add('active');
+  }
+
+  // Add active class to the clicked button
+  if (evt && evt.currentTarget) {
+    evt.currentTarget.classList.add('active');
+  }
+
+  // Optional: reload the friends list if we switched to that tab
+  if (tabName === 'Friends') {
+    loadFriendsList();
+  }
+}
+
+
 // update daily streak
 function updateDailyStreak() {
   const userData = JSON.parse(localStorage.getItem('user_profile'));
@@ -1637,6 +1693,8 @@ function updateDailyStreak() {
     streakDiv.textContent = 'Login streak not available.';
   }
 }
+
+
 
 
 
@@ -1718,6 +1776,68 @@ document.getElementById("plantCategory").addEventListener("change", function () 
   } else {
     plantTypeSelect.disabled = true;
   }
+});
+    
+
+// slecting font size settings
+
+// setting font size 
+// Apply saved font scale immediately on page load
+function attachFontScaleControls() {
+  const saved = localStorage.getItem('fontScale') || 'normal';
+  document.documentElement.classList.remove('font-small', 'font-normal', 'font-large');
+  document.documentElement.classList.add(`font-${saved}`);
+
+  const radios = document.querySelectorAll('input[name="font-size"]');
+  if (!radios.length) return;
+
+  radios.forEach((radio) => {
+    radio.addEventListener('change', () => {
+      const scale = radio.value;
+
+      // ✅ Confirm value is valid
+      if (!['small', 'normal', 'large'].includes(scale)) {
+        console.warn("Invalid font size selected:", scale);
+        return;
+      }
+
+      // Apply font size visually
+      document.documentElement.classList.remove('font-small', 'font-normal', 'font-large');
+      document.documentElement.classList.add(`font-${scale}`);
+      localStorage.setItem('fontScale', scale);
+
+      // Log and send to backend
+      console.log("Saving font size to backend:", scale);
+
+      console.log("Sending font size:", scale);
+
+      if (!['small', 'normal', 'large'].includes(scale)) {
+        console.warn("Invalid scale:", scale);  // this will catch silent bugs
+      return;
+      }
+      fetch('/api/update-font-size', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ font_size: scale })
+      })
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(err => {
+            console.error("Font size update failed:", err);
+          });
+        }
+      })
+      .catch(err => {
+        console.error("Network error while updating font size:", err);
+      });
+    });
+  });
+}
+
+// Automatically apply saved font size on page load
+document.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('fontScale') || 'normal';
+  document.documentElement.classList.add(`font-${saved}`);
 });
 
 
