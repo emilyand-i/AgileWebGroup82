@@ -82,9 +82,6 @@ def login():
         plants = Plants.query.filter_by(user_id=user.id).all()
         growth_entries = PlantGrowthEntry.query.filter_by(user_id=user.id).all()
         photos = uploadedPics.query.filter_by(user_id=user.id).all()
-        shared_entries = SharedPlant.query.filter_by(shared_with=user.id).all()
-        notifications = Notification.query.filter_by(receiver_id=user.id).order_by(Notification.timestamp.desc()).all()
-
 
         plant_data = [{
             'plant_name': plant.plant_name,
@@ -114,23 +111,7 @@ def login():
             'image_url': pic.image_url,
             'caption': pic.caption,
             'datetime_uploaded': pic.datetime_uploaded
-        } for pic in photos],
-        shared_plant_data = [{
-            'plant_id': shared.plant_id,
-            'plant_name': Plants.query.get(shared.plant_id).plant_name,
-            'shared_by': User.query.get(shared.shared_by).username,
-            'datetime_shared': shared.datetime_shared.strftime('%Y-%m-%d %H:%M')
-        } for shared in shared_entries]
-
-        notifications_data = [{
-            'id': notif.id,
-            'sender': User.query.get(notif.sender_id).username,
-            'message': notif.message,
-            'timestamp': notif.timestamp.strftime('%Y-%m-%d %H:%M'),
-            'plant_id': notif.plant_id,
-            'is_read': notif.is_read
-        } for notif in notifications],
-        
+        } for pic in photos]
 
         settings_data = {
             'is_profile_public': settings.is_profile_public if settings else True,
@@ -148,12 +129,12 @@ def login():
             'photos': photo_data,
             'settings': settings_data,
             'streak': user.login_streak,
-            'shared_plants': shared_plant_data,
-            'notifications': notifications_data,
             'last_login_date': str(user.last_login_date)
         }), 200
     else:
         return jsonify({'error': 'Invalid credentials'}), 401
+    
+
     
 
 @routes_bp.route('/api/session', methods = ['GET'])
@@ -337,21 +318,27 @@ def add_friend():
     if not user_id:
         return jsonify({'error': 'User not logged in'}), 401
 
-    friend_username = data.get('username')
-    if not friend_username:
-        return jsonify({'error': 'Username is required'}), 400
+    # 🔄 We now support 'friend_id' instead of 'username' (simplifies frontend logic)
+    friend_id = data.get('friend_id')
+    if not friend_id:
+        return jsonify({'error': 'Friend ID is required'}), 400
 
-    friend = User.query.filter_by(username=friend_username).first()
+    friend = User.query.get(friend_id)
     if not friend:
         return jsonify({'error': 'User not found'}), 404
 
-    # Check if already friends
-    existing = FriendsList.query.filter_by(user_id=user_id, friend_id=friend.id).first()
+    # ✅ Check friend settings (privacy + allow_friend_requests)
+    settings = UserSettings.query.filter_by(user_id=friend_id).first()
+    if settings and not (settings.is_profile_public and settings.allow_friend_requests):
+        return jsonify({'error': 'User not accepting follows'}), 403
+
+    # 🛑 Prevent duplicate friendships
+    existing = FriendsList.query.filter_by(user_id=user_id, friend_id=friend_id).first()
     if existing:
         return jsonify({'message': 'Already friends'}), 200
 
-    # Add friend
-    new_friend = FriendsList(user_id=user_id, friend_id=friend.id, status='accepted')
+    # ✅ Create friend relationship
+    new_friend = FriendsList(user_id=user_id, friend_id=friend_id, status='accepted')
     user_db.session.add(new_friend)
     user_db.session.commit()
 
