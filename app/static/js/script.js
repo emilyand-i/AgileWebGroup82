@@ -6,112 +6,253 @@
 let globalPlants = {};
 
 // At the top of script.js after global constants
-let canvas = document.getElementById('plantGrowthGraph');
-let ctx;
-
-if (canvas) {
-    ctx = canvas.getContext('2d');
-}
+let growthChart = null;
+let waterChart = null;
 
 // Draw growth graph for selected plant
 
 function drawGraph(namePlant) {
-    if (!ctx || !canvas) {
-        console.error('Canvas or context not initialized');
+    const chartCanvas = document.getElementById('plantGrowthGraph');
+    if (!chartCanvas) {
+        console.error('Canvas element not found');
         return;
     }
 
-    console.log(`Drawing graph for ${namePlant}`);
     const data = globalPlants.growthData[namePlant];
     console.log("Retrieved data:", data);
 
+    // Destroy existing chart if it exists
+    if (growthChart) {
+        growthChart.destroy();
+    }
+
+    // If there's not enough data, show an empty message chart
     if (!data || data.length < 2) {
-        console.log("Data is missing or too short:", data);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.font = "16px sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(`Add at Least 2 Growth Points.`, canvas.width/2, canvas.height/2);
+        growthChart = new Chart(chartCanvas, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    label: 'Growth Progress'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `Add At Least 2 Growth Points`,
+                        color: 'white',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        labels: {
+                            color: 'white'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: 'white'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Time Spent Growing',
+                            color: 'white',
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: 'white'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Height Grown',
+                            color: 'white',
+                            font: {
+                                size: 14
+                            }
+                        }
+                    }
+                }
+            }
+        });
         return;
     }
 
-    try {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        console.log("Canvas cleared");
-    } catch (e) {
-        console.error("Error clearing canvas:", e);
-    }
-    
-    
-    const padding = 70;
-    const graphWidth = canvas.width - padding * 2;
-    const graphHeight = canvas.height - padding * 2;
-
-    const dates = data.map(d => new Date(d.date));
+    // Prepare data for the chart
+    const dates = data.map(d => new Date(d.date).toLocaleDateString());
     const heights = data.map(d => d.height);
 
-    const minDate = Math.min(...dates.map(d => d.getTime()));
-    const maxDate = Math.max(...dates.map(d => d.getTime()));
-    const minHeight = Math.min(...heights);
-    const maxHeight = Math.max(...heights);
-    console.log("minDate", minDate);
-
-    function getX(date) {
-        return padding + ((date.getTime() - minDate) / (maxDate - minDate)) * graphWidth;
-    }
-
-    function getY(height) {
-        return canvas.height - padding - ((height - minHeight) / (maxHeight - minHeight)) * graphHeight;
-    }
-
-    // Draw axes
-    ctx.beginPath();
-    ctx.moveTo(padding, padding);
-    ctx.lineTo(padding, canvas.height - padding);
-    ctx.lineTo(canvas.width - padding, canvas.height - padding);
-    ctx.stroke();
-    console.log("axes drawn");
-
-    // Plot points and connect them
-    ctx.beginPath();
-    ctx.strokeStyle = '#28a745';
-    ctx.lineWidth = 4;
-    data.forEach((point, index) => {
-        const x = getX(new Date(point.date));
-        const y = getY(point.height);
-
-        if (index === 0){
-            ctx.moveTo(x, y);
+    // Create the growth chart
+    growthChart = new Chart(chartCanvas, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Plant Growth',
+                data: heights,
+                borderColor: '#28a745',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                tension: 0.3,
+                fill: true,
+                pointRadius: 5,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: `${namePlant}'s Growth Journey`,
+                    color: 'white',
+                    font: {
+                        size: 10,
+                        weight: 'bold'
+                    }
+                },
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    bodyColor: 'white',
+                    titleColor: 'white',
+                    backgroundColor: '#333'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: 'white'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Height Grown',
+                        color: 'white',
+                        font: {
+                            size: 9
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: 'white'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Time Spent Growing',
+                        color: 'white',
+                        font: {
+                            size: 9
+                        }
+                    }
+                }
+            }
         }
-        else {
-            ctx.lineTo(x, y);
-        }
-
-        ctx.arc(x, y, 5, 0, 2 * Math.PI);
     });
-    ctx.stroke();
-    console.log("points plotted");
-
-    // Y-Axis label
-    ctx.save();
-    ctx.translate(20, canvas.height / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.textAlign = "center";
-    ctx.font = "14px sans-serif";
-    ctx.fillText("Height Grown", 0, 0);
-    ctx.restore();
-    console.log("y-axis label drawn");
-
-    // X-Axis label
-    ctx.font = "14px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("Time Spent Growing", canvas.width / 2, canvas.height - 10);
-    console.log("x-axis label drawn");
-
-    // Graph title
-    ctx.font = "bold 18px sans-serif";
-    ctx.fillText(`${namePlant}'s Growth Journey`, canvas.width / 2, padding - 15);
 }
 
+function drawWaterGraph(namePlant) {
+    const chartCanvas = document.getElementById('waterTrackingGraph');
+    if (!chartCanvas) {
+        console.error('Water tracking canvas element not found');
+        return;
+    }
+
+    const plant = globalPlants[namePlant];
+    if (!plant || !plant.waterData) {
+        console.log("No water data available");
+        return;
+    }
+
+    // Destroy existing chart if it exists
+    if (waterChart) {
+        waterChart.destroy();
+    }
+
+    // Prepare data
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+    
+    // Create array of last 30 days
+    const dates = [];
+    const waterValues = [];
+    
+    for (let d = new Date(thirtyDaysAgo); d <= today; d.setDate(d.getDate() + 1)) {
+        dates.push(d.toLocaleDateString());
+        // Check if plant was watered on this date
+        const wasWatered = plant.waterData.some(water => 
+            new Date(water.date).toLocaleDateString() === d.toLocaleDateString()
+        );
+        waterValues.push(wasWatered ? 1 : 0);
+    }
+
+    // Create the water tracking chart
+    waterChart = new Chart(chartCanvas, {
+        type: 'bar',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Watering Days',
+                data: waterValues,
+                backgroundColor: 'rgba(0, 156, 255, 0.5)',
+                borderColor: 'rgba(0, 156, 255, 1)',
+                borderWidth: 1,
+                barThickness: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: ``,
+                    color: 'white',
+                    font: {
+                        size: 10,
+                        weight: 'bold'
+                    }
+                },
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 1,
+                    ticks: {
+                        stepSize: 1,
+                        color: 'white',
+                        callback: function(value) {
+                            return value === 1 ? '💧' : '';
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: 'white',
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            }
+        }
+    });
+}
 
 function getCurrentActivePlantName() {
   const activeTab = document.querySelector('#plantTabs .nav-link.active');
@@ -268,7 +409,20 @@ function loginForm() {
 
       if (fetch_login.ok) {
         // Store the entire profile including streak
-        localStorage.setItem('user_profile', JSON.stringify(data));
+        const slimProfile = { ...data };
+
+        if (slimProfile.photos) {
+          slimProfile.photos = slimProfile.photos.map(photo => ({
+            photo_id: photo.photo_id,
+            plant_id: photo.plant_id,
+            image_url: photo.image_url.startsWith('data:image') ? '' : photo.image_url,  // ✅ avoid base64
+            caption: photo.caption,
+            datetime_uploaded: photo.datetime_uploaded
+          }));
+        }
+
+        localStorage.setItem('user_profile', JSON.stringify(slimProfile));
+
 
         // Redirect to dashboard
         window.location.href = 'dashboard.html';
@@ -334,6 +488,27 @@ window.addEventListener('DOMContentLoaded', async () => {
   await CsrfToken();
   loginForm();
   signupForm();
+
+  const searchInput = document.getElementById('friendSearch');
+  if (searchInput) {
+    searchInput.addEventListener('input', async () => {
+      const query = searchInput.value.trim();
+      if (!query) {
+        document.getElementById('searchResults').innerHTML = '';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/search-users?q=${encodeURIComponent(query)}`, {
+          credentials: 'include'
+        });
+        const data = await res.json();
+        renderFriendSearchResults(data.results || []);
+      } catch (err) {
+        console.error('Search failed:', err);
+      }
+    });
+  }
 });
 
 
@@ -359,7 +534,29 @@ async function loadSession() {
 
     console.log("📦 session loaded:", updatedProfile.plants.map(p => p.plant_name));
     // Store updatedProfile instead of user
-    localStorage.setItem('user_profile', JSON.stringify(updatedProfile));
+    if (updatedProfile.photos) {
+      updatedProfile.photos = updatedProfile.photos.map(p => ({
+        photo_id: p.photo_id,
+        plant_id: p.plant_id,
+        image_url: p.image_url,
+        caption: p.caption,
+        datetime_uploaded: p.datetime_uploaded
+      }));
+    }
+    const slimProfile = { ...updatedProfile };
+
+    // Strip base64 photos to reduce localStorage size
+    if (slimProfile.photos) {
+      slimProfile.photos = slimProfile.photos.map(photo => ({
+        photo_id: photo.photo_id,
+        plant_id: photo.plant_id,
+        image_url: photo.image_url.startsWith('data:image') ? '' : photo.image_url,  // strip base64
+        caption: photo.caption,
+        datetime_uploaded: photo.datetime_uploaded
+      }));
+    }
+
+    localStorage.setItem('user_profile', JSON.stringify(slimProfile));
     return updatedProfile;
   } else {
     console.error('Session fetch failure');
@@ -370,10 +567,10 @@ async function loadSession() {
 async function addFriend(friendId, username) {
   const load = await fetch('/api/add-friend', {
     method: 'POST',
-    credentials: 'include',
     headers: {
       'Content-Type': 'application/json'
     },
+    credentials: 'include',
     body: JSON.stringify({ friend_id: friendId})
   });
   const result = await load.json();
@@ -431,6 +628,27 @@ async function removeFriend(friendId, username, btn) {
   }
 }
 
+function renderFriendSearchResults(users) {
+  const resultsContainer = document.getElementById('searchResults');
+
+  if (!resultsContainer) return;
+
+  if (users.length === 0) {
+    resultsContainer.innerHTML = `<li class="list-group-item text-muted">No users found.</li>`;
+    return;
+  }
+
+  resultsContainer.innerHTML = users.map(user => `
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      ${user.username}
+      <button class="btn btn-sm btn-success"
+              onclick="addFriend(${user.user_id}, '${user.username}')">
+        Add
+      </button>
+    </li>
+  `).join('');
+}
+
 
 /**
  * DASHBOARD FUNCTIONALITY
@@ -476,6 +694,7 @@ async function loadDashboard() {
     
     // Add plant to global plants dictionary
     globalPlants[plantName] = {
+      id: plant.id,
       name: plantName,
       avatarSrc: avatarImageSrc,
       plantCategory: plantCategory,
@@ -489,6 +708,22 @@ async function loadDashboard() {
 
     if (!globalPlants.growthData) globalPlants.growthData = {};
     globalPlants.growthData[plantName] = [];
+
+    // Restore photos into globalPlants
+    if (profile.photos && profile.photos.length > 0) {
+      profile.photos.forEach(photo => {
+        const plant = Object.values(globalPlants).find(p => p.id === photo.plant_id);
+        if (plant) {
+          if (!plant.photos) plant.photos = [];
+
+          plant.photos.push({
+            src: photo.image_url,
+            date: new Date(photo.datetime_uploaded).toLocaleString(),
+            comments: photo.caption || ''
+          });
+        }
+      });
+    }
 
     // Add to dropdown for growth tracking
     const selector = document.getElementById('plantSelector');
@@ -891,6 +1126,8 @@ function initialisePlantManagement() {
 
       // Update photo display for the selected plant
       updatePhotoDisplay(plantName);
+
+      drawWaterGraph(plantName); // Add this line
   });
 }
 /**
@@ -900,76 +1137,114 @@ function initialisePlantManagement() {
 
 // Initialise photo upload functionality
 function initialisePhotoUpload() {
-    const photoForm = document.getElementById('photoForm');
-    const input = document.getElementById('photoInput');
-    const display = document.getElementById('latestPhotoContainer');
-    const noPhotoMessage = document.getElementById('noPhotoMessage');
+  const photoForm = document.getElementById('photoForm');
+  const input = document.getElementById('photoInput');
+  const display = document.getElementById('latestPhotoContainer');
+  if (!photoForm || !input || !display) return;
 
-    if (!photoForm || !input || !display) return;
+  photoForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
 
-    photoForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
+    const file = input.files[0];
+    if (!file) return;
 
-        const file = input.files[0];
-        if (!file) return;
+    const currentPlant = getCurrentActivePlantName();
+    if (!currentPlant || !globalPlants[currentPlant]) {
+      alert('Please select a plant first');
+      console.warn("🌱 No plant selected or plant missing from global state");
+      return;
+    }
 
-        const currentPlant = getCurrentActivePlantName();
-        if (!currentPlant || !globalPlants[currentPlant]) {
-            alert('Please select a plant first');
-            return;
+    const comments = document.getElementById('comments')?.value;
+    console.log("📤 Upload started for plant:", currentPlant);
+    console.log("📝 Comments:", comments);
+
+    const reader = new FileReader();
+    reader.onload = async function (event) {
+      const imgSrc = event.target.result;
+      const date = new Date().toLocaleString(undefined, {
+        hour: 'numeric',
+        minute: 'numeric',
+        day: '2-digit',
+        month: '2-digit',
+        year: '2-digit',
+      });
+
+      // Create photo object
+      const photoData = {
+        src: imgSrc,
+        date: date,
+        comments: comments || '',
+      };
+
+      // Add to plant's photos array
+      if (!globalPlants[currentPlant].photos) {
+        globalPlants[currentPlant].photos = [];
+      }
+      globalPlants[currentPlant].photos.push(photoData); // Add new photo at the beginning
+
+      console.log("✅ Photo added to globalPlants:", photoData);
+      console.log("📸 Total photos now:", globalPlants[currentPlant].photos.length);
+      console.log("📦 Uploading to backend:", {
+        plant_id: globalPlants[currentPlant].id,
+        image_url: imgSrc,
+        caption: comments || ''
+      });
+
+      try {
+        const response = await fetch('/api/add-photo', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            plant_id: globalPlants[currentPlant].id,
+            image_url: imgSrc,
+            caption: comments || ''
+          })
+        });
+    
+        const result = await response.json();
+        if (response.ok) {
+          console.log("✅ Photo saved to backend:", result);
+        } else {
+          console.error("❌ Upload failed:", result);
         }
+      } catch (err) {
+        console.error("⚠️ Error uploading photo:", err);
+      }
 
-        const comments = document.getElementById('comments')?.value;
+      // Update display
+      updatePhotoDisplay(currentPlant);
 
-        const reader = new FileReader();
-        reader.onload = function (event) {
-            const imgSrc = event.target.result;
-            const date = new Date().toLocaleString(undefined, {
-                hour: 'numeric',
-                minute: 'numeric',
-                day: '2-digit',
-                month: '2-digit',
-                year: '2-digit',
-            });
-
-            // Create photo object
-            const photoData = {
-                src: imgSrc,
-                date: date,
-                comments: comments || '',
-            };
-
-            // Add to plant's photos array
-            if (!globalPlants[currentPlant].photos) {
-                globalPlants[currentPlant].photos = [];
-            }
-            globalPlants[currentPlant].photos.push(photoData); // Add new photo at the beginning
-
-            // Update display
-            updatePhotoDisplay(currentPlant);
-
-            photoForm.reset();
-            const modal = bootstrap.Modal.getInstance(document.getElementById('pictureModal'));
-            modal?.hide();
-        };
-
-        reader.readAsDataURL(file);
-    });
+      photoForm.reset();
+      const modal = bootstrap.Modal.getInstance(document.getElementById('pictureModal'));
+      document.activeElement?.blur();
+      modal?.hide();
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 function updatePhotoDisplay(currentPlant) {
   const picDiv = document.getElementById('picDiv');
   if (!currentPlant || !globalPlants[currentPlant]) {
     picDiv.innerHTML = `<p class="text-white">Select a plant to view its photos.</p>`;
+    console.warn("🌿 No plant selected for photo display.");
     return;
   }
 
   const photos = globalPlants[currentPlant].photos;
   if (!photos || photos.length === 0) {
     picDiv.innerHTML = `<p class="text-white">No photos available.</p>`;
+    console.info("📷 No photos to display for:", currentPlant);
     return;
   }
+
+  console.log(`🖼️ Displaying ${photos.length} photos for ${currentPlant}`);
 
   // Reverse the array so the latest photo appears first
   const carouselItems = photos.slice().reverse().map((photo, i) => `
@@ -990,10 +1265,10 @@ function updatePhotoDisplay(currentPlant) {
         ${carouselItems}
       </div>
       <button class="carousel-control-prev" type="button" data-bs-target="#photoCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="carousel-control-prev-icon"></span>
       </button>
       <button class="carousel-control-next" type="button" data-bs-target="#photoCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="carousel-control-next-icon"></span>
       </button>
     </div>
   `;
@@ -1131,8 +1406,12 @@ function initialisePlantGrowthTracker() {
     waterDateInput.valueAsDate = new Date();
     const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
     if (modal) {
-      modal.hide();
+      document.activeElement?.blur();
+      modal?.hide();
     }
+
+    // Redraw the water tracking graph
+    drawWaterGraph(name);
   }
 
 
@@ -1170,7 +1449,8 @@ function initialisePlantGrowthTracker() {
     growthDateInput.valueAsDate = new Date();
     const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
     if (modal) {
-      modal.hide();
+      document.activeElement?.blur();
+      modal?.hide();
     }
     
 
@@ -1255,7 +1535,8 @@ function initialisePlantGrowthTracker() {
 
     // Close the modal using Bootstrap's API
     const modal = bootstrap.Modal.getInstance(document.getElementById('graphModal'));
-    modal.hide();
+    document.activeElement?.blur();
+    modal?.hide();
     
     // Update the graph
     console.log("draw graph called")
@@ -1590,4 +1871,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     updateDailyStreak();
   
+});
+
+document.getElementById('waterForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const plantName = getCurrentActivePlantName();
+    if (!plantName) return;
+
+    const waterDate = document.getElementById('waterDate').value;
+    
+    // Initialize water data array if it doesn't exist
+    if (!globalPlants[plantName].waterData) {
+        globalPlants[plantName].waterData = [];
+    }
+    
+    // Add water data
+    globalPlants[plantName].waterData.push({
+        date: waterDate,
+        watered: true
+    });
+
+    // Redraw the water tracking graph
+    drawWaterGraph(plantName);
+    
+    // Close the modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
+    modal.hide();
 });
