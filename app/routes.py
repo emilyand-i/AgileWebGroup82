@@ -82,6 +82,8 @@ def login():
         plants = Plants.query.filter_by(user_id=user.id).all()
         growth_entries = PlantGrowthEntry.query.filter_by(user_id=user.id).all()
         photos = uploadedPics.query.filter_by(user_id=user.id).all()
+        shared_entries = SharedPlant.query.filter_by(shared_with=user.id).all()
+        notifications = Notification.query.filter_by(receiver_id=user.id).order_by(Notification.timestamp.desc()).all()
 
         plant_data = [{
             'plant_name': plant.plant_name,
@@ -146,6 +148,8 @@ def login():
             'photos': photo_data,
             'settings': settings_data,
             'streak': user.login_streak,
+            'shared_plants': shared_plant_data,
+            'notifications': notifications_data,
             'last_login_date': str(user.last_login_date)
         }), 200
     else:
