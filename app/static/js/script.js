@@ -1219,17 +1219,32 @@ function initialiseSettingsModal() {
   });
 }
 
-// update daily streak
-function updateDailyStreak() {
-  const userData = JSON.parse(localStorage.getItem('user_profile'));
-  const streakDiv = document.getElementById('dailyStreak');
+//load friends list function 
+function loadFriendsList() {
+  fetch("/api/friends")
+    .then(res => res.json())
+    .then(data => {
+      const list = document.getElementById("friends-list");
+      list.innerHTML = ""; // Clear list
 
-  if (userData && streakDiv) {
-    streakDiv.textContent = `Daily Streak: ${userData.streak} 🔥`;
-  } else if (streakDiv) {
-    streakDiv.textContent = 'Login streak not available.';
-  }
+      // Accepted friends
+      data.accepted.forEach(friend => {
+        const li = document.createElement("li");
+        li.innerHTML = `${friend.username} <button onclick="removeFriend(${friend.id})">Remove</button>`;
+        list.appendChild(li);
+      });
+
+      // Pending requests
+      data.pending.forEach(request => {
+        const li = document.createElement("li");
+        li.innerHTML = `Pending: ${request.username} 
+          <button onclick="acceptRequest(${request.id})">Accept</button>
+          <button onclick="declineRequest(${request.id})">Decline</button>`;
+        list.appendChild(li);
+      });
+    });
 }
+
 function openTab(evt, tabName) {
   // Hide all tab contents
   const tabContents = document.querySelectorAll('.tabcontent');
@@ -1255,6 +1270,20 @@ function openTab(evt, tabName) {
     loadFriendsList();
   }
 }
+
+
+// update daily streak
+function updateDailyStreak() {
+  const userData = JSON.parse(localStorage.getItem('user_profile'));
+  const streakDiv = document.getElementById('dailyStreak');
+
+  if (userData && streakDiv) {
+    streakDiv.textContent = `Daily Streak: ${userData.streak} 🔥`;
+  } else if (streakDiv) {
+    streakDiv.textContent = 'Login streak not available.';
+  }
+}
+
 
 
 
@@ -1356,16 +1385,40 @@ function attachFontScaleControls() {
     radio.addEventListener('change', () => {
       const scale = radio.value;
 
-      // Apply font size
+      // ✅ Confirm value is valid
+      if (!['small', 'normal', 'large'].includes(scale)) {
+        console.warn("Invalid font size selected:", scale);
+        return;
+      }
+
+      // Apply font size visually
       document.documentElement.classList.remove('font-small', 'font-normal', 'font-large');
       document.documentElement.classList.add(`font-${scale}`);
       localStorage.setItem('fontScale', scale);
 
-      // Save to backend
+      // Log and send to backend
+      console.log("Saving font size to backend:", scale);
+
+      console.log("Sending font size:", scale);
+
+      if (!['small', 'normal', 'large'].includes(scale)) {
+        console.warn("Invalid scale:", scale);  // this will catch silent bugs
+      return;
+      }
       fetch('/api/update-font-size', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ font_size: scale })
+      })
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(err => {
+            console.error("Font size update failed:", err);
+          });
+        }
+      })
+      .catch(err => {
+        console.error("Network error while updating font size:", err);
       });
     });
   });
