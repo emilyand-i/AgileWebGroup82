@@ -317,9 +317,8 @@ def updateFeed():
     # Fetch 9 posts from friends
     #link friend ID to the user ID in photoTable (uploaded friend photos)
     #also ensures friend list is specific to the current user
-    friends_posts = user_db.session.query(uploadedPics)\
-        .join(FriendsList, (FriendsList.friend_id == uploadedPics.user_id)
-        & (FriendsList.user_id == user_id)).order_by(uploadedPics.datetime_uploaded.desc()).limit(9).all()
+    friends_posts = user_db.session.query(uploadedPics).join(FriendsList, (FriendsList.friend_id == uploadedPics.user_id)
+    & (FriendsList.user_id == user_id)).order_by(uploadedPics.datetime_uploaded.desc()).limit(9).all()
 
     #returning a jsonified object with the public and friends posts for now
     #may need to be changed later
