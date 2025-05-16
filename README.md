@@ -27,10 +27,10 @@ You can log your plants growth measurements, upload photos to your album, track 
 
 For users.db
 - flask shell
->>> from app import create_app
->>> from app.models import user_db
->>> app = create_app()
->>> with app.app_context():
+from app import create_app
+from app.models import user_db
+app = create_app()
+with app.app_context():
 ..  user_db.create_all()
 ..
 
