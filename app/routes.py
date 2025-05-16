@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date, timedelta, datetime
 
 from flask_wtf.csrf import generate_csrf
-
+from flask_wtf.csrf import validate_csrf, CSRFError
 
 routes_bp = Blueprint('routes', __name__) # connect all related routes for later
 
@@ -333,38 +333,57 @@ def delete_plant():
     
     return jsonify({'message': "Plant has been deleted successfully"}), 200
 
+
+
 @routes_bp.route('/api/add-friend', methods=['POST'])
 def add_friend():
-    data = request.get_json()
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({'error': 'User not logged in'}), 401
+    try:
+        
 
-    # 🔄 We now support 'friend_id' instead of 'username' (simplifies frontend logic)
-    friend_id = data.get('friend_id')
-    if not friend_id:
-        return jsonify({'error': 'Friend ID is required'}), 400
+        #  Check logged in
+        user_id = session.get('user_id')
+        
+        if not user_id:
+            return jsonify({'error': 'Not logged in'}), 401
 
-    friend = User.query.get(friend_id)
-    if not friend:
-        return jsonify({'error': 'User not found'}), 404
+        #  Parse incoming JSON data
+        try:
+            data = request.get_json()
+            
+        except Exception as e:
+            print("❌ JSON parse error:", e)
+            return jsonify({'error': 'Invalid JSON'}), 400
 
-    # ✅ Check friend settings (privacy + allow_friend_requests)
-    settings = UserSettings.query.filter_by(user_id=friend_id).first()
-    if settings and not (settings.is_profile_public and settings.allow_friend_requests):
-        return jsonify({'error': 'User not accepting follows'}), 403
+        username = data.get('username')
+        if not username:
+            return jsonify({'error': 'Username required'}), 400
 
-    # 🛑 Prevent duplicate friendships
-    existing = FriendsList.query.filter_by(user_id=user_id, friend_id=friend_id).first()
-    if existing:
-        return jsonify({'message': 'Already friends'}), 200
+        #  Find user by username
+        friend = User.query.filter_by(username=username).first()
+        if not friend:
+            return jsonify({'error': 'User not found'}), 404
 
-    # ✅ Create friend relationship
-    new_friend = FriendsList(user_id=user_id, friend_id=friend_id, status='accepted')
-    user_db.session.add(new_friend)
-    user_db.session.commit()
+        #  Prevent adding yourself
+        if friend.id == user_id:
+            return jsonify({'error': 'You cannot follow yourself'}), 400
 
-    return jsonify({'message': 'Friend added successfully'}), 201
+        #  Check if already friends
+        existing = FriendsList.query.filter_by(user_id=user_id, friend_id=friend.id).first()
+        if existing:
+            return jsonify({'message': 'Already friends'}), 200
+
+        # Add new friend to DB
+        new_friend = FriendsList(user_id=user_id, friend_id=friend.id, status='accepted')
+        user_db.session.add(new_friend)
+        user_db.session.commit()
+
+        
+        return jsonify({'message': f'{username} added as friend'}), 201
+
+    except Exception as e:
+        # 🛑 Catch and log unexpected errors
+        print("💥 Server error in /api/add-friend route:", e)
+        return jsonify({'error': 'Server error. Please try again later.'}), 500
 
 @routes_bp.route('/api/remove-friend', methods=['POST'])
 def remove_friend():
