@@ -369,8 +369,6 @@ function toggleFullscreen() {
 
 
 
-
-
 /**
  * Authentication / Sessions
  */
@@ -472,6 +470,22 @@ function signupForm() {
     }
   });
 }
+async function loadNotifications() {
+  try {
+    const response = await fetch('/api/notifications', {
+      credentials: 'include'
+    });
+    if (!response.ok) throw new Error("Failed to fetch notifications");
+
+    const data = await response.json();
+    console.log("🔔 Notifications received:", data.notifications);
+
+    renderNotifications(data.notifications);
+  } catch (err) {
+    console.error("🚫 Notification load error:", err);
+  }
+}
+
 
 // Logout function
 async function logout() {
@@ -488,27 +502,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   await CsrfToken();
   loginForm();
   signupForm();
-
-  const searchInput = document.getElementById('friendSearch');
-  if (searchInput) {
-    searchInput.addEventListener('input', async () => {
-      const query = searchInput.value.trim();
-      if (!query) {
-        document.getElementById('searchResults').innerHTML = '';
-        return;
-      }
-
-      try {
-        const res = await fetch(`/api/search-users?q=${encodeURIComponent(query)}`, {
-          credentials: 'include'
-        });
-        const data = await res.json();
-        renderFriendSearchResults(data.results || []);
-      } catch (err) {
-        console.error('Search failed:', err);
-      }
-    });
-  }
 });
 
 
@@ -661,6 +654,12 @@ async function loadDashboard() {
   if (!window.location.pathname.includes('dashboard.html')) return;
   
   if (!profile) return;
+  fetch('/api/notifications')
+  .then(response => response.json())
+  .then(data => {
+    // Display notifications to the user
+    console.log(data.notifications);
+  });
   const friendsList = document.getElementById("friendsList");
   if (profile.friends && friendsList) {
     friendsList.innerHTML = profile.friends.map(friend => `
@@ -1750,6 +1749,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     initialiseDimming();
 
     updateDailyStreak();
+    
+    const notifModal = document.getElementById('notificationsModal');
+
+    if (notifModal) {
+      notifModal.addEventListener('show.bs.modal', () => {
+        console.log("📬 Notification modal opened");
+        loadNotifications();
+      });
+    }
   
 });
 
