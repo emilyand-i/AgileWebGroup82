@@ -332,6 +332,15 @@ function toggleFullscreen() {
   const picDiv = document.getElementById('picDiv');
   const currentPlant = getCurrentActivePlantName();
 
+  picsAndGraphs.classList.toggle('fullscreen');
+
+  if (window.plantGrowthGraph) {
+        window.plantGrowthGraph.resize();
+    }
+    if (window.waterTrackingGraph) {
+        window.waterTrackingGraph.resize();
+    }
+
   if (!leftCol || !rightCol || !picsAndGraphs || !picDiv) {
     console.warn('Missing required elements');
     return;

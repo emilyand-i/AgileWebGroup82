@@ -27,7 +27,7 @@
           </button>
           
           <header class="about-info-dash px-2">
-              <h1 class="display-5 column-title mt-3 mb-4">Stats</h1>
+              <h1 class="display-5 column-title mt-3 mb-4 stats-header">Stats</h1>
           </header>
 
           <!--User photo diary section-->
@@ -52,7 +52,7 @@
                         <div value="" id="graphHeader"></div>
                   </div>
                   <div class="graph-container">
-                      <canvas id="plantGrowthGraph" width="300" height="200"></canvas>
+                      <canvas id="plantGrowthGraph" width="300" height="300"></canvas>
                   </div>
                   <div class="graph-legend mt-2 text-white">
                       <small>X-axis: Time | Y-axis: Growth Value</small>
@@ -71,6 +71,16 @@
                       <small>💧 = Day Watered</small>
                   </div>
               </div>
+            </div>
+            
+            <!-- Add this right after the water tracking graph section -->
+            <div class="container outer-graph-section mt-4" id="placeholderDiv">
+                <div class="graph-section">
+                    <h6 class="plantheader">Coming Soon!</h6>
+                    <div class="graph-container d-flex justify-content-center align-items-center">
+                        <i class="bi bi-plus-circle" style="font-size: 5rem; color: #729566;"></i>
+                    </div>
+                </div>
             </div>
             
            </div>
