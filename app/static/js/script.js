@@ -320,7 +320,20 @@ function loginForm() {
 
       if (fetch_login.ok) {
         // Store the entire profile including streak
-        localStorage.setItem('user_profile', JSON.stringify(data));
+        const slimProfile = { ...data };
+
+        if (slimProfile.photos) {
+          slimProfile.photos = slimProfile.photos.map(photo => ({
+            photo_id: photo.photo_id,
+            plant_id: photo.plant_id,
+            image_url: photo.image_url.startsWith('data:image') ? '' : photo.image_url,  // ✅ avoid base64
+            caption: photo.caption,
+            datetime_uploaded: photo.datetime_uploaded
+          }));
+        }
+
+        localStorage.setItem('user_profile', JSON.stringify(slimProfile));
+
 
         // Redirect to dashboard
         window.location.href = 'dashboard.html';
@@ -436,12 +449,25 @@ async function loadSession() {
       updatedProfile.photos = updatedProfile.photos.map(p => ({
         photo_id: p.photo_id,
         plant_id: p.plant_id,
-        image_url: '', // or skip this if it's base64
+        image_url: p.image_url,
         caption: p.caption,
         datetime_uploaded: p.datetime_uploaded
       }));
     }
-    localStorage.setItem('user_profile', JSON.stringify(updatedProfile));
+    const slimProfile = { ...updatedProfile };
+
+    // Strip base64 photos to reduce localStorage size
+    if (slimProfile.photos) {
+      slimProfile.photos = slimProfile.photos.map(photo => ({
+        photo_id: photo.photo_id,
+        plant_id: photo.plant_id,
+        image_url: photo.image_url.startsWith('data:image') ? '' : photo.image_url,  // strip base64
+        caption: photo.caption,
+        datetime_uploaded: photo.datetime_uploaded
+      }));
+    }
+
+    localStorage.setItem('user_profile', JSON.stringify(slimProfile));
     return updatedProfile;
   } else {
     console.error('Session fetch failure');
@@ -593,6 +619,22 @@ async function loadDashboard() {
 
     if (!globalPlants.growthData) globalPlants.growthData = {};
     globalPlants.growthData[plantName] = [];
+
+    // Restore photos into globalPlants
+    if (profile.photos && profile.photos.length > 0) {
+      profile.photos.forEach(photo => {
+        const plant = Object.values(globalPlants).find(p => p.id === photo.plant_id);
+        if (plant) {
+          if (!plant.photos) plant.photos = [];
+
+          plant.photos.push({
+            src: photo.image_url,
+            date: new Date(photo.datetime_uploaded).toLocaleString(),
+            comments: photo.caption || ''
+          });
+        }
+      });
+    }
 
     // Add to dropdown for growth tracking
     const selector = document.getElementById('plantSelector');
