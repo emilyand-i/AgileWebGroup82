@@ -811,9 +811,12 @@ function shareFriendProfile(friendName) {
     alert("❌ No active plant tab found.");
     return;
   }
+  const plantName = getCurrentActivePlantName();
 
   // Get plant ID from within the active tab
-  const plantId = activeTab.dataset.plantId;
+  const plantId = globalPlants[plantName].id;
+
+  console.log("🧪 Sharing plant ID:", plantId);
 
   if (!plantId) {
     alert("❌ Could not find plant ID in the active tab.");
