@@ -212,6 +212,15 @@ function drawWaterGraph(namePlant) {
     });
 }
 
+function deactivateAllTabs() {
+  document.querySelectorAll('.nav-link').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  document.querySelectorAll('.tab-pane').forEach(pane => {
+    pane.classList.remove('active', 'show');
+  });
+}
+
 function getCurrentActivePlantName() {
   const activeTab = document.querySelector('#plantTabs .nav-link.active');
   if (!activeTab) return null;
@@ -903,28 +912,41 @@ function renderPlantTab ({
   tabId,
   contentId
 }) {
-  console.log("[renderPlantTab] Rendering", plantName);
-  console.trace();
-  // Create new plant tab
+  const plantTabs = document.getElementById('plantTabs');
+  const plantTabsContent = document.getElementById('plantTabsContent');
+
+  if (!plantTabs || !plantTabsContent) {
+    console.error("❌ Missing tab containers");
+    return;
+  }
+
+  // 🧼 Deactivate all tabs
+  document.querySelectorAll('#plantTabs .nav-link').forEach(tab => tab.classList.remove('active'));
+
+  // 🧼 Deactivate all tab content panes
+  document.querySelectorAll('#plantTabsContent .tab-pane').forEach(pane => {
+    pane.classList.remove('active', 'show');
+  });
+
+  // Create the new tab button
   const newTab = document.createElement("li");
   newTab.role = "presentation";
   newTab.className = "nav-item";
   newTab.innerHTML = `
-    <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${contentId}" data-plant-name="${plantName}" type="button" role="tab"> 
+    <button class="nav-link active" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${contentId}" data-plant-name="${plantName}" type="button" role="tab"> 
       ${plantName}
     </button>`;
 
-  // Create new plant tab content
+  // Create the new tab content
   const newTabContent = document.createElement("div");
-  newTabContent.className = "tab-pane fade";
+  newTabContent.className = "tab-pane fade show active";
   newTabContent.id = contentId;
   newTabContent.role = "tabpanel";
   newTabContent.innerHTML = `
-     
     <div class="text-center flower-avatar-container">
       <img src="${avatarImageSrc}" class="img-fluid text-center avatar">
       <div class="input-group input-group-sm justify-content-center">
-    <span class="input-group-text mt-2 text-light bg-success">${plantCategory}: ${plantType}</span>
+        <span class="input-group-text mt-2 text-light bg-success">${plantCategory}: ${plantType}</span>
       </div>
     </div>
     <div class="daily-streak text-center">
@@ -947,35 +969,20 @@ function renderPlantTab ({
           data-bs-target="#waterModal"
           data-plant-name="${plantName}">
         </div>
-
       </div>
     </div>`;
 
-  // Insert new plant before "Add Plant" tab
+  // Insert before "Add Plant" tab
   const addPlantTab = document.getElementById("add-plant-tab")?.parentNode;
   if (addPlantTab) {
     plantTabs.insertBefore(newTab, addPlantTab);
     plantTabsContent.appendChild(newTabContent);
-    
-    // Activate the new tab after DOM update
-    requestAnimationFrame(() => {
-      const newTabButton = document.getElementById(tabId);
-      if (newTabButton) {
-        // Deactivate all other tabs first
-        document.querySelectorAll('.nav-link.active').forEach(tab => {
-          tab.classList.remove('active');
-          const pane = document.querySelector(tab.dataset.bsTarget);
-          if (pane) pane.classList.remove('active', 'show');
-        });
-        
-        // Activate the new tab
-        newTabButton.classList.add('active');
-        newTabContent.classList.add('active', 'show');
-        const tab = new bootstrap.Tab(newTabButton);
-        tab.show();
-      }
-    });
+
+    // Bootstrap auto-shows active tab since we added `active show` above
+    const tab = new bootstrap.Tab(newTab.querySelector('button'));
+    tab.show();
   }
+
   updatePhotoDisplay(plantName);
 }
 
@@ -1102,8 +1109,9 @@ function initialisePlantManagement() {
       
       const plantName = document.getElementById('plantName').value.trim();
       const plantNameInput = document.getElementById('plantName');
-      const tabId = `plant${myPlantCount}-tab`;
-      const contentId = `plant${myPlantCount}`;
+      const safeId = plantName.replace(/\s+/g, '_').toLowerCase();
+      const tabId = `tab-${safeId}`;
+      const contentId = `content-${safeId}`;
       const avatarImageSrc = selectedAvatarSrc;
       const plantCategory = document.getElementById('plantCategory').value;
       const plantType = document.getElementById('plantType').value;
