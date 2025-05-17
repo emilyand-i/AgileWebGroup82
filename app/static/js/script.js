@@ -327,7 +327,8 @@ function toggleFullscreen() {
 
   if (!isExpanded) {
     if (!currentPlant || !globalPlants[currentPlant]) {
-      alert("Please select a plant before entering fullscreen mode.");
+      // Create and show the modal entirely in JavaScript
+      showFullscreenErrorModal();
       return;
     }
 
@@ -340,7 +341,7 @@ function toggleFullscreen() {
     rightCol.classList.add('d-none');
     picDiv.classList.add('fullscreen');
   } else {
-    // Exit fullscreen
+    // Exit fullscreen - existing code unchanged
     picsAndGraphs.classList.toggle('fullscreen');
     picsAndGraphs.classList.add('flex-column');
     picsAndGraphs.classList.remove('gap-5', 'p-5');
@@ -377,6 +378,48 @@ function toggleFullscreen() {
       }
     }, 250); // Delay to let DOM adjust
   }
+}
+
+// Function to create and show the fullscreen error modal
+function showFullscreenErrorModal() {
+  // Check if the modal already exists
+  let modal = document.getElementById('fullscreenErrorModal');
+  
+  if (!modal) {
+    // Create the modal element
+    modal = document.createElement('div');
+    modal.id = 'fullscreenErrorModal';
+    modal.className = 'modal fade';
+    modal.setAttribute('tabindex', '-1');
+    modal.setAttribute('aria-hidden', 'true');
+    
+    // Set the modal content
+    modal.innerHTML = `
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title">
+              <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Fullscreen Mode
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center py-4">
+            <p>Please select a plant before entering fullscreen mode.</p>
+          </div>
+          <div class="modal-footer border-secondary">
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Append the modal to the body
+    document.body.appendChild(modal);
+  }
+  
+  // Initialize and show the modal
+  const bsModal = new bootstrap.Modal(modal);
+  bsModal.show();
 }
 
 
@@ -762,11 +805,46 @@ function loadFriendsList() {
 
 // Add this function to handle sharing a friend's profile
 function shareFriendProfile(friendName) {
-  // You can customize this modal or implement your preferred sharing method
-  alert(`Share ${friendName}'s profile with others`);
-  
-  // For a more sophisticated approach, you could open a modal with sharing options
-  // or implement actual sharing functionality based on your application's requirements
+  const activeTab = document.querySelector('.tab-pane.active.show');
+
+  if (!activeTab) {
+    alert("❌ No active plant tab found.");
+    return;
+  }
+
+  // Get plant ID from within the active tab
+  const plantId = activeTab.dataset.plantId;
+
+  if (!plantId) {
+    alert("❌ Could not find plant ID in the active tab.");
+    return;
+  }
+
+  // Send the share request
+  fetch('/api/share_plant', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      plant_id: plantId,
+      shared_with: friendName  // backend supports username now
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.message) {
+      alert(`✅ ${data.message}`);
+      // Optionally reload notifications
+      if (typeof loadNotifications === 'function') {
+        loadNotifications();
+      }
+    } else {
+      alert(`❌ ${data.error || 'Unknown error'}`);
+    }
+  })
+  .catch(err => {
+    console.error("❌ Error sharing plant:", err);
+    alert("❌ Network error.");
+  });
 }
 
 //remove friend
@@ -1108,11 +1186,21 @@ async function loadDashboard() {
         console.log('📊 Drawing graphs for active tab:', plantName);
         drawGraph(plantName);
         drawWaterGraph(plantName);
+        
+        // Add this line to update share content
+        if (globalPlants[plantName]) {
+          updateShareContent(plantName, globalPlants[plantName].avatarSrc);
+        }
     } else if (profile.plants && profile.plants.length > 0) {
         // Fallback to first plant if no active tab
         const firstPlant = profile.plants[0].plant_name;
         drawGraph(firstPlant);
         drawWaterGraph(firstPlant);
+        
+        // Update share content with first plant
+        if (globalPlants[firstPlant]) {
+          updateShareContent(firstPlant, globalPlants[firstPlant].avatarSrc);
+        }
     }
   });
 }
@@ -1414,6 +1502,8 @@ function initialisePlantManagement() {
         contentId
       });
 
+      updateShareContent(plantName, avatarImageSrc);
+
       window.location.reload();
 
       // Update share column content
@@ -1674,6 +1764,43 @@ function updatePhotoDisplay(currentPlant) {
       <button class="carousel-control-next" type="button" data-bs-target="#photoCarousel" data-bs-slide="next">
         <span class="carousel-control-next-icon"></span>
       </button>
+    </div>
+  `;
+}
+
+// Add this function after the updatePhotoDisplay function
+function updateShareContent(plantName, avatarImageSrc) {
+  const shareContent = document.getElementById("share-content");
+  if (!shareContent) return;
+  
+  if (!plantName || !avatarImageSrc) {
+    // Get the current active plant's information
+    const currentPlant = getCurrentActivePlantName();
+    if (currentPlant && globalPlants[currentPlant]) {
+      plantName = currentPlant;
+      avatarImageSrc = globalPlants[currentPlant].avatarSrc;
+    } else {
+      // No plant selected, show default content
+      shareContent.innerHTML = `
+        <h3 class="text-white">Share Your Plant!</h3>
+        <p class="text-white">Select a plant to share</p>
+        <div class="share-controls text-center mt-4">
+          <a class="btn btn-success btn-lg disabled" href="shareBoard.html">
+            <i class="bi bi-share me-2"></i> Share Plant
+          </a>
+        </div>
+      `;
+      return;
+    }
+  }
+  
+  shareContent.innerHTML = `
+    <h3 class="text-white">Share Your Plant!</h3>
+    <img src="${avatarImageSrc}" class="img-fluid text-center share-avatar">
+    <div class="share-controls text-center mt-4">
+      <a class="btn btn-success btn-lg" href="shareBoard.html">
+        <i class="bi bi-share me-2"></i> Share Plant
+      </a>
     </div>
   `;
 }
