@@ -105,3 +105,12 @@ class PlantGrowthEntry(user_db.Model):
   plant_name = user_db.Column(user_db.String(100), nullable=False)  # same as JS `plantName`
   date_recorded = user_db.Column(user_db.Date, nullable=False)      # same as JS `plantDate`
   cm_grown = user_db.Column(user_db.Float, nullable=False)          # same as JS `plantHeight`
+
+  class PlantWaterEntry(user_db.Model):
+    __tablename__ = 'plant_water_entry'
+    
+    id = user_db.Column(user_db.Integer, primary_key=True)
+    user_id = user_db.Column(user_db.Integer, user_db.ForeignKey('user.id'), nullable=False)
+    plant_name = user_db.Column(user_db.String(100), nullable=False)  # same as JS `plantName`
+    date_watered = user_db.Column(user_db.Date, nullable=False)       # same as JS `plantDate`
+    ml_watered = user_db.Column(user_db.Float, nullable=False)        # same as JS `plantWater` or similar
