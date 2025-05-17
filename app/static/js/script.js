@@ -1576,34 +1576,62 @@ function initialisePlantGrowthTracker() {
 
   function handleWaterDataSubmit(e) {
     e.preventDefault();
+    e.stopPropagation();
 
-    console.log("Water data submission triggered.");
+    console.log('💧 Water data submission triggered');
 
     const name = getCurrentActivePlantName();
     const date = document.getElementById('waterDate').value;
 
-    console.log(`Selected plant: ${name}`);
-    console.log(`Selected date: ${date}`);
+    console.log('📝 Submission details:', { name, date });
+    console.log('🗃️ Current globalPlants[name].waterData state:',
+        JSON.stringify(globalPlants[name]?.waterData || [], null, 2));
 
     if (!name || !date) {
-        console.warn('Submission failed: Missing plant name or date');
-        alert('Please select a date');
-        return;
+      console.warn('❌ Submission failed: Missing plant name or date');
+      alert('Please select a date');
+      return;
     }
-    globalPlants[name].waterData.push(date);
-    
-    console.log(`waterData for ${name}`, globalPlants[name]?.waterData);
 
-    waterForm.reset();
-    waterDateInput.valueAsDate = new Date();
-    const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
-    document.activeElement?.blur();
-    modal?.hide();
-    
+    // Submit to backend first
+    submitWaterData(name, [date])
+      .then(result => {
+        console.log('✅ Backend save successful:', result);
 
-    // Redraw the water tracking graph
-    drawWaterGraph(name);
+        // Only update local data after successful backend save
+        if (!globalPlants[name].waterData) {
+          console.log('📦 Initializing water data array for:', name);
+          globalPlants[name].waterData = [];
+        }
+
+        console.log('➕ Adding new watering date:', date);
+        globalPlants[name].waterData.push(date);
+
+        // Sort by date
+        globalPlants[name].waterData.sort((a, b) => 
+          new Date(a) - new Date(b)
+        );
+
+        globalPlants[name].lastUpdated = new Date().toISOString();
+
+        // Clear form and close modal
+        waterForm.reset();
+        waterDateInput.valueAsDate = new Date();
+        const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
+        document.activeElement?.blur();
+        modal?.hide();
+
+        // Redraw the graph
+        console.log('📈 Calling drawWaterGraph with updated data:',
+          JSON.stringify(globalPlants[name].waterData, null, 2));
+        drawWaterGraph(name);
+      })
+      .catch(error => {
+        console.error('❌ Error submitting water data:', error);
+        alert(error.message || 'Failed to save water data. Please try again.');
+      });
   }
+
 
 
   function handleGrowthDataSubmit(e) {
@@ -1725,30 +1753,56 @@ function initialisePlantGrowthTracker() {
 
 // Update the submitGrowthData function with better error handling
 function submitGrowthData(plantName, date, height) {
-    console.log('Submitting growth data:', { plantName, date, height });
-    
-    return fetch('/api/add-growth', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-            plant_name: plantName,
-            date: date,
-            height: height
-        })
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(data => {
-                throw new Error(data.error || 'Failed to save growth data');
-            });
-        }
-        return response.json();
-    });
+  console.log('Submitting growth data:', { plantName, date, height });
+  
+  return fetch('/api/add-growth', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+          plant_name: plantName,
+          date: date,
+          height: height
+      })
+  })
+  .then(response => {
+      if (!response.ok) {
+          return response.json().then(data => {
+              throw new Error(data.error || 'Failed to save growth data');
+          });
+      }
+      return response.json();
+  });
 }
+function submitWaterData(plantName, wateringDates) {
+  console.log('Submitting water data:', { plantName, wateringDates });
+
+  return fetch('/api/add-watering', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken  // include your CSRF token here
+    },
+    credentials: 'include', // important if your backend uses sessions/cookies for auth
+    body: JSON.stringify({
+      plant_name: plantName,
+      watering_dates: wateringDates
+    })
+  })
+  .then(response => {
+    if (!response.ok) {
+      return response.json().then(data => {
+        throw new Error(data.error || 'Failed to save watering data');
+      });
+    }
+    return response.json();
+  });
+}
+
+
 
 
 

@@ -626,27 +626,42 @@ def add_growth_data():
         user_db.session.rollback()
         return jsonify({'error': 'Failed to save growth data'}), 500
     
-    
+
 @routes_bp.route('/api/add-watering', methods=['POST'])
 def add_watering_data():
     user_id = session.get('user_id')
     if not user_id:
+        print("401 Not logged in")
         return jsonify({'error': 'Not logged in'}), 401
 
     try:
         data = request.get_json()
+        print('Received JSON data:', data)
+
+        if not data:
+            print("400 Missing JSON body")
+            return jsonify({'error': 'Missing JSON body'}), 400
+
         plant_name = data.get('plant_name')
         watering_dates = data.get('watering_dates')  # List of date strings
 
+        print(f"plant_name: {plant_name}, watering_dates: {watering_dates} (type: {type(watering_dates)})")
+
         # Validate required fields
-        if not plant_name or not isinstance(watering_dates, list):
-            return jsonify({'error': 'Missing or invalid required fields'}), 400
+        if not plant_name:
+            print("400 Missing plant_name")
+            return jsonify({'error': 'Missing plant_name'}), 400
+        if not isinstance(watering_dates, list):
+            print("400 watering_dates is not a list")
+            return jsonify({'error': 'watering_dates must be a list'}), 400
 
         entries = []
         for date_str in watering_dates:
+            print(f"Processing date: '{date_str}'")
             try:
                 date_watered = datetime.strptime(date_str, '%Y-%m-%d').date()
             except ValueError:
+                print(f"400 Invalid date format: {date_str}")
                 return jsonify({'error': f'Invalid date format: {date_str}. Use YYYY-MM-DD'}), 400
 
             entry = PlantWaterEntry(
