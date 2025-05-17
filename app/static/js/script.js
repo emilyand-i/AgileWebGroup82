@@ -769,16 +769,7 @@ function shareFriendProfile(friendName) {
   // or implement actual sharing functionality based on your application's requirements
 }
 
-// Make sure the function is called when the document is ready
-document.addEventListener('DOMContentLoaded', function() {
-  // Set up event listener for the friends modal
-  const friendsModal = document.getElementById('friendsModal');
-  if (friendsModal) {
-    friendsModal.addEventListener('show.bs.modal', loadFriendsList);
-  }
-});
-
-//remove freind
+//remove friend
 function removeFriend(friendId) {
   if (!friendId) {
     alert("❌ Friend ID is missing.");
@@ -2089,72 +2080,45 @@ function initialiseSettingsModal() {
     fetch("User-Settings.html")
       .then(response => response.text())
       .then(html => {
-        document.getElementById("accountModalContent").innerHTML = html;
-        initialiseSettingsForm();
+        const accountModalContent = document.getElementById("accountModalContent");
+        if (!accountModalContent) {
+          console.error("❌ Modal content container not found");
+          return;
+        }
+        
+        // Create a custom friend search content without the friends list
+        accountModalContent.innerHTML = `
+          <div class="modal-header bg-dark border-dark">
+            <h5 class="modal-title text-white">Find Friends</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body bg-dark text-white">
+            <div class="mb-4">
+              <label for="friendSearch" class="form-label">Search for users</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="friendSearch" placeholder="Enter username">
+                <button class="btn" type="button" id="friendSearchButton">
+                  <i class="bi bi-search"></i> Search
+                </button>
+              </div>
+            </div>
+            
+            <div id="searchResults" class="list-group mb-4">
+              <!-- Search results will appear here -->
+            </div>
+          </div>
+        `;
+        
+        // Initialize only the friend search functionality
         initialiseFriendSearch();
-        loadFriendsList();
       })
       .catch(error => {
         document.getElementById("accountModalContent").innerHTML = `
-          <div class="modal_main_section text-danger">Failed to load settings content.</div>
+          <div class="modal_main_section text-danger">Failed to load content.</div>
         `;
-        console.error("Error loading settings:", error);
+        console.error("Error loading friends modal content:", error);
       });
   });
-}
-function initialiseSettingsForm() {
-  const form = document.getElementById("userSettingsForm");
-  let saveBtn = document.getElementById("saveUserSettings");
-
-  if (!form || !saveBtn) return;
-
-  const profile = JSON.parse(localStorage.getItem('user_profile'));
-  if (profile?.settings) {
-    const profilePublicCheckbox = document.getElementById("profilePublic");
-    const allowFriendRequestsCheckbox = document.getElementById("allowFriendRequests");
-    if (profilePublicCheckbox) {
-      profilePublicCheckbox.checked = profile.settings.is_profile_public;
-    }
-    if (allowFriendRequestsCheckbox) {
-      allowFriendRequestsCheckbox.checked = profile.settings.allow_friend_requests;
-    }
-  }
-
-  saveBtn.replaceWith(saveBtn.cloneNode(true));
-  saveBtn = document.getElementById("saveUserSettings");
-
-  saveBtn.addEventListener("click", async () => {
-    const data = {
-      is_profile_public: form.publicProfile.checked,
-      allow_friend_requests: form.allowFriendRequests.checked
-    };
-
-    try {
-      const response = await fetch("/api/settings", {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrfToken
-        },
-        credentials: 'include',
-        body: JSON.stringify(data)
-      });
-
-      if (response.ok) {
-        const updated = await response.json();
-        alert("✅ Settings saved.");
-        localStorage.setItem('user_profile', JSON.stringify({
-          ...profile,
-          settings: updated.settings
-        }));
-      } else {
-        alert("❌ Could not save settings.");
-      }
-    } catch (err) {
-      console.error("Settings update failed:", err);
-    }
-  });
-  
 }
 
 // update daily streak
