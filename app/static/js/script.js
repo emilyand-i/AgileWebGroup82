@@ -580,17 +580,69 @@ function showSuccessModal(username) {
 
 async function loadNotifications() {
   try {
+    console.log("🔄 Fetching notifications...");
+    
+    // Get the notification container
+    const notifContainer = document.getElementById('notification-container');
+    if (!notifContainer) {
+      console.error("❌ Notification container not found");
+      return;
+    }
+    
+    // Add loading indicator
+    notifContainer.innerHTML = `
+      <li class="list-group-item bg-dark text-white text-center">
+        <i class="bi bi-hourglass-split me-2"></i>Loading notifications...
+      </li>
+    `;
+    
+    // Fetch notifications
     const response = await fetch('/api/notifications', {
-      credentials: 'include'
+      method: 'GET',
+      credentials: 'include', // Make sure to include credentials
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken // Include CSRF token
+      }
     });
-    if (!response.ok) throw new Error("Failed to fetch notifications");
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ API error (${response.status}):`, errorText);
+      
+      // Show error in notification container
+      notifContainer.innerHTML = `
+        <li class="list-group-item bg-dark text-white text-center">
+          <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+          Could not load notifications
+        </li>
+      `;
+      return;
+    }
 
     const data = await response.json();
     console.log("🔔 Notifications received:", data.notifications);
 
-    renderNotifications(data.notifications);
+    // Render notifications
+    renderNotifications(data.notifications || []);
+    
+    // Update notification badge
+    updateNotificationBadge((data.notifications || []).length);
+    
   } catch (err) {
-    console.error("Notification load error:", err);
+    console.error("❌ Notification load error:", err);
+    
+    // Show error in notification container
+    const notifContainer = document.getElementById('notification-container');
+    if (notifContainer) {
+      notifContainer.innerHTML = `
+        <li class="list-group-item bg-dark text-white text-center">
+          <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+          Error loading notifications: ${err.message}
+        </li>
+      `;
+    }
   }
 }
 
@@ -803,7 +855,11 @@ function loadFriendsList() {
   }
 }
 
+
+
 // Add this function to handle sharing a friend's profile
+// Add this function to handle sharing a friend's profile
+// Update the shareFriendProfile function
 function shareFriendProfile(friendName) {
   const activeTab = document.querySelector('.tab-pane.active.show');
 
@@ -812,8 +868,17 @@ function shareFriendProfile(friendName) {
     return;
   }
 
+
   // Get plant ID from within the active tab
-  const plantId = activeTab.dataset.plantId;
+
+
+  const plantName = getCurrentActivePlantName();
+
+  // Get plant ID from within the active tab
+  const plantId = globalPlants[plantName].id;
+
+  console.log("🧪 Sharing plant ID:", plantId);
+
 
   if (!plantId) {
     alert("❌ Could not find plant ID in the active tab.");
@@ -823,12 +888,22 @@ function shareFriendProfile(friendName) {
   // Send the share request
   fetch('/api/share_plant', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+
+    
+    headers: { 
+      'Content-Type': 'application/json',
+
+      'X-CSRFToken': csrfToken // Add CSRF token
+    },
+    credentials: 'include', // Include cookies for authentication
+
+
     body: JSON.stringify({
       plant_id: plantId,
       shared_with: friendName  // backend supports username now
     })
   })
+
   .then(res => res.json())
   .then(data => {
     if (data.message) {
@@ -844,8 +919,145 @@ function shareFriendProfile(friendName) {
   .catch(err => {
     console.error("❌ Error sharing plant:", err);
     alert("❌ Network error.");
+=======
+  .then(res => {
+    // Check for error responses first
+    if (!res.ok) {
+      console.error("❌ HTTP error:", res.status, res.statusText);
+      // Try to get the error message even if it's not valid JSON
+      return res.text().then(text => {
+        try {
+          // Try to parse it as JSON
+          return Promise.reject(JSON.parse(text));
+        } catch (e) {
+          // If it's not valid JSON (like HTML), provide a more helpful error
+          console.error("❌ Invalid response:", text.substring(0, 150) + "...");
+          return Promise.reject({ error: `Server error (${res.status}). Please try again later.` });
+        }
+      });
+    }
+    return res.json();
+  })
+  .then(data => {
+  if (data.message) {
+    console.log("✅ Share success:", data.message);
+    console.log("🔍 Response details:", JSON.stringify(data));
+    
+    // Show success toast
+    showShareToast(data.message, friendName);
+    
+    // Reload notifications immediately
+    loadNotifications();
+  } else {
+    alert(`❌ ${data.error || 'Unknown error'}`);
+  }
+})
+  .catch(err => {
+    console.error("❌ Error sharing plant:", err);
+    alert(`❌ ${err.error || 'Network error. Please try again.'}`);
   });
 }
+// Add this function to show toast notifications
+function showShareToast(message, friendName) {
+  // Create toast container if it doesn't exist
+  let toastContainer = document.querySelector('.toast-container');
+  if (!toastContainer) {
+    toastContainer = document.createElement('div');
+    toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+    toastContainer.style.zIndex = '1060';
+    document.body.appendChild(toastContainer);
+  }
+  
+  // Create unique ID for this toast
+  const toastId = `share-toast-${Date.now()}`;
+  
+  // Create the toast HTML
+  const toastHTML = `
+    <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header bg-success text-white">
+        <i class="bi bi-share me-2"></i>
+        <strong class="me-auto">Plant Shared</strong>
+        <small class="text-white">Just now</small>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        ${message || `Your plant was successfully shared with ${friendName}!`}
+      </div>
+    </div>
+  `;
+  
+  // Add toast to container
+  toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+  
+  // Initialize and show the toast
+  const toastElement = document.getElementById(toastId);
+  const toast = new bootstrap.Toast(toastElement, { delay: 5000 });
+  toast.show();
+  
+  // Remove the toast element after it's hidden
+  toastElement.addEventListener('hidden.bs.toast', () => {
+    toastElement.remove();
+
+  });
+}
+
+// Add this function to update notification badge
+// Function to update the notification badge count
+function updateNotificationBadge(count) {
+  // Find the notification button
+  const notifButton = document.querySelector('button[data-bs-target="#notificationsModal"]');
+  if (!notifButton) {
+    console.error("❌ Notification button not found");
+    return;
+  }
+
+  // Find existing badge or create a new one
+  let badge = notifButton.querySelector('.notification-badge');
+  
+  // If count is 0, remove badge if it exists
+  if (count <= 0) {
+    if (badge) badge.remove();
+    return;
+  }
+  
+  // Create badge if it doesn't exist
+  if (!badge) {
+    badge = document.createElement('span');
+    badge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge';
+    notifButton.style.position = 'relative';
+    notifButton.appendChild(badge);
+  }
+  
+  // Update badge text and ensure it's visible
+  badge.textContent = count;
+  badge.style.display = 'block';
+}
+
+// Add this CSS to ensure the badge looks nice
+document.addEventListener('DOMContentLoaded', function() {
+  const style = document.createElement('style');
+  style.textContent = `
+    .notification-badge {
+      font-size: 0.75em;
+      transform: translate(-50%, -50%) !important;
+    }
+    
+    #notification-container .list-group-item {
+      background-color: #212529 !important;
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .dismiss-notif-btn {
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+    
+    .dismiss-notif-btn:hover {
+      opacity: 1;
+    }
+  `;
+  document.head.appendChild(style);
+});
 
 //remove friend
 function removeFriend(friendId) {
@@ -1810,48 +2022,166 @@ function updateShareContent(plantName, avatarImageSrc) {
  * Notifications Center render
  */
 
+// Function to render notifications in the UI
 function renderNotifications(notifications) {
   const container = document.getElementById('notification-container');
-  if (!container) return;
+  if (!container) {
+    console.error("❌ Notification container not found");
+    return;
+  }
 
-  container.innerHTML = ''; // Clear container first
+  // Clear the container
+  container.innerHTML = '';
 
+  // If no notifications, show a message
   if (!notifications || notifications.length === 0) {
     container.innerHTML = `
       <li class="list-group-item bg-dark text-white text-center">
-        <strong>No new notifications</strong>
+        <i class="bi bi-check-circle-fill text-success me-2"></i>
+        No new notifications
       </li>
     `;
     return;
   }
 
-  notifications.forEach(notif => {
-    console.log(`📨 Notification: ${notif.sender} -> ${notif.message}`);
-    const item = document.createElement('li');
-    item.className = 'list-group-item bg-dark text-white d-flex justify-content-between align-items-center';
-    item.innerHTML = `
-      <div>
-        <strong>${notif.sender}</strong>: ${notif.message}<br>
-        <small class="text-muted">${notif.timestamp}</small>
+  // Add each notification to the container
+  notifications.forEach(notification => {
+    // Determine if it's a share notification
+    const isShare = notification.message && 
+                    (notification.message.toLowerCase().includes('share') || 
+                     notification.message.toLowerCase().includes('plant'));
+    
+    const notifItem = document.createElement('li');
+    notifItem.className = 'list-group-item bg-dark text-white';
+    notifItem.innerHTML = `
+      <div class="d-flex justify-content-between align-items-top">
+        <div>
+          ${isShare ? '<i class="bi bi-share-fill text-success me-2"></i>' : 
+                     '<i class="bi bi-bell-fill text-info me-2"></i>'}
+          <strong>${notification.sender || 'System'}</strong>: 
+          ${notification.message || 'New notification'}
+          ${notification.timestamp ? `<br><small class="text-muted">${notification.timestamp}</small>` : ''}
+        </div>
+        <button class="btn btn-sm btn-outline-light dismiss-notif-btn" 
+                data-notification-id="${notification.id || ''}">
+          <i class="bi bi-x"></i>
+        </button>
       </div>
-      <button class="btn btn-sm btn-outline-light">Dismiss</button>
     `;
 
-    // Add remove notification option
-    item.querySelector('button').addEventListener('click', () => {
-      item.remove();
-      if (container.children.length === 0) {
-        container.innerHTML = `
-          <li class="list-group-item bg-dark text-white text-center">
-            <strong>No new notifications</strong>
-          </li>
-        `;
-      }
-    });
-    container.appendChild(item);
+    // Add event listener to dismiss button
+    const dismissBtn = notifItem.querySelector('.dismiss-notif-btn');
+    if (dismissBtn) {
+      dismissBtn.addEventListener('click', () => {
+        dismissNotification(notification.id, notifItem);
+      });
+    }
+
+    container.appendChild(notifItem);
   });
 }
 
+// Function to dismiss a notification
+function dismissNotification(notificationId, notifElement) {
+  if (!notificationId) {
+    // Just remove from UI if no ID (local only)
+    notifElement.remove();
+    return;
+  }
+
+  // Send request to dismiss the notification
+  fetch('/api/dismiss-notification', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken
+    },
+    credentials: 'include',
+    body: JSON.stringify({ notification_id: notificationId })
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Failed to dismiss notification');
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log("✅ Notification dismissed:", data);
+    
+    // Remove notification from UI
+    notifElement.remove();
+    
+    // Update count
+    const remainingCount = document.querySelectorAll('#notification-container li').length - 1;
+    updateNotificationBadge(remainingCount > 0 ? remainingCount : 0);
+    
+    // Show "no notifications" message if all dismissed
+    if (remainingCount <= 0) {
+      const container = document.getElementById('notification-container');
+      if (container) {
+        container.innerHTML = `
+          <li class="list-group-item bg-dark text-white text-center">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            No new notifications
+          </li>
+        `;
+      }
+    }
+  })
+  .catch(error => {
+    console.error("❌ Error dismissing notification:", error);
+    alert("Could not dismiss notification. Please try again.");
+  });
+}
+
+// Add polling for notifications
+// Add notification polling
+function startNotificationPolling() {
+  // Check for notifications immediately
+  loadNotifications();
+  
+  // Then set up interval to check periodically (every 30 seconds)
+  const pollInterval = 30000; // 30 seconds
+  
+  // Create and store the interval
+  window.notificationInterval = setInterval(() => {
+    // Only check if user is logged in and page is visible
+    if (document.visibilityState === 'visible') {
+      loadNotifications();
+    }
+  }, pollInterval);
+  
+  // Handle page visibility changes
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      // Page became visible, check notifications right away
+      loadNotifications();
+    }
+  });
+}
+
+// Add this to DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function() {
+  // Start notification polling
+  startNotificationPolling();
+  
+  // Add event listener for notification modal open
+  const notificationsModal = document.getElementById('notificationsModal');
+  if (notificationsModal) {
+    notificationsModal.addEventListener('show.bs.modal', function() {
+      // Reload notifications when modal is opened
+      loadNotifications();
+    });
+  }
+});
+
+// Add this to your DOMContentLoaded event
+document.addEventListener('DOMContentLoaded', async () => {
+  // ... existing code ...
+  
+  // Start notification polling
+  startNotificationPolling();
+});
 
 
 /**

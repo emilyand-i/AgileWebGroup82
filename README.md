@@ -13,10 +13,13 @@ You can log your plants growth measurements, upload photos to your album, track 
 
 -- MEMBERS --
 
-- Andoni (24314657) GIT: Donaks1
-- Eli (student_id)
-- Emily (23723242) GIT: emilyand-i
-- Luke (23814635) GIT: alligator-byte
+| Name   | Student ID | GitHub Username  |
+|--------|------------|------------------|
+| Andoni | 24314657   | Donaks1          |
+| Eli    | 23104886   | Eli-Rosenberg    |
+| Emily  | 23723242   | emilyand-i       |
+| Luke   | 23814635   | alligator-byte   |
+
 
 -- Virtual Environment Setup --
 - Make sure Python3 installed
@@ -41,14 +44,8 @@ To see the table of users:
 - then you can run any SQL statements to get  the data you want
 - .exit to exit sql
 
-## Note:
-I will remove all of these steps before submission as I dont think they are necessary 
-
-
 -- LINK TO PAGE --
 
+https://github.com/emilyand-i/AgileWebGroup82
 
 -- INSTALLATION -- 
-
-
-
