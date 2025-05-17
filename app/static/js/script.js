@@ -584,13 +584,13 @@ function loadFriendsList() {
 
       data.friends.forEach(friend => {
         const listItem = document.createElement('li');
-        listItem.className = 'list-group-item bg-dark text-white d-flex justify-content-between align-items-center';
+        listItem.className = 'list-group-item custom-green d-flex justify-content-between align-items-center';
         listItem.innerHTML = `
           <div>
             <strong>${friend.friend_username}</strong><br>
             <small class="text-muted">${friend.status || ''}</small>
           </div>
-          <button class="btn btn-sm btn-outline-light" onclick="sharePlant(${friend.friend_id})">Share</button>
+          <button class="btn btn-sm btn-danger" onclick="removeFriend(${friend.friend_id})">Remove</button>
         `;
         friendsList.appendChild(listItem);
       });
@@ -600,6 +600,49 @@ function loadFriendsList() {
       friendsList.innerHTML = '';
       noFriendsMessage.textContent = 'Failed to load friends.';
     });
+}
+
+//remove freind
+function removeFriend(friendId) {
+  if (!friendId) {
+    alert("❌ Friend ID is missing.");
+    return;
+  }
+
+  if (!confirm("Are you sure you want to remove this friend?")) return;
+
+  console.log("🧪 Sending friend ID:", friendId);
+
+  fetch("/api/remove-friend", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": csrfToken  // ✅ Add this
+    },
+    credentials: "include",
+    body: JSON.stringify({ friend_id: friendId })
+  })
+  .then(async (response) => {
+    const contentType = response.headers.get("content-type");
+
+    if (!contentType || !contentType.includes("application/json")) {
+      const text = await response.text();
+      throw new Error("Expected JSON but got:\n" + text.slice(0, 200));
+    }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Unknown error occurred");
+    }
+
+    alert("✅ Friend removed successfully.");
+    loadFriendsList(); // Refresh the UI
+  })
+  .catch((error) => {
+    console.error("❌ Error removing friend:", error);
+    alert("❌ Could not remove friend:\n" + error.message);
+  });
 }
 
 async function loadAllUsers() {

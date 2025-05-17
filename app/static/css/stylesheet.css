@@ -815,6 +815,12 @@ main.main-info {
   border: none;
 }
 
+/*styling for the background of the add friends feture*/
+#friendsList .list-group-item.custom-green {
+  background-color: #729566; 
+  color: white;
+}
+
 /* SETTINGS BUTTON */
 .acc_settings_btn, .logout_button {
   padding: 13px 40px;

@@ -387,8 +387,18 @@ def add_friend():
 
 @routes_bp.route('/api/remove-friend', methods=['POST'])
 def remove_friend():
-    data = request.get_json()
+    from flask import request, session, jsonify
+
+    try:
+        data = request.get_json(force=True)
+        print("🧪 Received JSON:", data)
+    except Exception as e:
+        print("❌ JSON parse error:", e)
+        return jsonify({'error': 'Invalid JSON format'}), 400
+
     user_id = session.get('user_id')
+    print("🧪 Session:", dict(session))
+
     if not user_id:
         return jsonify({'error': 'User not logged in'}), 401
 
@@ -396,14 +406,20 @@ def remove_friend():
     if not friend_id:
         return jsonify({'error': 'Friend ID is required'}), 400
 
-    friend = FriendsList.query.filter_by(user_id=user_id, friend_id=friend_id).first()
-    if not friend:
-        return jsonify({'error': 'Friend not found'}), 404
+    # Try to find and delete the friend
+    try:
+        friend = FriendsList.query.filter_by(user_id=user_id, friend_id=friend_id).first()
+        if not friend:
+            return jsonify({'error': 'Friend not found'}), 404
 
-    user_db.session.delete(friend)
-    user_db.session.commit()
+        user_db.session.delete(friend)
+        user_db.session.commit()
+        print(f"✅ Friend {friend_id} removed for user {user_id}")
+        return jsonify({'message': 'Friend removed successfully'}), 200
 
-    return jsonify({'message': 'Friend removed successfully'}), 200
+    except Exception as e:
+        print("❌ Unexpected DB error:", e)
+        return jsonify({'error': 'Server error'}), 500
 
 
 @routes_bp.route('/api/settings', methods=['POST'])
