@@ -81,9 +81,10 @@ function drawGraph(plantName) {
               data: {
                   labels: dates,
                   datasets: [{
-                      label: 'Plant Growth',
+                      label: 'Plant Growthy',
                       data: heights,
                       borderColor: '#28a745',
+                      color: '#28a745',
                       backgroundColor: 'rgba(40, 167, 69, 0.1)',
                       tension: 0.3,
                       fill: true
@@ -100,7 +101,10 @@ function drawGraph(plantName) {
                           font: {
                               size: 16
                           }
-                      }
+                      },
+                      legend: {
+                          display: false
+                      },
                   },
                   scales: {
                       y: {
