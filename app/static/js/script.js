@@ -669,50 +669,107 @@ function initialiseFriendSearch() {
 }
 
 function loadFriendsList() {
-  const friendsList = document.getElementById('friendsList');
-  const noFriendsMessage = document.getElementById('noFriendsMessage');
-
-  if (!friendsList || !noFriendsMessage) {
-    console.warn("⚠️ Missing friendsList or noFriendsMessage element.");
+  const friendsList = document.getElementById('friends-list');
+  
+  if (!friendsList) {
+    console.error("❌ Element with ID 'friends-list' not found");
     return;
   }
-
+  
+  // Clear existing list
   friendsList.innerHTML = '';
-  noFriendsMessage.textContent = 'Loading friends...';
-
-  fetch('/api/friends', { credentials: 'include' })
+  
+  // Add loading indicator
+  const loadingItem = document.createElement('li');
+  loadingItem.className = 'list-group-item bg-dark text-white text-center';
+  loadingItem.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Loading friends...';
+  friendsList.appendChild(loadingItem);
+  
+  // Fetch friends from API
+  fetch('/api/friends', { 
+    credentials: 'include' 
+  })
     .then(response => response.json())
     .then(data => {
+      // Clear the loading indicator
       friendsList.innerHTML = '';
-
+      
+      // Check if we have friends
       if (!data.friends || data.friends.length === 0) {
-        noFriendsMessage.textContent = 'No friends added yet.';
+        const noFriendsItem = document.createElement('li');
+        noFriendsItem.className = 'list-group-item bg-dark text-white text-center';
+        noFriendsItem.innerHTML = 'No friends added yet <i class="bi bi-emoji-smile ms-2"></i>';
+        friendsList.appendChild(noFriendsItem);
         return;
       }
-
-      noFriendsMessage.style.display = 'none';
-
+      
+      // Add each friend to the list
       data.friends.forEach(friend => {
         const listItem = document.createElement('li');
-        listItem.className = 'list-group-item custom-green d-flex justify-content-between align-items-center';
-        listItem.innerHTML = `
-          <div>
-            <strong>${friend.friend_username}</strong><br>
-            <small class="text-muted">${friend.status || ''}</small>
-          </div>
-          <button class="btn btn-sm btn-danger" onclick="removeFriend(${friend.friend_id})">Remove</button>
+        listItem.className = 'list-group-item bg-dark text-white d-flex justify-content-between align-items-center';
+        
+        // Create the friend name/info element
+        const nameElement = document.createElement('div');
+        nameElement.className = 'd-flex align-items-center';
+        nameElement.innerHTML = `
+          <i class="bi bi-person-circle me-2"></i>
+          <span>${friend.friend_username || friend}</span>
         `;
+        
+        // Create action buttons container
+        const actionButtons = document.createElement('div');
+        
+        // Share button (was View profile button)
+        const shareButton = document.createElement('button');
+        shareButton.className = 'btn btn-sm btn-outline-success me-2';
+        shareButton.innerHTML = '<i class="bi bi-share"></i>';
+        shareButton.title = 'Share';
+        shareButton.addEventListener('click', () => {
+          // Create share functionality
+          const friendName = friend.friend_username || friend;
+          shareFriendProfile(friendName);
+        });
+        
+        // Add buttons to container
+        actionButtons.appendChild(shareButton);
+        
+        // Add elements to list item
+        listItem.appendChild(nameElement);
+        listItem.appendChild(actionButtons);
+        
+        // Add list item to friends list
         friendsList.appendChild(listItem);
       });
     })
     .catch(error => {
-      console.error('❌ Error fetching friends list:', error);
+      console.error('❌ Error loading friends:', error);
       friendsList.innerHTML = '';
-      noFriendsMessage.textContent = 'Failed to load friends.';
+      
+      const errorItem = document.createElement('li');
+      errorItem.className = 'list-group-item bg-dark text-white text-center';
+      errorItem.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>Error loading friends';
+      friendsList.appendChild(errorItem);
     });
+    
+  // Add event listener for modal open if not already added
+  const friendsModal = document.getElementById('friendsModal');
+  if (friendsModal) {
+    // Use once: false to ensure it's called every time the modal is shown
+    friendsModal.removeEventListener('show.bs.modal', loadFriendsList);
+    friendsModal.addEventListener('show.bs.modal', loadFriendsList);
+  }
 }
 
-//remove freind
+// Add this function to handle sharing a friend's profile
+function shareFriendProfile(friendName) {
+  // You can customize this modal or implement your preferred sharing method
+  alert(`Share ${friendName}'s profile with others`);
+  
+  // For a more sophisticated approach, you could open a modal with sharing options
+  // or implement actual sharing functionality based on your application's requirements
+}
+
+//remove friend
 function removeFriend(friendId) {
   if (!friendId) {
     alert("❌ Friend ID is missing.");
@@ -2023,72 +2080,45 @@ function initialiseSettingsModal() {
     fetch("User-Settings.html")
       .then(response => response.text())
       .then(html => {
-        document.getElementById("accountModalContent").innerHTML = html;
-        initialiseSettingsForm();
+        const accountModalContent = document.getElementById("accountModalContent");
+        if (!accountModalContent) {
+          console.error("❌ Modal content container not found");
+          return;
+        }
+        
+        // Create a custom friend search content without the friends list
+        accountModalContent.innerHTML = `
+          <div class="modal-header bg-dark border-dark">
+            <h5 class="modal-title text-white">Find Friends</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body bg-dark text-white">
+            <div class="mb-4">
+              <label for="friendSearch" class="form-label">Search for users</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="friendSearch" placeholder="Enter username">
+                <button class="btn" type="button" id="friendSearchButton">
+                  <i class="bi bi-search"></i> Search
+                </button>
+              </div>
+            </div>
+            
+            <div id="searchResults" class="list-group mb-4">
+              <!-- Search results will appear here -->
+            </div>
+          </div>
+        `;
+        
+        // Initialize only the friend search functionality
         initialiseFriendSearch();
-        loadFriendsList();
       })
       .catch(error => {
         document.getElementById("accountModalContent").innerHTML = `
-          <div class="modal_main_section text-danger">Failed to load settings content.</div>
+          <div class="modal_main_section text-danger">Failed to load content.</div>
         `;
-        console.error("Error loading settings:", error);
+        console.error("Error loading friends modal content:", error);
       });
   });
-}
-function initialiseSettingsForm() {
-  const form = document.getElementById("userSettingsForm");
-  let saveBtn = document.getElementById("saveUserSettings");
-
-  if (!form || !saveBtn) return;
-
-  const profile = JSON.parse(localStorage.getItem('user_profile'));
-  if (profile?.settings) {
-    const profilePublicCheckbox = document.getElementById("profilePublic");
-    const allowFriendRequestsCheckbox = document.getElementById("allowFriendRequests");
-    if (profilePublicCheckbox) {
-      profilePublicCheckbox.checked = profile.settings.is_profile_public;
-    }
-    if (allowFriendRequestsCheckbox) {
-      allowFriendRequestsCheckbox.checked = profile.settings.allow_friend_requests;
-    }
-  }
-
-  saveBtn.replaceWith(saveBtn.cloneNode(true));
-  saveBtn = document.getElementById("saveUserSettings");
-
-  saveBtn.addEventListener("click", async () => {
-    const data = {
-      is_profile_public: form.publicProfile.checked,
-      allow_friend_requests: form.allowFriendRequests.checked
-    };
-
-    try {
-      const response = await fetch("/api/settings", {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrfToken
-        },
-        credentials: 'include',
-        body: JSON.stringify(data)
-      });
-
-      if (response.ok) {
-        const updated = await response.json();
-        alert("✅ Settings saved.");
-        localStorage.setItem('user_profile', JSON.stringify({
-          ...profile,
-          settings: updated.settings
-        }));
-      } else {
-        alert("❌ Could not save settings.");
-      }
-    } catch (err) {
-      console.error("Settings update failed:", err);
-    }
-  });
-  
 }
 
 // update daily streak
