@@ -826,7 +826,11 @@ function shareFriendProfile(friendName) {
   // Send the share request
   fetch('/api/share_plant', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken  // Add CSRF token
+    },
+    credentials: 'include',  // Include credentials for session cookies
     body: JSON.stringify({
       plant_id: plantId,
       shared_with: friendName  // backend supports username now
