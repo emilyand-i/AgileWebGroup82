@@ -175,6 +175,7 @@ def session_data():
     friends = FriendsList.query.filter_by(user_id=user.id).all()
     plants = Plants.query.filter_by(user_id=user.id).all()
     growth_entries = PlantGrowthEntry.query.filter_by(user_id=user.id).all()
+    watering_entries = PlantWaterEntry.query.filter_by(user_id=user.id).all()
     photos = uploadedPics.query.filter_by(user_id=user.id).all()
     shared_entries = SharedPlant.query.filter_by(shared_with=user.id).all()
     notifications = Notification.query.filter_by(receiver_id=user.id).order_by(Notification.timestamp.desc()).all()
@@ -195,6 +196,11 @@ def session_data():
         'date_recorded': g.date_recorded,
         'cm_grown': g.cm_grown
     } for g in growth_entries]
+
+    watering_data = [{
+        'plant_name': w.plant_name,
+        'date_watered': w.date_watered.isoformat()
+    } for w in watering_entries]
 
     photo_data = [{
         'photo_id': pic.photo_id,
@@ -237,6 +243,7 @@ def session_data():
         'email': user.email,
         'plants': plant_data,
         'growth_entries': growth_data,
+        'water_entries': watering_data,
         'photos': photo_data,
         'friends': friends_data,
         'settings': settings_data,
