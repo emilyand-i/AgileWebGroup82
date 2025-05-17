@@ -1002,3 +1002,26 @@ main.main-info {
   box-shadow: inset -6px 6px 67px #324728,
               inset 6px -6px 67px #76a55c;
 }
+
+.notification-badge {
+  font-size: 0.7em;
+  padding: 0.4em 0.6em;
+  transform: translate(-50%, -50%) !important;
+}
+
+#notification-container li {
+  transition: all 0.3s ease;
+}
+
+#notification-container li:hover {
+  background-color: #2c3237 !important;
+}
+
+.dismiss-btn {
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.dismiss-btn:hover {
+  opacity: 1;
+}
