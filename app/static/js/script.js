@@ -719,18 +719,19 @@ function loadFriendsList() {
         // Create action buttons container
         const actionButtons = document.createElement('div');
         
-        // View profile button
-        const viewButton = document.createElement('button');
-        viewButton.className = 'btn btn-sm btn-outline-success me-2';
-        viewButton.innerHTML = '<i class="bi bi-eye"></i>';
-        viewButton.title = 'View profile';
-        viewButton.addEventListener('click', () => {
-          // Placeholder for viewing friend's profile
-          alert(`View ${friend.friend_username || friend}'s profile`);
+        // Share button (was View profile button)
+        const shareButton = document.createElement('button');
+        shareButton.className = 'btn btn-sm btn-outline-success me-2';
+        shareButton.innerHTML = '<i class="bi bi-share"></i>';
+        shareButton.title = 'Share';
+        shareButton.addEventListener('click', () => {
+          // Create share functionality
+          const friendName = friend.friend_username || friend;
+          shareFriendProfile(friendName);
         });
         
         // Add buttons to container
-        actionButtons.appendChild(viewButton);
+        actionButtons.appendChild(shareButton);
         
         // Add elements to list item
         listItem.appendChild(nameElement);
@@ -757,6 +758,15 @@ function loadFriendsList() {
     friendsModal.removeEventListener('show.bs.modal', loadFriendsList);
     friendsModal.addEventListener('show.bs.modal', loadFriendsList);
   }
+}
+
+// Add this function to handle sharing a friend's profile
+function shareFriendProfile(friendName) {
+  // You can customize this modal or implement your preferred sharing method
+  alert(`Share ${friendName}'s profile with others`);
+  
+  // For a more sophisticated approach, you could open a modal with sharing options
+  // or implement actual sharing functionality based on your application's requirements
 }
 
 // Make sure the function is called when the document is ready
