@@ -1151,11 +1151,21 @@ async function loadDashboard() {
         console.log('📊 Drawing graphs for active tab:', plantName);
         drawGraph(plantName);
         drawWaterGraph(plantName);
+        
+        // Add this line to update share content
+        if (globalPlants[plantName]) {
+          updateShareContent(plantName, globalPlants[plantName].avatarSrc);
+        }
     } else if (profile.plants && profile.plants.length > 0) {
         // Fallback to first plant if no active tab
         const firstPlant = profile.plants[0].plant_name;
         drawGraph(firstPlant);
         drawWaterGraph(firstPlant);
+        
+        // Update share content with first plant
+        if (globalPlants[firstPlant]) {
+          updateShareContent(firstPlant, globalPlants[firstPlant].avatarSrc);
+        }
     }
   });
 }
@@ -1457,6 +1467,8 @@ function initialisePlantManagement() {
         contentId
       });
 
+      updateShareContent(plantName, avatarImageSrc);
+
       window.location.reload();
 
       // Update share column content
@@ -1717,6 +1729,43 @@ function updatePhotoDisplay(currentPlant) {
       <button class="carousel-control-next" type="button" data-bs-target="#photoCarousel" data-bs-slide="next">
         <span class="carousel-control-next-icon"></span>
       </button>
+    </div>
+  `;
+}
+
+// Add this function after the updatePhotoDisplay function
+function updateShareContent(plantName, avatarImageSrc) {
+  const shareContent = document.getElementById("share-content");
+  if (!shareContent) return;
+  
+  if (!plantName || !avatarImageSrc) {
+    // Get the current active plant's information
+    const currentPlant = getCurrentActivePlantName();
+    if (currentPlant && globalPlants[currentPlant]) {
+      plantName = currentPlant;
+      avatarImageSrc = globalPlants[currentPlant].avatarSrc;
+    } else {
+      // No plant selected, show default content
+      shareContent.innerHTML = `
+        <h3 class="text-white">Share Your Plant!</h3>
+        <p class="text-white">Select a plant to share</p>
+        <div class="share-controls text-center mt-4">
+          <a class="btn btn-success btn-lg disabled" href="shareBoard.html">
+            <i class="bi bi-share me-2"></i> Share Plant
+          </a>
+        </div>
+      `;
+      return;
+    }
+  }
+  
+  shareContent.innerHTML = `
+    <h3 class="text-white">Share Your Plant!</h3>
+    <img src="${avatarImageSrc}" class="img-fluid text-center share-avatar">
+    <div class="share-controls text-center mt-4">
+      <a class="btn btn-success btn-lg" href="shareBoard.html">
+        <i class="bi bi-share me-2"></i> Share Plant
+      </a>
     </div>
   `;
 }
