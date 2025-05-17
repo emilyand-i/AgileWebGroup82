@@ -475,11 +475,63 @@ function signupForm() {
     
     const signup_data = await fetch_signup.json();
     if (fetch_signup.ok) {
-      alert('Account created! Please log in.');
-      flipForm();
+      // Show success modal instead of alert
+      showSuccessModal(username);
     } else {
       alert(signup_data.error || 'Signup error. Please check details.')
     }
+  });
+}
+
+// Add this new function for showing the success modal
+function showSuccessModal(username) {
+  // Create modal if it doesn't exist
+  let modal = document.getElementById('signupSuccessModal');
+  if (!modal) {
+    const modalHtml = `
+      <div class="modal fade" id="signupSuccessModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-0">
+              <h5 class="modal-title" id="successModalLabel">Account Created!</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+              <div class="mb-4">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+              </div>
+              <h4>Welcome, <span id="welcomeUsername"></span>!</h4>
+              <p class="mb-0">Your account has been successfully created.</p>
+              <p>You can now log in to start your gardening journey!</p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+              <button type="button" class="btn btn-success px-4" id="goToLoginBtn">Go to Login</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Append modal to body
+    const modalContainer = document.createElement('div');
+    modalContainer.innerHTML = modalHtml;
+    document.body.appendChild(modalContainer);
+    
+    modal = document.getElementById('signupSuccessModal');
+  }
+  
+  // Set username in the modal
+  document.getElementById('welcomeUsername').textContent = username;
+  
+  // Initialize modal
+  const successModal = new bootstrap.Modal(modal);
+  successModal.show();
+  
+  document.getElementById('goToLoginBtn').addEventListener('click', function() {
+    successModal.hide();
+    setTimeout(() => {
+      flipForm(); // Add small delay to ensure modal is hidden first
+    }, 100);
   });
 }
 
