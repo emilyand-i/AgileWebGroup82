@@ -243,7 +243,7 @@ def session_data():
         'email': user.email,
         'plants': plant_data,
         'growth_entries': growth_data,
-        'water_entries': watering_data,
+        'watering_entries': watering_data,
         'photos': photo_data,
         'friends': friends_data,
         'settings': settings_data,

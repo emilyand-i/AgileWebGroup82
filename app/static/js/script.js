@@ -122,42 +122,57 @@ function drawGraph(plantName) {
 
 
 function drawWaterGraph(namePlant) {
-
+    console.log("💧 DRAW WATER GRAPH CALLED for:", namePlant);
+    
     const chartCanvas = document.getElementById('waterTrackingGraph');
     if (!chartCanvas) {
-        console.error('Water tracking canvas element not found');
+        console.error('❌ Water tracking canvas element not found');
         return;
     }
 
     const plant = globalPlants[namePlant];
-    if (!plant || !plant.waterData) {
-        console.log("No water data available");
+    if (!plant) {
+        console.warn("⚠️ No plant object found in globalPlants for:", namePlant);
         return;
     }
+
+    if (!plant.waterData) {
+        console.warn("🚫 plant.waterData is missing for:", namePlant);
+        return;
+    }
+
+    console.log("🌿 plant.waterData:", JSON.stringify(plant.waterData, null, 2));
 
     // Destroy existing chart if it exists
     if (waterChart) {
         waterChart.destroy();
+        console.log("🗑️ Existing water chart destroyed");
     }
 
     // Prepare data
     const today = new Date();
-    const thirtyDaysAgo = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+    const sevenDaysAgo = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
     
-    // Create array of last 30 days
     const dates = [];
     const waterValues = [];
-    
-    for (let d = new Date(thirtyDaysAgo); d <= today; d.setDate(d.getDate() + 1)) {
-        dates.push(d.toLocaleDateString());
-        // Check if plant was watered on this date
-        const wasWatered = plant.waterData.some(water => 
-            new Date(water.date).toLocaleDateString() === d.toLocaleDateString()
-        );
+
+    for (let d = new Date(sevenDaysAgo); d <= today; d.setDate(d.getDate() + 1)) {
+        const dStr = d.toLocaleDateString();
+        dates.push(dStr);
+
+        const wasWatered = plant.waterData.some(water => {
+            const waterDateStr = new Date(water.date).toLocaleDateString();
+            const match = waterDateStr === dStr;
+            console.log(`📅 Comparing ${waterDateStr} to ${dStr} => ${match}`);
+            return match;
+        });
+
         waterValues.push(wasWatered ? 1 : 0);
     }
 
-    // Create the water tracking chart
+    console.log("📆 Chart Dates:", dates);
+    console.log("💧 Chart Values:", waterValues);
+
     waterChart = new Chart(chartCanvas, {
         type: 'bar',
         data: {
@@ -177,7 +192,7 @@ function drawWaterGraph(namePlant) {
             plugins: {
                 title: {
                     display: true,
-                    text: ``,
+                    text: `${namePlant}'s Watering History`,
                     color: 'white',
                     font: {
                         size: 10,
@@ -195,9 +210,7 @@ function drawWaterGraph(namePlant) {
                     ticks: {
                         stepSize: 1,
                         color: 'white',
-                        callback: function(value) {
-                            return value === 1 ? '💧' : '';
-                        }
+                        callback: value => value === 1 ? '💧' : ''
                     }
                 },
                 x: {
@@ -210,7 +223,10 @@ function drawWaterGraph(namePlant) {
             }
         }
     });
+
+    console.log("✅ WATER CHART RENDERED with", waterValues.filter(v => v === 1).length, "watering days");
 }
+
 
 function deactivateAllTabs() {
   document.querySelectorAll('.nav-link').forEach(tab => {
@@ -872,6 +888,24 @@ async function loadDashboard() {
               new Date(a.date) - new Date(b.date)
           );
       });
+  }
+  console.log("💧 profile.watering_entries:", profile.watering_entries);
+
+  if (profile.watering_entries) {
+    profile.watering_entries.forEach(entry => {
+      const plant = globalPlants[entry.plant_name];
+      if (plant) {
+        if (!plant.waterData) plant.waterData = [];
+        plant.waterData.push({ date: entry.date_watered });
+      }
+    });
+
+    // Optional: sort dates per plant
+    Object.values(globalPlants).forEach(plant => {
+      if (plant.waterData) {
+        plant.waterData.sort((a, b) => new Date(a.date) - new Date(b.date));
+      }
+    });
   }
 }
 
@@ -2053,10 +2087,11 @@ document.getElementById('waterForm')?.addEventListener('submit', function(e) {
   }
   
   // Add water data
-  globalPlants[plantName].waterData.push({
-      date: waterDate,
-      watered: true
-  });
+  if (!globalPlants[plantName].waterData) {
+    globalPlants[plantName].waterData = [];
+  }
+  globalPlants[plantName].waterData.push({ date: waterDate });
+
 
   // Redraw the water tracking graph
   drawWaterGraph(plantName);
