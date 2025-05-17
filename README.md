@@ -13,10 +13,12 @@ You can log your plants growth measurements, upload photos to your album, track 
 
 -- MEMBERS --
 
-- Andoni (24314657) GIT: Donaks1
-- Eli (student_id)
-- Emily (23723242) GIT: emilyand-i
-- Luke (23814635) GIT: alligator-byte
+| Name   | Student ID | GitHub Username  |
+|--------|------------|------------------|
+| Andoni | 24314657   | Donaks1          |
+| Eli    | 23104886   | Eli-Rosenberg    |
+| Emily  | 23723242   | emilyand-i       |
+| Luke   | 23814635   | alligator-byte   |
 
 -- Virtual Environment Setup --
 - Make sure Python3 installed

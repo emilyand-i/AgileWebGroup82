@@ -327,7 +327,8 @@ function toggleFullscreen() {
 
   if (!isExpanded) {
     if (!currentPlant || !globalPlants[currentPlant]) {
-      alert("Please select a plant before entering fullscreen mode.");
+      // Replace alert with modal
+      showFullscreenErrorModal();
       return;
     }
 
@@ -378,6 +379,64 @@ function toggleFullscreen() {
     }, 250); // Delay to let DOM adjust
   }
 }
+
+// Add this new function for showing the fullscreen error modal
+function showFullscreenErrorModal() {
+  // Create modal if it doesn't exist
+  let modal = document.getElementById('fullscreenErrorModal');
+  if (!modal) {
+    const modalHtml = `
+      <div class="modal fade" id="fullscreenErrorModal" tabindex="-1" aria-labelledby="fullscreenErrorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-0">
+              <h5 class="modal-title" id="fullscreenErrorModalLabel">Plant Selection Required</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+              <div class="mb-4">
+                <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 3rem;"></i>
+              </div>
+              <h4>No Plant Selected</h4>
+              <p class="mb-0">Please select a plant before entering fullscreen mode.</p>
+              <p>You can add a new plant or select an existing one from the tabs.</p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+              <button type="button" class="btn btn-secondary px-4" id="goToAddPlantBtn">Add Plant</button>
+              <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Append modal to body
+    const modalContainer = document.createElement('div');
+    modalContainer.innerHTML = modalHtml;
+    document.body.appendChild(modalContainer);
+    
+    modal = document.getElementById('fullscreenErrorModal');
+  }
+  
+  // Initialize modal
+  const errorModal = new bootstrap.Modal(modal);
+  errorModal.show();
+  
+  // Add event listener to the "Add Plant" button
+  document.getElementById('goToAddPlantBtn').addEventListener('click', function() {
+    errorModal.hide();
+    
+    // After modal is hidden, activate the "Add Plant" tab
+    modal.addEventListener('hidden.bs.modal', function() {
+      const addPlantTab = document.querySelector('#add-plant-tab');
+      if (addPlantTab) {
+        const bsTab = new bootstrap.Tab(addPlantTab);
+        bsTab.show();
+      }
+    }, { once: true });
+  });
+}
+
 
 
 
