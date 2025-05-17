@@ -668,27 +668,91 @@ function initialiseFriendSearch() {
 }
 
 function loadFriendsList() {
-  fetch('/api/friends') // Ensure this endpoint returns the user's friends
+  const friendsList = document.getElementById('friendsList');
+  const noFriendsMessage = document.getElementById('noFriendsMessage');
+
+  if (!friendsList || !noFriendsMessage) {
+    console.warn("⚠️ Missing friendsList or noFriendsMessage element.");
+    return;
+  }
+
+  friendsList.innerHTML = '';
+  noFriendsMessage.textContent = 'Loading friends...';
+
+  fetch('/api/friends', { credentials: 'include' })
     .then(response => response.json())
     .then(data => {
-      const friendsList = document.getElementById('friends-list');
       friendsList.innerHTML = '';
+
+      if (!data.friends || data.friends.length === 0) {
+        noFriendsMessage.textContent = 'No friends added yet.';
+        return;
+      }
+
+      noFriendsMessage.style.display = 'none';
+
       data.friends.forEach(friend => {
         const listItem = document.createElement('li');
-        listItem.className = 'list-group-item bg-dark text-white d-flex justify-content-between align-items-center';
+        listItem.className = 'list-group-item custom-green d-flex justify-content-between align-items-center';
         listItem.innerHTML = `
           <div>
             <strong>${friend.friend_username}</strong><br>
-            <small class="text-muted">${friend.status}</small>
+            <small class="text-muted">${friend.status || ''}</small>
           </div>
-          <button class="btn btn-sm btn-outline-light" onclick="sharePlant(${friend.friend_id})">Share</button>
+          <button class="btn btn-sm btn-danger" onclick="removeFriend(${friend.friend_id})">Remove</button>
         `;
         friendsList.appendChild(listItem);
       });
     })
-    .catch(error => console.error('Error fetching friends list:', error));
+    .catch(error => {
+      console.error('❌ Error fetching friends list:', error);
+      friendsList.innerHTML = '';
+      noFriendsMessage.textContent = 'Failed to load friends.';
+    });
 }
 
+//remove freind
+function removeFriend(friendId) {
+  if (!friendId) {
+    alert("❌ Friend ID is missing.");
+    return;
+  }
+
+  if (!confirm("Are you sure you want to remove this friend?")) return;
+
+  console.log("🧪 Sending friend ID:", friendId);
+
+  fetch("/api/remove-friend", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": csrfToken  // ✅ Add this
+    },
+    credentials: "include",
+    body: JSON.stringify({ friend_id: friendId })
+  })
+  .then(async (response) => {
+    const contentType = response.headers.get("content-type");
+
+    if (!contentType || !contentType.includes("application/json")) {
+      const text = await response.text();
+      throw new Error("Expected JSON but got:\n" + text.slice(0, 200));
+    }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Unknown error occurred");
+    }
+
+    alert("✅ Friend removed successfully.");
+    loadFriendsList(); // Refresh the UI
+  })
+  .catch((error) => {
+    console.error("❌ Error removing friend:", error);
+    alert("❌ Could not remove friend:\n" + error.message);
+  });
+}
 
 async function loadAllUsers() {
   try {
@@ -1961,6 +2025,7 @@ function initialiseSettingsModal() {
         document.getElementById("accountModalContent").innerHTML = html;
         initialiseSettingsForm();
         initialiseFriendSearch();
+        loadFriendsList();
       })
       .catch(error => {
         document.getElementById("accountModalContent").innerHTML = `
@@ -2022,6 +2087,7 @@ function initialiseSettingsForm() {
       console.error("Settings update failed:", err);
     }
   });
+  
 }
 
 // update daily streak
