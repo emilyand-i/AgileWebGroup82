@@ -625,3 +625,50 @@ def add_growth_data():
         print(f"Error adding growth data: {str(e)}")
         user_db.session.rollback()
         return jsonify({'error': 'Failed to save growth data'}), 500
+    
+    
+@routes_bp.route('/api/add-watering', methods=['POST'])
+def add_watering_data():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not logged in'}), 401
+
+    try:
+        data = request.get_json()
+        plant_name = data.get('plant_name')
+        watering_dates = data.get('watering_dates')  # List of date strings
+
+        # Validate required fields
+        if not plant_name or not isinstance(watering_dates, list):
+            return jsonify({'error': 'Missing or invalid required fields'}), 400
+
+        entries = []
+        for date_str in watering_dates:
+            try:
+                date_watered = datetime.strptime(date_str, '%Y-%m-%d').date()
+            except ValueError:
+                return jsonify({'error': f'Invalid date format: {date_str}. Use YYYY-MM-DD'}), 400
+
+            entry = PlantWaterEntry(
+                user_id=user_id,
+                plant_name=plant_name,
+                date_watered=date_watered,
+                ml_watered=0.0  # Placeholder if quantity is not tracked
+            )
+            entries.append(entry)
+
+        user_db.session.add_all(entries)
+        user_db.session.commit()
+
+        return jsonify({
+            'message': 'Watering data added successfully',
+            'entries': [
+                {'plant_name': plant_name, 'date_watered': d} for d in watering_dates
+            ]
+        }), 201
+
+    except Exception as e:
+        print(f"Error adding watering data: {str(e)}")
+        user_db.session.rollback()
+        return jsonify({'error': 'Failed to save watering data'}), 500
+
