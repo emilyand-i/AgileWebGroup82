@@ -12,141 +12,171 @@ let waterChart = null;
 // Draw growth graph for selected plant
 
 function drawGraph(plantName) {
-    console.log('🎨 drawGraph called for:', plantName);
-    
-    const chartCanvas = document.getElementById('plantGrowthGraph');
-    if (!chartCanvas) {
-        console.error('❌ Canvas element not found');
-        return;
-    }
+  console.log('🎨 drawGraph called for:', plantName);
 
-    const data = globalPlants.growthData?.[plantName] || [];
-    console.log('📊 Growth data array:', data);
-    console.log('📊 Number of data points:', data.length);
-    console.log('📊 Raw data points:', JSON.stringify(data, null, 2));
+  // Debounce redraws to avoid rapid execution
+  if (window.drawGraphTimeout) {
+      clearTimeout(window.drawGraphTimeout);
+  }
 
-    // Destroy existing chart if it exists
-    if (growthChart) {
-        console.log('🗑️ Destroying existing chart');
-        growthChart.destroy();
-    }
+  window.drawGraphTimeout = setTimeout(() => {
+      const chartCanvas = document.getElementById('plantGrowthGraph');
+      if (!chartCanvas) {
+          console.error('❌ Canvas element not found');
+          return;
+      }
 
-    // If there's not enough data, show an empty message chart
-    if (!data || data.length < 2) {
-        console.log('⚠️ Insufficient data points, showing empty chart');
-        growthChart = new Chart(chartCanvas, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    data: [],
-                    label: 'Growth Progress'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Add At Least 2 Growth Points',
-                        color: 'white',
-                        font: {
-                            size: 16
-                        }
-                    }
-                }
-            }
-        });
-        return;
-    }
+      // Destroy existing chart and clear reference
+      if (window.growthChart) {
+          console.log('🗑️ Destroying existing chart');
+          window.growthChart.destroy();
+          window.growthChart = null;
+      }
 
-    // Prepare data for the chart
-    const dates = data.map(d => new Date(d.date).toLocaleDateString());
-    const heights = data.map(d => d.height);
-    
-    console.log('📅 Processed dates:', dates);
-    console.log('📏 Processed heights:', heights);
+      const data = globalPlants.growthData?.[plantName] || [];
+      console.log('📊 Growth data array:', data);
+      console.log('📊 Number of data points:', data.length);
+      console.log('📊 Raw data points:', JSON.stringify(data, null, 2));
 
-    // Create the growth chart
-    growthChart = new Chart(chartCanvas, {
-        type: 'line',
-        data: {
-            labels: dates,
-            datasets: [{
-                label: 'Plant Growth',
-                data: heights,
-                borderColor: '#28a745',
-                backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                tension: 0.3,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: `${plantName}'s Growth Journey`,
-                    color: 'white',
-                    font: {
-                        size: 16
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { color: 'white' },
-                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                },
-                x: {
-                    ticks: { color: 'white' },
-                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                }
-            }
-        }
-    });
+      requestAnimationFrame(() => {
+          if (!data || data.length < 2) {
+              console.log('⚠️ Insufficient data points, showing empty chart');
+              window.growthChart = new Chart(chartCanvas, {
+                  type: 'line',
+                  data: {
+                      labels: [],
+                      datasets: [{
+                          data: [],
+                          label: 'Growth Progress'
+                      }]
+                  },
+                  options: {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                          title: {
+                              display: true,
+                              text: 'Add At Least 2 Growth Points',
+                              color: 'white',
+                              font: {
+                                  size: 16
+                              }
+                          }
+                      }
+                  }
+              });
+              return;
+          }
+
+          // Process data for chart
+          const dates = data.map(d => new Date(d.date).toLocaleDateString());
+          const heights = data.map(d => d.height);
+
+          console.log('📅 Processed dates:', dates);
+          console.log('📏 Processed heights:', heights);
+
+          // Create new chart instance
+          window.growthChart = new Chart(chartCanvas, {
+              type: 'line',
+              data: {
+                  labels: dates,
+                  datasets: [{
+                      label: 'Plant Growthy',
+                      data: heights,
+                      borderColor: '#28a745',
+                      color: '#28a745',
+                      backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                      tension: 0.3,
+                      fill: true
+                  }]
+              },
+              options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                      title: {
+                          display: true,
+                          text: `${plantName}'s Growth Journey`,
+                          color: 'white',
+                          font: {
+                              size: 16
+                          }
+                      },
+                      legend: {
+                          display: false
+                      },
+                  },
+                  scales: {
+                      y: {
+                          beginAtZero: true,
+                          ticks: { color: 'white' },
+                          grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                      },
+                      x: {
+                          ticks: { color: 'white' },
+                          grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                      }
+                  }
+              }
+          });
+      });
+
+  }, 100); // 100ms delay to debounce frequent redraws
 }
 
-function drawWaterGraph(namePlant) {
 
+function drawWaterGraph(namePlant) {
+    console.log("💧 DRAW WATER GRAPH CALLED for:", namePlant);
+    
     const chartCanvas = document.getElementById('waterTrackingGraph');
     if (!chartCanvas) {
-        console.error('Water tracking canvas element not found');
+        console.error('❌ Water tracking canvas element not found');
         return;
     }
 
     const plant = globalPlants[namePlant];
-    if (!plant || !plant.waterData) {
-        console.log("No water data available");
+    if (!plant) {
+        console.warn("⚠️ No plant object found in globalPlants for:", namePlant);
         return;
     }
+
+    if (!plant.waterData) {
+        console.warn("🚫 plant.waterData is missing for:", namePlant);
+        return;
+    }
+
+    console.log("🌿 plant.waterData:", JSON.stringify(plant.waterData, null, 2));
 
     // Destroy existing chart if it exists
     if (waterChart) {
         waterChart.destroy();
+        console.log("🗑️ Existing water chart destroyed");
     }
 
     // Prepare data
     const today = new Date();
-    const thirtyDaysAgo = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+    const sevenDaysAgo = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
     
-    // Create array of last 30 days
     const dates = [];
     const waterValues = [];
-    
-    for (let d = new Date(thirtyDaysAgo); d <= today; d.setDate(d.getDate() + 1)) {
-        dates.push(d.toLocaleDateString());
-        // Check if plant was watered on this date
-        const wasWatered = plant.waterData.some(water => 
-            new Date(water.date).toLocaleDateString() === d.toLocaleDateString()
-        );
+
+    for (let d = new Date(sevenDaysAgo); d <= today; d.setDate(d.getDate() + 1)) {
+        const dStr = d.toLocaleDateString();
+        dates.push(dStr);
+
+        const wasWatered = plant.waterData.some(water => {
+            const waterDateStr = new Date(water.date).toLocaleDateString();
+            const match = waterDateStr === dStr;
+            console.log(`📅 Comparing ${waterDateStr} to ${dStr} => ${match}`);
+            return match;
+        });
+
         waterValues.push(wasWatered ? 1 : 0);
     }
 
-    // Create the water tracking chart
+    console.log("📆 Chart Dates:", dates);
+    console.log("💧 Chart Values:", waterValues);
+
     waterChart = new Chart(chartCanvas, {
         type: 'bar',
         data: {
@@ -166,7 +196,7 @@ function drawWaterGraph(namePlant) {
             plugins: {
                 title: {
                     display: true,
-                    text: ``,
+                    text: `${namePlant}'s Watering History`,
                     color: 'white',
                     font: {
                         size: 10,
@@ -184,9 +214,7 @@ function drawWaterGraph(namePlant) {
                     ticks: {
                         stepSize: 1,
                         color: 'white',
-                        callback: function(value) {
-                            return value === 1 ? '💧' : '';
-                        }
+                        callback: value => value === 1 ? '💧' : ''
                     }
                 },
                 x: {
@@ -199,6 +227,18 @@ function drawWaterGraph(namePlant) {
             }
         }
     });
+
+    console.log("✅ WATER CHART RENDERED with", waterValues.filter(v => v === 1).length, "watering days");
+}
+
+
+function deactivateAllTabs() {
+  document.querySelectorAll('.nav-link').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  document.querySelectorAll('.tab-pane').forEach(pane => {
+    pane.classList.remove('active', 'show');
+  });
 }
 
 function getCurrentActivePlantName() {
@@ -271,22 +311,12 @@ function initialiseDimming() {
   }
 }
 
-// Toggle fullscreen mode
 function toggleFullscreen() {
   const picsAndGraphs = document.getElementById('picsAndGraphs');
   const leftCol = document.querySelector('.left_col');
   const rightCol = document.querySelector('.right_col');
   const picDiv = document.getElementById('picDiv');
   const currentPlant = getCurrentActivePlantName();
-
-  picsAndGraphs.classList.toggle('fullscreen');
-
-  if (window.plantGrowthGraph) {
-        window.plantGrowthGraph.resize();
-    }
-    if (window.waterTrackingGraph) {
-        window.waterTrackingGraph.resize();
-    }
 
   if (!leftCol || !rightCol || !picsAndGraphs || !picDiv) {
     console.warn('Missing required elements');
@@ -302,25 +332,51 @@ function toggleFullscreen() {
     }
 
     // Enter fullscreen
+    picsAndGraphs.classList.toggle('fullscreen');
     picsAndGraphs.classList.remove('flex-column');
     picsAndGraphs.classList.add('gap-5', 'p-5');
     leftCol.classList.remove('col-3');
     leftCol.classList.add('col-12', 'vh-100');
     rightCol.classList.add('d-none');
-
-    picDiv.classList.add('fullscreen');  // <-- Add class
+    picDiv.classList.add('fullscreen');
   } else {
     // Exit fullscreen
+    picsAndGraphs.classList.toggle('fullscreen');
     picsAndGraphs.classList.add('flex-column');
     picsAndGraphs.classList.remove('gap-5', 'p-5');
     leftCol.classList.remove('col-12', 'vh-100');
     leftCol.classList.add('col-3');
     rightCol.classList.remove('d-none');
-
-    picDiv.classList.remove('fullscreen');  // <-- Remove class
+    picDiv.classList.remove('fullscreen');
+    
+    // Give DOM time to adjust before redrawing charts
+    setTimeout(() => {
+      if (currentPlant) {
+        // Force chart canvas to reset dimensions
+        const growthCanvas = document.getElementById('plantGrowthGraph');
+        const waterCanvas = document.getElementById('waterTrackingGraph');
+        
+        if (growthCanvas) {
+          // Force chart redraw with proper dimensions
+          if (window.growthChart) {
+            window.growthChart.destroy();
+          }
+          drawGraph(currentPlant);
+        }
+        
+        if (waterCanvas) {
+          // Force chart redraw with proper dimensions
+          if (waterChart) {
+            waterChart.destroy();
+          }
+          drawWaterGraph(currentPlant);
+        }
+        
+        // Update photo display
+        updatePhotoDisplay(currentPlant);
+      }
+    }, 250); // Delay to let DOM adjust
   }
-
-  updatePhotoDisplay(currentPlant);
 }
 
 
@@ -419,11 +475,63 @@ function signupForm() {
     
     const signup_data = await fetch_signup.json();
     if (fetch_signup.ok) {
-      alert('Account created! Please log in.');
-      flipForm();
+      // Show success modal instead of alert
+      showSuccessModal(username);
     } else {
       alert(signup_data.error || 'Signup error. Please check details.')
     }
+  });
+}
+
+// Add this new function for showing the success modal
+function showSuccessModal(username) {
+  // Create modal if it doesn't exist
+  let modal = document.getElementById('signupSuccessModal');
+  if (!modal) {
+    const modalHtml = `
+      <div class="modal fade" id="signupSuccessModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-0">
+              <h5 class="modal-title" id="successModalLabel">Account Created!</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+              <div class="mb-4">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+              </div>
+              <h4>Welcome, <span id="welcomeUsername"></span>!</h4>
+              <p class="mb-0">Your account has been successfully created.</p>
+              <p>You can now log in to start your gardening journey!</p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+              <button type="button" class="btn btn-success px-4" id="goToLoginBtn">Go to Login</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Append modal to body
+    const modalContainer = document.createElement('div');
+    modalContainer.innerHTML = modalHtml;
+    document.body.appendChild(modalContainer);
+    
+    modal = document.getElementById('signupSuccessModal');
+  }
+  
+  // Set username in the modal
+  document.getElementById('welcomeUsername').textContent = username;
+  
+  // Initialize modal
+  const successModal = new bootstrap.Modal(modal);
+  successModal.show();
+  
+  document.getElementById('goToLoginBtn').addEventListener('click', function() {
+    successModal.hide();
+    setTimeout(() => {
+      flipForm(); // Add small delay to ensure modal is hidden first
+    }, 100);
   });
 }
 
@@ -445,118 +553,117 @@ async function loadNotifications() {
 
 
 // ✅ JavaScript: Final `addFriend` Function
-window.addFriendByUsername = async function(username) {
+async function addFriend(friendId, username) {
   try {
-    console.log("📤 Sending follow request for:", username);
-    console.log("🔐 Using CSRF token:", csrfToken);
-
     const response = await fetch('/api/add-friend', {
       method: 'POST',
-      credentials: 'include',  // ✅ include cookies
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken  // ✅ CRUCIAL
+        'X-CSRFToken': csrfToken  // Include only if your server uses CSRF protection
       },
-      body: JSON.stringify({ username })
+      credentials: 'include',
+      body: JSON.stringify({ friend_id: friendId })
     });
 
-    const raw = await response.text();
-    console.log("📥 Raw response:", raw);
-
-    let result;
+    let result = {};
     try {
-      result = JSON.parse(raw);
-    } catch (e) {
-      console.error("❌ Could not parse JSON:", e);
-      alert("❌ Invalid response from server.");
-      return;
+      result = await response.json();
+    } catch (err) {
+      console.warn("⚠️ Response was not valid JSON:", err);
     }
+    console.log("🧾 Response status:", response.status);
+    console.log("📦 Response body:", result);
 
-    if (response.ok) {
+    if (response.status === 201) {
       alert(`✅ You're now following ${username}`);
-      loadFriendsList();  // ✅ Refresh the friends list here
+
+      // Refresh the search results (optional)
+      document.getElementById("friendSearch")?.dispatchEvent(new Event('input'));
+
+      // Update localStorage
+      const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+      profile.friends = profile.friends || [];
+      profile.friends.push({ friend_id: friendId, friend_username: username });
+      localStorage.setItem('user_profile', JSON.stringify(profile));
+
+    } else if (response.status === 403) {
+      alert(`🚫 ${username} is not accepting follows.`);
+    } else if (response.status === 400) {
+      alert(`⚠️ Invalid request: ${result?.error || 'No message from server.'}`);
+    } else if (response.status === 404) {
+      alert(`❌ User not found.`);
+    } else if (response.status === 200 && result?.message === "Already friends") {
+      alert(`ℹ️ You already follow ${username}`);
+    } else {
+      alert(`❌ Unexpected error: ${result?.error || 'Unknown issue'}`);
     }
 
-    return result; // ✅ always return result to the caller
   } catch (err) {
-    console.error("❌ Fetch failed:", err);
-    alert("❌ Could not follow user.");
-    return { error: "Fetch failed" };  // return error for caller
+    console.error("Follow request failed:", err);
+    alert("❌ Could not follow user due to a network or server error.");
   }
-};
-
-// 🔁 Used to get search input
-function getSearchedUsername() {
-  const input = document.getElementById("friendSearch");
-  return input ? input.value.trim() : '';
 }
 
-// 🔍 Search and render results
+// 🔁 Used to get search input
 function initialiseFriendSearch() {
   const input = document.getElementById("friendSearch");
+  const resultsContainer = document.getElementById("searchResults");
+
+  if (!input || !resultsContainer) return;
+
   const button = document.getElementById("friendSearchButton");
-  const results = document.getElementById("searchResults");
 
-  if (!input || !button || !results) return;
+  async function searchExactUsername() {
+    console.log("🔍 Searching for exact match...");
+    const query = input.value.trim();
+    resultsContainer.innerHTML = '';
 
-  async function search() {
-    const username = getSearchedUsername();
-    results.innerHTML = '';
-
-    if (!username) {
-      results.innerHTML = `<li class="list-group-item text-danger">Please enter a username.</li>`;
+    if (!query) {
+      resultsContainer.innerHTML = `<li class="list-group-item text-danger">Please enter a username.</li>`;
       return;
     }
 
     try {
-      const response = await fetch(`/api/search-users?q=${encodeURIComponent(username)}`);
+      const response = await fetch(`/api/search-users?q=${encodeURIComponent(query)}`);
       const data = await response.json();
 
-      if (!response.ok || data.results.length === 0) {
-        results.innerHTML = `<li class="list-group-item text-muted">No user found.</li>`;
-        return;
-      }
-
-      const match = data.results.find(u => u.username.toLowerCase() === username.toLowerCase());
-      if (!match) {
-        results.innerHTML = `<li class="list-group-item text-muted">No exact match found.</li>`;
-        return;
-      }
-
-      const li = document.createElement('li');
-      li.className = 'list-group-item d-flex justify-content-between align-items-center';
-
-      const nameSpan = document.createElement('span');
-      nameSpan.textContent = match.username;
-
-      const followBtn = document.createElement('button');
-      followBtn.className = 'btn btn-sm btn-success';
-      followBtn.textContent = 'Follow';
-
-      followBtn.addEventListener('click', async () => {
-        const result = await window.addFriendByUsername(match.username);
-
-        if (result && !result.error) {
-          followBtn.disabled = true;
-          followBtn.textContent = '✔ Following';
-        } else {
-          alert(`❌ Could not follow: ${result.error || result.message || 'Unknown error'}`);
+      if (response.ok && data.results.length > 0) {
+        const exactMatch = data.results.find(u => u.username.toLowerCase() === query.toLowerCase());
+        if (!exactMatch) {
+          resultsContainer.innerHTML = `<li class="list-group-item text-muted">No user found with that exact name.</li>`;
+          return;
         }
-      });
 
-      li.appendChild(nameSpan);
-      li.appendChild(followBtn);
-      results.appendChild(li);
-
-    } catch (err) {
-      console.error("Search failed:", err);
-      results.innerHTML = `<li class="list-group-item text-danger">Network error.</li>`;
+        // ✅ Render only one exact match
+        resultsContainer.innerHTML = `
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            ${exactMatch.username}
+            <button class="btn btn-sm btn-${exactMatch.is_friend ? 'secondary' : 'success'}"
+              ${exactMatch.is_friend 
+                ? 'disabled' 
+                : `onclick="addFriend(${exactMatch.user_id}, '${exactMatch.username}')"`}>
+              ${exactMatch.is_friend ? 'Following' : 'Follow'}
+            </button>
+          </li>
+        `;
+      } else {
+        resultsContainer.innerHTML = `<li class="list-group-item text-muted">No user found.</li>`;
+      }
+    } catch (error) {
+      console.error("Search failed:", error);
+      resultsContainer.innerHTML = `<li class="list-group-item text-danger">Network error while searching.</li>`;
     }
   }
 
-  button.addEventListener('click', search);
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') search();
+  // Bind search to button and Enter key
+  if (button) {
+    button.addEventListener("click", searchExactUsername);
+  }
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      searchExactUsername();
+    }
   });
 }
 
@@ -710,6 +817,11 @@ async function loadSession() {
   if (load.ok) {
     const user = await load.json();
 
+    console.log("🧪 Raw user data from /api/session:", user);
+    console.log("🌱 user.plants:", user.plants?.length);
+    console.log("📸 user.photos:", user.photos?.length);
+
+
     // Preserve streak data from existing profile
     const existingProfile = JSON.parse(localStorage.getItem('user_profile') || '{}');
     const updatedProfile = {
@@ -731,6 +843,59 @@ async function loadSession() {
     }
     const slimProfile = { ...updatedProfile };
 
+    globalPlants = {};  // reset in case of reload
+
+    // Add each plant to globalPlants
+    updatedProfile.plants.forEach(plant => {
+      globalPlants[plant.plant_name] = {
+        id: plant.id,
+        name: plant.plant_name,
+        avatarSrc: plant.chosen_image_url,
+        plantCategory: plant.plant_category,
+        plantType: plant.plant_type,
+        streakCount: plant.streak_count || 0,
+        creationDate: plant.creation_date || new Date().toISOString(),
+        lastUpdated: new Date().toISOString(),
+        photos: [],
+        waterData: []
+      };
+    });
+
+    // Assign photos to their plants
+    updatedProfile.photos?.forEach(photo => {
+      const plantEntry = Object.values(globalPlants).find(p => p.id === photo.plant_id);
+      if (plantEntry) {
+        plantEntry.photos = plantEntry.photos || [];
+        plantEntry.photos.push({
+          src: photo.image_url,
+          date: new Date(photo.datetime_uploaded).toLocaleString(),
+          comments: photo.caption || ''
+        });
+      } else {
+        console.warn(`⚠️ Could not assign photo ${photo.photo_id} — plant not found`);
+      }
+    });
+
+    console.log("✅ globalPlants populated in loadSession:", JSON.parse(JSON.stringify(globalPlants)));
+
+
+    console.log("📦 Final globalPlants after loadSession:", JSON.parse(JSON.stringify(globalPlants)));
+
+    Object.entries(globalPlants).forEach(([name, plant]) => {
+      console.log(`🌿 Plant: ${name}, Photos count: ${plant.photos?.length || 0}`);
+      if (plant.photos?.length > 0) {
+        console.table(plant.photos.map((p, i) => ({
+          Index: i,
+          Date: p.date,
+          SrcType: p.src?.slice(0, 30),
+          Comment: p.comments
+        })));
+      }
+    });
+
+    
+
+
     // Strip base64 photos to reduce localStorage size
     if (slimProfile.photos) {
       slimProfile.photos = slimProfile.photos.map(photo => ({
@@ -748,6 +913,7 @@ async function loadSession() {
     console.error('Session fetch failure');
     return null;
   }
+  
 }
 
 
@@ -772,7 +938,7 @@ async function loadDashboard() {
   // Reset plant count when loading dashboard
   myPlantCount = 0;
   // Clear global plants dictionary to rebuild it from profile data
-  globalPlants = {};
+  // globalPlants = {};
 
   profile.plants.forEach(plant => {
     myPlantCount++;
@@ -859,6 +1025,38 @@ async function loadDashboard() {
           );
       });
   }
+  console.log("💧 profile.watering_entries:", profile.watering_entries);
+
+  if (profile.watering_entries) {
+    profile.watering_entries.forEach(entry => {
+      const plant = globalPlants[entry.plant_name];
+      if (plant) {
+        if (!plant.waterData) plant.waterData = [];
+        plant.waterData.push({ date: entry.date_watered });
+      }
+    });
+
+    // Optional: sort dates per plant
+    Object.values(globalPlants).forEach(plant => {
+      if (plant.waterData) {
+        plant.waterData.sort((a, b) => new Date(a.date) - new Date(b.date));
+      }
+    });
+  }
+  requestAnimationFrame(() => {
+    const activeTab = document.querySelector('#plantTabs .nav-link.active');
+    if (activeTab) {
+        const plantName = activeTab.getAttribute('data-plant-name') || activeTab.textContent.trim();
+        console.log('📊 Drawing graphs for active tab:', plantName);
+        drawGraph(plantName);
+        drawWaterGraph(plantName);
+    } else if (profile.plants && profile.plants.length > 0) {
+        // Fallback to first plant if no active tab
+        const firstPlant = profile.plants[0].plant_name;
+        drawGraph(firstPlant);
+        drawWaterGraph(firstPlant);
+    }
+  });
 }
 
 /**
@@ -898,28 +1096,46 @@ function renderPlantTab ({
   tabId,
   contentId
 }) {
-  console.log("[renderPlantTab] Rendering", plantName);
-  console.trace();
-  // Create new plant tab
+  const plantTabs = document.getElementById('plantTabs');
+  const plantTabsContent = document.getElementById('plantTabsContent');
+
+  if (!plantTabs || !plantTabsContent) {
+    console.error("❌ Missing tab containers");
+    return;
+  }
+
+  // 🧼 Deactivate all tabs
+  document.querySelectorAll('#plantTabs .nav-link').forEach(tab => tab.classList.remove('active'));
+  // 🧼 Deactivate all tab content panes
+  document.querySelectorAll('#plantTabsContent .tab-pane').forEach(pane => {
+    pane.classList.remove('active', 'show');
+  });
+
+  // 🧠 Store tabId and contentId into globalPlants
+  if (globalPlants[plantName]) {
+    globalPlants[plantName].tabId = tabId;
+    globalPlants[plantName].contentId = contentId;
+  }
+
+  // Create the new tab button
   const newTab = document.createElement("li");
   newTab.role = "presentation";
   newTab.className = "nav-item";
   newTab.innerHTML = `
-    <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${contentId}" data-plant-name="${plantName}" type="button" role="tab"> 
+    <button class="nav-link active" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${contentId}" data-plant-name="${plantName}" type="button" role="tab"> 
       ${plantName}
     </button>`;
 
-  // Create new plant tab content
+  // Create the new tab content
   const newTabContent = document.createElement("div");
-  newTabContent.className = "tab-pane fade";
+  newTabContent.className = "tab-pane fade show active";
   newTabContent.id = contentId;
   newTabContent.role = "tabpanel";
   newTabContent.innerHTML = `
-     
     <div class="text-center flower-avatar-container">
       <img src="${avatarImageSrc}" class="img-fluid text-center avatar">
       <div class="input-group input-group-sm justify-content-center">
-    <span class="input-group-text mt-2 text-light bg-success">${plantCategory}: ${plantType}</span>
+        <span class="input-group-text mt-2 text-light bg-success">${plantCategory}: ${plantType}</span>
       </div>
     </div>
     <div class="daily-streak text-center">
@@ -942,23 +1158,23 @@ function renderPlantTab ({
           data-bs-target="#waterModal"
           data-plant-name="${plantName}">
         </div>
-
       </div>
     </div>`;
 
-  // Insert new plant before "Add Plant" tab
+  // Insert before "Add Plant" tab
   const addPlantTab = document.getElementById("add-plant-tab")?.parentNode;
   if (addPlantTab) {
     plantTabs.insertBefore(newTab, addPlantTab);
     plantTabsContent.appendChild(newTabContent);
+
+    // Bootstrap auto-shows active tab since we added `active show` above
+    const tab = new bootstrap.Tab(newTab.querySelector('button'));
+    tab.show();
   }
 
-  // Show the new plant tab safely
-  const newTabButton = document.getElementById(tabId);
-  if (newTabButton && !newTabButton.classList.contains('active')) {
-    setTimeout(() => new bootstrap.Tab(newTabButton).show(), 0);
-  }
+  updatePhotoDisplay(plantName);
 }
+
 
 let myPlantCount = 0;
 let selectedAvatarSrc = null;
@@ -1015,9 +1231,22 @@ function initialisePlantManagement() {
 
       const plant = globalPlants[currentPlantName];
       if (!plant) return;
-    
-      document.getElementById(plant.tabId)?.remove();
-      document.getElementById(plant.contentId)?.remove();
+
+      // Find the tab button element
+      const tabButton = document.querySelector(`button[data-plant-name="${currentPlantName}"]`);
+      if (!tabButton) {
+        console.warn(`Could not find tab button for ${currentPlantName}`);
+        return;
+      }
+
+      // Get the tab pane/content element
+      const tabContentId = tabButton.getAttribute('data-bs-target')?.replace('#', '');
+      const tabContent = document.getElementById(tabContentId);
+      
+      // Remove the tab and content elements
+      tabButton.parentElement?.remove(); // Remove the li element containing the button
+      tabContent?.remove();
+
       // Remove plant from global plants dictionary
       delete globalPlants[currentPlantName];
       
@@ -1037,26 +1266,21 @@ function initialisePlantManagement() {
         }
       }
 
-      console.log(`Plant "${currentPlantName}" deleted from global registry`);
-      console.log('Current plants:', Object.keys(globalPlants));
-  
-      
-      // No check for remaining tabs length before accessing remainingTabs[1] or [0] could cause error in plant deleteion section
-      // so fixed with new implementation 
-
       // Show another existing tab, if any
-      const tabLinks = document.querySelectorAll(".nav-link");
-      for (let i = 0; i < tabLinks.length; i++) {
-        const tab = tabLinks[i];
-        if (!tab.id.includes('add-plant')) {
-          new bootstrap.Tab(tab).show();
-          break;
-        }
+      const remainingTabs = document.querySelectorAll('#plantTabs .nav-link:not(#add-plant-tab)');
+      if (remainingTabs.length > 0) {
+        new bootstrap.Tab(remainingTabs[0]).show();
+      }
+
+      // Close the modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('infoModal'));
+      if (modal) {
+        modal.hide();
       }
 
       // Delete from backend
       fetch('/api/delete-plant', {
-        method: 'POST', 
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRFToken': csrfToken
@@ -1071,6 +1295,8 @@ function initialisePlantManagement() {
       .catch(err => {
         console.error('Could not delete plant from database', err);
       });
+
+      currentPlantName = null;
     });
     currentPlantName = null;
     myPlantCount--;
@@ -1083,8 +1309,9 @@ function initialisePlantManagement() {
       
       const plantName = document.getElementById('plantName').value.trim();
       const plantNameInput = document.getElementById('plantName');
-      const tabId = `plant${myPlantCount}-tab`;
-      const contentId = `plant${myPlantCount}`;
+      const safeId = plantName.replace(/\s+/g, '_').toLowerCase();
+      const tabId = `tab-${safeId}`;
+      const contentId = `content-${safeId}`;
       const avatarImageSrc = selectedAvatarSrc;
       const plantCategory = document.getElementById('plantCategory').value;
       const plantType = document.getElementById('plantType').value;
@@ -1128,6 +1355,8 @@ function initialisePlantManagement() {
         tabId,
         contentId
       });
+
+      window.location.reload();
 
       // Update share column content
       const shareContent = document.getElementById("share-content");
@@ -1193,49 +1422,51 @@ function initialisePlantManagement() {
 
   document.addEventListener('shown.bs.tab', function(event) { // Event Listener for Tab Switch
     const activeTab = event.target; // newly activated tab
-    const previousTab = event.relatedTarget; // previous active tab
     
-        // Only proceed if tab is not "Add Plant" and already active
-      if (!activeTab || activeTab.id.includes('add-plant') || !activeTab.classList.contains('active')) return;
+    // Only proceed if tab is not "Add Plant" and already active
+    if (!activeTab || activeTab.id.includes('add-plant') || !activeTab.classList.contains('active')) return;
 
-      const plantName = activeTab.getAttribute("data-plant-name") || activeTab.textContent.trim();
-      const plantData = globalPlants[plantName];
+    const plantName = activeTab.getAttribute("data-plant-name") || activeTab.textContent.trim();
+    const plantData = globalPlants[plantName];
 
-      if (!plantData) return;
+    if (!plantData) return;
 
-      console.log(`✅ Switched to plant tab: ${plantName}`);
+    document.querySelectorAll('.plant-tab-content').forEach(tab => {
+      tab.style.display = 'none';
+    });
 
-      // Update share content
-      const shareContent = document.getElementById("share-content");
-      if (shareContent && plantData.avatarSrc) {
-        shareContent.innerHTML = `
-          <h3 class="text-white"> Share Your Plant! </h3>
-          <img src="${plantData.avatarSrc}" class="img-fluid text-center share-avatar">
-          <div class="share-controls text-center mt-4">
-            <a class="btn btn-success btn-lg" href="shareBoard.html">
-              <i class="bi bi-share me-2"></i> Share Plant
-            </a>
-          </div>
-        `;
-      }
+    // Show the selected one
+    const tab = document.getElementById(`plant-tab-${plantName}`);
+    if (tab) {
+      tab.style.display = 'block';
+    }
 
-      // Update graph
-      const canvas = document.getElementById('plantGrowthGraph');
-      const graphHeader = document.getElementById('graphHeader');
-      if (canvas && graphHeader) {
-        graphHeader.textContent = plantName;
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    console.log(`✅ Switched to plant tab: ${plantName}`);
 
-        const data = globalPlants.growthData?.[plantName] || [];
-        if (data.length > 0) {
-          drawGraph(plantName);
-        } else {
-          ctx.font = "16px sans-serif";
-          ctx.textAlign = "center";
-          ctx.fillText(`No growth data for ${plantName} yet.`, canvas.width / 2, canvas.height / 2);
-        }
-      }
+    // Update share content
+    const shareContent = document.getElementById("share-content");
+    if (shareContent && plantData.avatarSrc) {
+      shareContent.innerHTML = `
+        <h3 class="text-white"> Share Your Plant! </h3>
+        <img src="${plantData.avatarSrc}" class="img-fluid text-center share-avatar">
+        <div class="share-controls text-center mt-4">
+          <a class="btn btn-success btn-lg" href="shareBoard.html">
+            <i class="bi bi-share me-2"></i> Share Plant
+          </a>
+        </div>
+      `;
+    }
+
+    // Ensure clean graph update
+    if (growthChart) {
+        growthChart.destroy();
+        growthChart = null;
+    }
+
+    // Draw new graph
+    requestAnimationFrame(() => {
+        drawGraph(plantName);
+    });
 
       // Update photo display for the selected plant
       updatePhotoDisplay(plantName);
@@ -1243,6 +1474,8 @@ function initialisePlantManagement() {
       drawWaterGraph(plantName); // Add this line
   });
 }
+
+
 /**
  * PHOTO UPLOAD & DISPLAY
  * Functions to handle photo uploads and display in diary
@@ -1300,7 +1533,7 @@ function initialisePhotoUpload() {
       console.log("✅ Photo added to globalPlants:", photoData);
       console.log("📸 Total photos now:", globalPlants[currentPlant].photos.length);
       console.log("📦 Uploading to backend:", {
-        plant_id: globalPlants[currentPlant].id,
+        plant_name: currentPlant,
         image_url: imgSrc,
         caption: comments || ''
       });
@@ -1314,7 +1547,7 @@ function initialisePhotoUpload() {
           },
           credentials: 'include',
           body: JSON.stringify({
-            plant_id: globalPlants[currentPlant].id,
+            plant_name: currentPlant,
             image_url: imgSrc,
             caption: comments || ''
           })
@@ -1545,34 +1778,62 @@ function initialisePlantGrowthTracker() {
 
   function handleWaterDataSubmit(e) {
     e.preventDefault();
+    e.stopPropagation();
 
-    console.log("Water data submission triggered.");
+    console.log('💧 Water data submission triggered');
 
     const name = getCurrentActivePlantName();
     const date = document.getElementById('waterDate').value;
 
-    console.log(`Selected plant: ${name}`);
-    console.log(`Selected date: ${date}`);
+    console.log('📝 Submission details:', { name, date });
+    console.log('🗃️ Current globalPlants[name].waterData state:',
+        JSON.stringify(globalPlants[name]?.waterData || [], null, 2));
 
     if (!name || !date) {
-        console.warn('Submission failed: Missing plant name or date');
-        alert('Please select a date');
-        return;
+      console.warn('❌ Submission failed: Missing plant name or date');
+      alert('Please select a date');
+      return;
     }
-    globalPlants[name].waterData.push(date);
-    
-    console.log(`waterData for ${name}`, globalPlants[name]?.waterData);
 
-    waterForm.reset();
-    waterDateInput.valueAsDate = new Date();
-    const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
-    document.activeElement?.blur();
-    modal?.hide();
-    
+    // Submit to backend first
+    submitWaterData(name, [date])
+      .then(result => {
+        console.log('✅ Backend save successful:', result);
 
-    // Redraw the water tracking graph
-    drawWaterGraph(name);
+        // Only update local data after successful backend save
+        if (!globalPlants[name].waterData) {
+          console.log('📦 Initializing water data array for:', name);
+          globalPlants[name].waterData = [];
+        }
+
+        console.log('➕ Adding new watering date:', date);
+        globalPlants[name].waterData.push(date);
+
+        // Sort by date
+        globalPlants[name].waterData.sort((a, b) => 
+          new Date(a) - new Date(b)
+        );
+
+        globalPlants[name].lastUpdated = new Date().toISOString();
+
+        // Clear form and close modal
+        waterForm.reset();
+        waterDateInput.valueAsDate = new Date();
+        const modal = bootstrap.Modal.getInstance(document.getElementById('waterModal'));
+        document.activeElement?.blur();
+        modal?.hide();
+
+        // Redraw the graph
+        console.log('📈 Calling drawWaterGraph with updated data:',
+          JSON.stringify(globalPlants[name].waterData, null, 2));
+        drawWaterGraph(name);
+      })
+      .catch(error => {
+        console.error('❌ Error submitting water data:', error);
+        alert(error.message || 'Failed to save water data. Please try again.');
+      });
   }
+
 
 
   function handleGrowthDataSubmit(e) {
@@ -1694,30 +1955,56 @@ function initialisePlantGrowthTracker() {
 
 // Update the submitGrowthData function with better error handling
 function submitGrowthData(plantName, date, height) {
-    console.log('Submitting growth data:', { plantName, date, height });
-    
-    return fetch('/api/add-growth', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-            plant_name: plantName,
-            date: date,
-            height: height
-        })
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(data => {
-                throw new Error(data.error || 'Failed to save growth data');
-            });
-        }
-        return response.json();
-    });
+  console.log('Submitting growth data:', { plantName, date, height });
+  
+  return fetch('/api/add-growth', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+          plant_name: plantName,
+          date: date,
+          height: height
+      })
+  })
+  .then(response => {
+      if (!response.ok) {
+          return response.json().then(data => {
+              throw new Error(data.error || 'Failed to save growth data');
+          });
+      }
+      return response.json();
+  });
 }
+function submitWaterData(plantName, wateringDates) {
+  console.log('Submitting water data:', { plantName, wateringDates });
+
+  return fetch('/api/add-watering', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken  // include your CSRF token here
+    },
+    credentials: 'include', // important if your backend uses sessions/cookies for auth
+    body: JSON.stringify({
+      plant_name: plantName,
+      watering_dates: wateringDates
+    })
+  })
+  .then(response => {
+    if (!response.ok) {
+      return response.json().then(data => {
+        throw new Error(data.error || 'Failed to save watering data');
+      });
+    }
+    return response.json();
+  });
+}
+
+
 
 
 
@@ -1970,10 +2257,11 @@ document.getElementById('waterForm')?.addEventListener('submit', function(e) {
   }
   
   // Add water data
-  globalPlants[plantName].waterData.push({
-      date: waterDate,
-      watered: true
-  });
+  if (!globalPlants[plantName].waterData) {
+    globalPlants[plantName].waterData = [];
+  }
+  globalPlants[plantName].waterData.push({ date: waterDate });
+
 
   // Redraw the water tracking graph
   drawWaterGraph(plantName);

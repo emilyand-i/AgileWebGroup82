@@ -175,6 +175,7 @@ def session_data():
     friends = FriendsList.query.filter_by(user_id=user.id).all()
     plants = Plants.query.filter_by(user_id=user.id).all()
     growth_entries = PlantGrowthEntry.query.filter_by(user_id=user.id).all()
+    watering_entries = PlantWaterEntry.query.filter_by(user_id=user.id).all()
     photos = uploadedPics.query.filter_by(user_id=user.id).all()
     shared_entries = SharedPlant.query.filter_by(shared_with=user.id).all()
     notifications = Notification.query.filter_by(receiver_id=user.id).order_by(Notification.timestamp.desc()).all()
@@ -195,6 +196,11 @@ def session_data():
         'date_recorded': g.date_recorded,
         'cm_grown': g.cm_grown
     } for g in growth_entries]
+
+    watering_data = [{
+        'plant_name': w.plant_name,
+        'date_watered': w.date_watered.isoformat()
+    } for w in watering_entries]
 
     photo_data = [{
         'photo_id': pic.photo_id,
@@ -237,6 +243,7 @@ def session_data():
         'email': user.email,
         'plants': plant_data,
         'growth_entries': growth_data,
+        'watering_entries': watering_data,
         'photos': photo_data,
         'friends': friends_data,
         'settings': settings_data,
@@ -484,27 +491,33 @@ def search_users():
 def add_photo():
     user_id = session.get('user_id')
     data = request.get_json()
-    
-    plant_id = data.get('plant_id')
+
+    plant_name = data.get('plant_name')
     image_url = data.get('image_url')
     caption = data.get('caption', '')
-    
-    if not plant_id or not image_url:
-        return jsonify({'error': 'Missing plant_id or image_url'}), 400
+
+    if not plant_name or not image_url:
+        return jsonify({'error': 'Missing plant_name or image_url'}), 400
+
+    # Look up the plant using user_id and plant_name
+    plant = user_db.session.query(Plants).filter_by(user_id=user_id, plant_name=plant_name).first()
+    if not plant:
+        return jsonify({'error': 'Plant not found'}), 404
 
     new_photo = uploadedPics(
         user_id=user_id,
-        plant_id=plant_id,
-        image_url=image_url,  # base64 or cloud link
+        plant_id=plant.id,
+        image_url=image_url,
         caption=caption
     )
 
     user_db.session.add(new_photo)
     user_db.session.commit()
-    
-    print(f"📸 Uploaded new photo for plant {plant_id} by user {user_id}")
+
+    print(f"📸 Uploaded new photo for plant '{plant_name}' (ID {plant.id}) by user {user_id}")
 
     return jsonify({'message': 'Photo saved', 'photo_id': new_photo.photo_id}), 201
+
 
 
 @routes_bp.route('/api/share_plant', methods=['POST'])
@@ -635,3 +648,65 @@ def add_growth_data():
         print(f"Error adding growth data: {str(e)}")
         user_db.session.rollback()
         return jsonify({'error': 'Failed to save growth data'}), 500
+    
+
+@routes_bp.route('/api/add-watering', methods=['POST'])
+def add_watering_data():
+    user_id = session.get('user_id')
+    if not user_id:
+        print("401 Not logged in")
+        return jsonify({'error': 'Not logged in'}), 401
+
+    try:
+        data = request.get_json()
+        print('Received JSON data:', data)
+
+        if not data:
+            print("400 Missing JSON body")
+            return jsonify({'error': 'Missing JSON body'}), 400
+
+        plant_name = data.get('plant_name')
+        watering_dates = data.get('watering_dates')  # List of date strings
+
+        print(f"plant_name: {plant_name}, watering_dates: {watering_dates} (type: {type(watering_dates)})")
+
+        # Validate required fields
+        if not plant_name:
+            print("400 Missing plant_name")
+            return jsonify({'error': 'Missing plant_name'}), 400
+        if not isinstance(watering_dates, list):
+            print("400 watering_dates is not a list")
+            return jsonify({'error': 'watering_dates must be a list'}), 400
+
+        entries = []
+        for date_str in watering_dates:
+            print(f"Processing date: '{date_str}'")
+            try:
+                date_watered = datetime.strptime(date_str, '%Y-%m-%d').date()
+            except ValueError:
+                print(f"400 Invalid date format: {date_str}")
+                return jsonify({'error': f'Invalid date format: {date_str}. Use YYYY-MM-DD'}), 400
+
+            entry = PlantWaterEntry(
+                user_id=user_id,
+                plant_name=plant_name,
+                date_watered=date_watered,
+                ml_watered=0.0  # Placeholder if quantity is not tracked
+            )
+            entries.append(entry)
+
+        user_db.session.add_all(entries)
+        user_db.session.commit()
+
+        return jsonify({
+            'message': 'Watering data added successfully',
+            'entries': [
+                {'plant_name': plant_name, 'date_watered': d} for d in watering_dates
+            ]
+        }), 201
+
+    except Exception as e:
+        print(f"Error adding watering data: {str(e)}")
+        user_db.session.rollback()
+        return jsonify({'error': 'Failed to save watering data'}), 500
+
