@@ -311,22 +311,12 @@ function initialiseDimming() {
   }
 }
 
-// Toggle fullscreen mode
 function toggleFullscreen() {
   const picsAndGraphs = document.getElementById('picsAndGraphs');
   const leftCol = document.querySelector('.left_col');
   const rightCol = document.querySelector('.right_col');
   const picDiv = document.getElementById('picDiv');
   const currentPlant = getCurrentActivePlantName();
-
-  picsAndGraphs.classList.toggle('fullscreen');
-
-  if (window.plantGrowthGraph) {
-        window.plantGrowthGraph.resize();
-    }
-    if (window.waterTrackingGraph) {
-        window.waterTrackingGraph.resize();
-    }
 
   if (!leftCol || !rightCol || !picsAndGraphs || !picDiv) {
     console.warn('Missing required elements');
@@ -342,25 +332,51 @@ function toggleFullscreen() {
     }
 
     // Enter fullscreen
+    picsAndGraphs.classList.toggle('fullscreen');
     picsAndGraphs.classList.remove('flex-column');
     picsAndGraphs.classList.add('gap-5', 'p-5');
     leftCol.classList.remove('col-3');
     leftCol.classList.add('col-12', 'vh-100');
     rightCol.classList.add('d-none');
-
-    picDiv.classList.add('fullscreen');  // <-- Add class
+    picDiv.classList.add('fullscreen');
   } else {
     // Exit fullscreen
+    picsAndGraphs.classList.toggle('fullscreen');
     picsAndGraphs.classList.add('flex-column');
     picsAndGraphs.classList.remove('gap-5', 'p-5');
     leftCol.classList.remove('col-12', 'vh-100');
     leftCol.classList.add('col-3');
     rightCol.classList.remove('d-none');
-
-    picDiv.classList.remove('fullscreen');  // <-- Remove class
+    picDiv.classList.remove('fullscreen');
+    
+    // Give DOM time to adjust before redrawing charts
+    setTimeout(() => {
+      if (currentPlant) {
+        // Force chart canvas to reset dimensions
+        const growthCanvas = document.getElementById('plantGrowthGraph');
+        const waterCanvas = document.getElementById('waterTrackingGraph');
+        
+        if (growthCanvas) {
+          // Force chart redraw with proper dimensions
+          if (window.growthChart) {
+            window.growthChart.destroy();
+          }
+          drawGraph(currentPlant);
+        }
+        
+        if (waterCanvas) {
+          // Force chart redraw with proper dimensions
+          if (waterChart) {
+            waterChart.destroy();
+          }
+          drawWaterGraph(currentPlant);
+        }
+        
+        // Update photo display
+        updatePhotoDisplay(currentPlant);
+      }
+    }, 250); // Delay to let DOM adjust
   }
-
-  updatePhotoDisplay(currentPlant);
 }
 
 
