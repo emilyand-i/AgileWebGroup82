@@ -911,6 +911,20 @@ async function loadDashboard() {
       }
     });
   }
+  requestAnimationFrame(() => {
+    const activeTab = document.querySelector('#plantTabs .nav-link.active');
+    if (activeTab) {
+        const plantName = activeTab.getAttribute('data-plant-name') || activeTab.textContent.trim();
+        console.log('📊 Drawing graphs for active tab:', plantName);
+        drawGraph(plantName);
+        drawWaterGraph(plantName);
+    } else if (profile.plants && profile.plants.length > 0) {
+        // Fallback to first plant if no active tab
+        const firstPlant = profile.plants[0].plant_name;
+        drawGraph(firstPlant);
+        drawWaterGraph(firstPlant);
+    }
+  });
 }
 
 /**
@@ -1209,6 +1223,8 @@ function initialisePlantManagement() {
         tabId,
         contentId
       });
+
+      window.location.reload();
 
       // Update share column content
       const shareContent = document.getElementById("share-content");
