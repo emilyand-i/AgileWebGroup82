@@ -884,9 +884,11 @@ function shareFriendProfile(friendName) {
     method: 'POST',
     headers: { 
       'Content-Type': 'application/json',
+
       'X-CSRFToken': csrfToken // Add CSRF token
     },
     credentials: 'include', // Include cookies for authentication
+
     body: JSON.stringify({
       plant_id: plantId,
       shared_with: friendName  // backend supports username now
