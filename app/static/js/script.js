@@ -474,12 +474,14 @@ window.addFriendByUsername = async function(username) {
 
     if (response.ok) {
       alert(`✅ You're now following ${username}`);
-    } else {
-      alert(`⚠️ ${result.error || result.message || 'Unknown error'}`);
+      loadFriendsList();  // ✅ Refresh the friends list here
     }
+
+    return result; // ✅ always return result to the caller
   } catch (err) {
     console.error("❌ Fetch failed:", err);
     alert("❌ Could not follow user.");
+    return { error: "Fetch failed" };  // return error for caller
   }
 };
 
