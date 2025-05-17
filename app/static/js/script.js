@@ -655,6 +655,11 @@ async function loadSession() {
   if (load.ok) {
     const user = await load.json();
 
+    console.log("🧪 Raw user data from /api/session:", user);
+    console.log("🌱 user.plants:", user.plants?.length);
+    console.log("📸 user.photos:", user.photos?.length);
+
+
     // Preserve streak data from existing profile
     const existingProfile = JSON.parse(localStorage.getItem('user_profile') || '{}');
     const updatedProfile = {
@@ -676,6 +681,59 @@ async function loadSession() {
     }
     const slimProfile = { ...updatedProfile };
 
+    globalPlants = {};  // reset in case of reload
+
+    // Add each plant to globalPlants
+    updatedProfile.plants.forEach(plant => {
+      globalPlants[plant.plant_name] = {
+        id: plant.id,
+        name: plant.plant_name,
+        avatarSrc: plant.chosen_image_url,
+        plantCategory: plant.plant_category,
+        plantType: plant.plant_type,
+        streakCount: plant.streak_count || 0,
+        creationDate: plant.creation_date || new Date().toISOString(),
+        lastUpdated: new Date().toISOString(),
+        photos: [],
+        waterData: []
+      };
+    });
+
+    // Assign photos to their plants
+    updatedProfile.photos?.forEach(photo => {
+      const plantEntry = Object.values(globalPlants).find(p => p.id === photo.plant_id);
+      if (plantEntry) {
+        plantEntry.photos = plantEntry.photos || [];
+        plantEntry.photos.push({
+          src: photo.image_url,
+          date: new Date(photo.datetime_uploaded).toLocaleString(),
+          comments: photo.caption || ''
+        });
+      } else {
+        console.warn(`⚠️ Could not assign photo ${photo.photo_id} — plant not found`);
+      }
+    });
+
+    console.log("✅ globalPlants populated in loadSession:", JSON.parse(JSON.stringify(globalPlants)));
+
+
+    console.log("📦 Final globalPlants after loadSession:", JSON.parse(JSON.stringify(globalPlants)));
+
+    Object.entries(globalPlants).forEach(([name, plant]) => {
+      console.log(`🌿 Plant: ${name}, Photos count: ${plant.photos?.length || 0}`);
+      if (plant.photos?.length > 0) {
+        console.table(plant.photos.map((p, i) => ({
+          Index: i,
+          Date: p.date,
+          SrcType: p.src?.slice(0, 30),
+          Comment: p.comments
+        })));
+      }
+    });
+
+    
+
+
     // Strip base64 photos to reduce localStorage size
     if (slimProfile.photos) {
       slimProfile.photos = slimProfile.photos.map(photo => ({
@@ -693,6 +751,7 @@ async function loadSession() {
     console.error('Session fetch failure');
     return null;
   }
+  
 }
 
 
@@ -717,7 +776,7 @@ async function loadDashboard() {
   // Reset plant count when loading dashboard
   myPlantCount = 0;
   // Clear global plants dictionary to rebuild it from profile data
-  globalPlants = {};
+  // globalPlants = {};
 
   profile.plants.forEach(plant => {
     myPlantCount++;
@@ -916,6 +975,7 @@ function renderPlantTab ({
       }
     });
   }
+  updatePhotoDisplay(plantName);
 }
 
 let myPlantCount = 0;
@@ -1152,35 +1212,45 @@ function initialisePlantManagement() {
   document.addEventListener('shown.bs.tab', function(event) { // Event Listener for Tab Switch
     const activeTab = event.target; // newly activated tab
     
-      // Only proceed if tab is not "Add Plant" and already active
-      if (!activeTab || activeTab.id.includes('add-plant') || !activeTab.classList.contains('active')) return;
+    // Only proceed if tab is not "Add Plant" and already active
+    if (!activeTab || activeTab.id.includes('add-plant') || !activeTab.classList.contains('active')) return;
 
-      const plantName = activeTab.getAttribute("data-plant-name") || activeTab.textContent.trim();
-      const plantData = globalPlants[plantName];
+    const plantName = activeTab.getAttribute("data-plant-name") || activeTab.textContent.trim();
+    const plantData = globalPlants[plantName];
 
-      if (!plantData) return;
+    if (!plantData) return;
 
-      console.log(`✅ Switched to plant tab: ${plantName}`);
+    document.querySelectorAll('.plant-tab-content').forEach(tab => {
+      tab.style.display = 'none';
+    });
 
-      // Update share content
-      const shareContent = document.getElementById("share-content");
-      if (shareContent && plantData.avatarSrc) {
-        shareContent.innerHTML = `
-          <h3 class="text-white"> Share Your Plant! </h3>
-          <img src="${plantData.avatarSrc}" class="img-fluid text-center share-avatar">
-          <div class="share-controls text-center mt-4">
-            <a class="btn btn-success btn-lg" href="shareBoard.html">
-              <i class="bi bi-share me-2"></i> Share Plant
-            </a>
-          </div>
-        `;
-      }
+    // Show the selected one
+    const tab = document.getElementById(`plant-tab-${plantName}`);
+    if (tab) {
+      tab.style.display = 'block';
+    }
 
-      // Ensure clean graph update
-      if (growthChart) {
-          growthChart.destroy();
-          growthChart = null;
-      }
+    console.log(`✅ Switched to plant tab: ${plantName}`);
+
+    // Update share content
+    const shareContent = document.getElementById("share-content");
+    if (shareContent && plantData.avatarSrc) {
+      shareContent.innerHTML = `
+        <h3 class="text-white"> Share Your Plant! </h3>
+        <img src="${plantData.avatarSrc}" class="img-fluid text-center share-avatar">
+        <div class="share-controls text-center mt-4">
+          <a class="btn btn-success btn-lg" href="shareBoard.html">
+            <i class="bi bi-share me-2"></i> Share Plant
+          </a>
+        </div>
+      `;
+    }
+
+    // Ensure clean graph update
+    if (growthChart) {
+        growthChart.destroy();
+        growthChart = null;
+    }
 
     // Draw new graph
     requestAnimationFrame(() => {
@@ -1193,6 +1263,8 @@ function initialisePlantManagement() {
       drawWaterGraph(plantName); // Add this line
   });
 }
+
+
 /**
  * PHOTO UPLOAD & DISPLAY
  * Functions to handle photo uploads and display in diary
@@ -1250,7 +1322,7 @@ function initialisePhotoUpload() {
       console.log("✅ Photo added to globalPlants:", photoData);
       console.log("📸 Total photos now:", globalPlants[currentPlant].photos.length);
       console.log("📦 Uploading to backend:", {
-        plant_id: globalPlants[currentPlant].id,
+        plant_name: currentPlant,
         image_url: imgSrc,
         caption: comments || ''
       });
@@ -1264,7 +1336,7 @@ function initialisePhotoUpload() {
           },
           credentials: 'include',
           body: JSON.stringify({
-            plant_id: globalPlants[currentPlant].id,
+            plant_name: currentPlant,
             image_url: imgSrc,
             caption: comments || ''
           })
