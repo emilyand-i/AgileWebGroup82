@@ -327,7 +327,8 @@ function toggleFullscreen() {
 
   if (!isExpanded) {
     if (!currentPlant || !globalPlants[currentPlant]) {
-      alert("Please select a plant before entering fullscreen mode.");
+      // Create and show the modal entirely in JavaScript
+      showFullscreenErrorModal();
       return;
     }
 
@@ -340,7 +341,7 @@ function toggleFullscreen() {
     rightCol.classList.add('d-none');
     picDiv.classList.add('fullscreen');
   } else {
-    // Exit fullscreen
+    // Exit fullscreen - existing code unchanged
     picsAndGraphs.classList.toggle('fullscreen');
     picsAndGraphs.classList.add('flex-column');
     picsAndGraphs.classList.remove('gap-5', 'p-5');
@@ -377,6 +378,48 @@ function toggleFullscreen() {
       }
     }, 250); // Delay to let DOM adjust
   }
+}
+
+// Function to create and show the fullscreen error modal
+function showFullscreenErrorModal() {
+  // Check if the modal already exists
+  let modal = document.getElementById('fullscreenErrorModal');
+  
+  if (!modal) {
+    // Create the modal element
+    modal = document.createElement('div');
+    modal.id = 'fullscreenErrorModal';
+    modal.className = 'modal fade';
+    modal.setAttribute('tabindex', '-1');
+    modal.setAttribute('aria-hidden', 'true');
+    
+    // Set the modal content
+    modal.innerHTML = `
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title">
+              <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Fullscreen Mode
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center py-4">
+            <p>Please select a plant before entering fullscreen mode.</p>
+          </div>
+          <div class="modal-footer border-secondary">
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Append the modal to the body
+    document.body.appendChild(modal);
+  }
+  
+  // Initialize and show the modal
+  const bsModal = new bootstrap.Modal(modal);
+  bsModal.show();
 }
 
 
