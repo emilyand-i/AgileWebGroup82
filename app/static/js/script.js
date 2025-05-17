@@ -867,12 +867,18 @@ function shareFriendProfile(friendName) {
     alert("❌ No active plant tab found.");
     return;
   }
+
+
+  // Get plant ID from within the active tab
+
+
   const plantName = getCurrentActivePlantName();
 
   // Get plant ID from within the active tab
   const plantId = globalPlants[plantName].id;
 
   console.log("🧪 Sharing plant ID:", plantId);
+
 
   if (!plantId) {
     alert("❌ Could not find plant ID in the active tab.");
@@ -882,6 +888,8 @@ function shareFriendProfile(friendName) {
   // Send the share request
   fetch('/api/share_plant', {
     method: 'POST',
+
+    
     headers: { 
       'Content-Type': 'application/json',
 
@@ -889,11 +897,29 @@ function shareFriendProfile(friendName) {
     },
     credentials: 'include', // Include cookies for authentication
 
+
     body: JSON.stringify({
       plant_id: plantId,
       shared_with: friendName  // backend supports username now
     })
   })
+
+  .then(res => res.json())
+  .then(data => {
+    if (data.message) {
+      alert(`✅ ${data.message}`);
+      // Optionally reload notifications
+      if (typeof loadNotifications === 'function') {
+        loadNotifications();
+      }
+    } else {
+      alert(`❌ ${data.error || 'Unknown error'}`);
+    }
+  })
+  .catch(err => {
+    console.error("❌ Error sharing plant:", err);
+    alert("❌ Network error.");
+=======
   .then(res => {
     // Check for error responses first
     if (!res.ok) {
@@ -971,6 +997,7 @@ function showShareToast(message, friendName) {
   // Remove the toast element after it's hidden
   toastElement.addEventListener('hidden.bs.toast', () => {
     toastElement.remove();
+
   });
 }
 
