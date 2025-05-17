@@ -956,11 +956,16 @@ function renderPlantTab ({
 
   // 🧼 Deactivate all tabs
   document.querySelectorAll('#plantTabs .nav-link').forEach(tab => tab.classList.remove('active'));
-
   // 🧼 Deactivate all tab content panes
   document.querySelectorAll('#plantTabsContent .tab-pane').forEach(pane => {
     pane.classList.remove('active', 'show');
   });
+
+  // 🧠 Store tabId and contentId into globalPlants
+  if (globalPlants[plantName]) {
+    globalPlants[plantName].tabId = tabId;
+    globalPlants[plantName].contentId = contentId;
+  }
 
   // Create the new tab button
   const newTab = document.createElement("li");
@@ -1020,6 +1025,7 @@ function renderPlantTab ({
   updatePhotoDisplay(plantName);
 }
 
+
 let myPlantCount = 0;
 let selectedAvatarSrc = null;
 let currentPlantName = null;
@@ -1075,9 +1081,22 @@ function initialisePlantManagement() {
 
       const plant = globalPlants[currentPlantName];
       if (!plant) return;
-    
-      document.getElementById(plant.tabId)?.remove();
-      document.getElementById(plant.contentId)?.remove();
+
+      // Find the tab button element
+      const tabButton = document.querySelector(`button[data-plant-name="${currentPlantName}"]`);
+      if (!tabButton) {
+        console.warn(`Could not find tab button for ${currentPlantName}`);
+        return;
+      }
+
+      // Get the tab pane/content element
+      const tabContentId = tabButton.getAttribute('data-bs-target')?.replace('#', '');
+      const tabContent = document.getElementById(tabContentId);
+      
+      // Remove the tab and content elements
+      tabButton.parentElement?.remove(); // Remove the li element containing the button
+      tabContent?.remove();
+
       // Remove plant from global plants dictionary
       delete globalPlants[currentPlantName];
       
@@ -1097,26 +1116,21 @@ function initialisePlantManagement() {
         }
       }
 
-      console.log(`Plant "${currentPlantName}" deleted from global registry`);
-      console.log('Current plants:', Object.keys(globalPlants));
-  
-      
-      // No check for remaining tabs length before accessing remainingTabs[1] or [0] could cause error in plant deleteion section
-      // so fixed with new implementation 
-
       // Show another existing tab, if any
-      const tabLinks = document.querySelectorAll(".nav-link");
-      for (let i = 0; i < tabLinks.length; i++) {
-        const tab = tabLinks[i];
-        if (!tab.id.includes('add-plant')) {
-          new bootstrap.Tab(tab).show();
-          break;
-        }
+      const remainingTabs = document.querySelectorAll('#plantTabs .nav-link:not(#add-plant-tab)');
+      if (remainingTabs.length > 0) {
+        new bootstrap.Tab(remainingTabs[0]).show();
+      }
+
+      // Close the modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('infoModal'));
+      if (modal) {
+        modal.hide();
       }
 
       // Delete from backend
       fetch('/api/delete-plant', {
-        method: 'POST', 
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRFToken': csrfToken
@@ -1131,6 +1145,8 @@ function initialisePlantManagement() {
       .catch(err => {
         console.error('Could not delete plant from database', err);
       });
+
+      currentPlantName = null;
     });
     currentPlantName = null;
     myPlantCount--;
