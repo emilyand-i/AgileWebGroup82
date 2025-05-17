@@ -81,9 +81,10 @@ function drawGraph(plantName) {
               data: {
                   labels: dates,
                   datasets: [{
-                      label: 'Plant Growth',
+                      label: 'Plant Growthy',
                       data: heights,
                       borderColor: '#28a745',
+                      color: '#28a745',
                       backgroundColor: 'rgba(40, 167, 69, 0.1)',
                       tension: 0.3,
                       fill: true
@@ -100,7 +101,10 @@ function drawGraph(plantName) {
                           font: {
                               size: 16
                           }
-                      }
+                      },
+                      legend: {
+                          display: false
+                      },
                   },
                   scales: {
                       y: {
@@ -307,22 +311,12 @@ function initialiseDimming() {
   }
 }
 
-// Toggle fullscreen mode
 function toggleFullscreen() {
   const picsAndGraphs = document.getElementById('picsAndGraphs');
   const leftCol = document.querySelector('.left_col');
   const rightCol = document.querySelector('.right_col');
   const picDiv = document.getElementById('picDiv');
   const currentPlant = getCurrentActivePlantName();
-
-  picsAndGraphs.classList.toggle('fullscreen');
-
-  if (window.plantGrowthGraph) {
-        window.plantGrowthGraph.resize();
-    }
-    if (window.waterTrackingGraph) {
-        window.waterTrackingGraph.resize();
-    }
 
   if (!leftCol || !rightCol || !picsAndGraphs || !picDiv) {
     console.warn('Missing required elements');
@@ -338,25 +332,51 @@ function toggleFullscreen() {
     }
 
     // Enter fullscreen
+    picsAndGraphs.classList.toggle('fullscreen');
     picsAndGraphs.classList.remove('flex-column');
     picsAndGraphs.classList.add('gap-5', 'p-5');
     leftCol.classList.remove('col-3');
     leftCol.classList.add('col-12', 'vh-100');
     rightCol.classList.add('d-none');
-
-    picDiv.classList.add('fullscreen');  // <-- Add class
+    picDiv.classList.add('fullscreen');
   } else {
     // Exit fullscreen
+    picsAndGraphs.classList.toggle('fullscreen');
     picsAndGraphs.classList.add('flex-column');
     picsAndGraphs.classList.remove('gap-5', 'p-5');
     leftCol.classList.remove('col-12', 'vh-100');
     leftCol.classList.add('col-3');
     rightCol.classList.remove('d-none');
-
-    picDiv.classList.remove('fullscreen');  // <-- Remove class
+    picDiv.classList.remove('fullscreen');
+    
+    // Give DOM time to adjust before redrawing charts
+    setTimeout(() => {
+      if (currentPlant) {
+        // Force chart canvas to reset dimensions
+        const growthCanvas = document.getElementById('plantGrowthGraph');
+        const waterCanvas = document.getElementById('waterTrackingGraph');
+        
+        if (growthCanvas) {
+          // Force chart redraw with proper dimensions
+          if (window.growthChart) {
+            window.growthChart.destroy();
+          }
+          drawGraph(currentPlant);
+        }
+        
+        if (waterCanvas) {
+          // Force chart redraw with proper dimensions
+          if (waterChart) {
+            waterChart.destroy();
+          }
+          drawWaterGraph(currentPlant);
+        }
+        
+        // Update photo display
+        updatePhotoDisplay(currentPlant);
+      }
+    }, 250); // Delay to let DOM adjust
   }
-
-  updatePhotoDisplay(currentPlant);
 }
 
 
@@ -455,11 +475,63 @@ function signupForm() {
     
     const signup_data = await fetch_signup.json();
     if (fetch_signup.ok) {
-      alert('Account created! Please log in.');
-      flipForm();
+      // Show success modal instead of alert
+      showSuccessModal(username);
     } else {
       alert(signup_data.error || 'Signup error. Please check details.')
     }
+  });
+}
+
+// Add this new function for showing the success modal
+function showSuccessModal(username) {
+  // Create modal if it doesn't exist
+  let modal = document.getElementById('signupSuccessModal');
+  if (!modal) {
+    const modalHtml = `
+      <div class="modal fade" id="signupSuccessModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-0">
+              <h5 class="modal-title" id="successModalLabel">Account Created!</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+              <div class="mb-4">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+              </div>
+              <h4>Welcome, <span id="welcomeUsername"></span>!</h4>
+              <p class="mb-0">Your account has been successfully created.</p>
+              <p>You can now log in to start your gardening journey!</p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+              <button type="button" class="btn btn-success px-4" id="goToLoginBtn">Go to Login</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Append modal to body
+    const modalContainer = document.createElement('div');
+    modalContainer.innerHTML = modalHtml;
+    document.body.appendChild(modalContainer);
+    
+    modal = document.getElementById('signupSuccessModal');
+  }
+  
+  // Set username in the modal
+  document.getElementById('welcomeUsername').textContent = username;
+  
+  // Initialize modal
+  const successModal = new bootstrap.Modal(modal);
+  successModal.show();
+  
+  document.getElementById('goToLoginBtn').addEventListener('click', function() {
+    successModal.hide();
+    setTimeout(() => {
+      flipForm(); // Add small delay to ensure modal is hidden first
+    }, 100);
   });
 }
 
@@ -907,6 +979,20 @@ async function loadDashboard() {
       }
     });
   }
+  requestAnimationFrame(() => {
+    const activeTab = document.querySelector('#plantTabs .nav-link.active');
+    if (activeTab) {
+        const plantName = activeTab.getAttribute('data-plant-name') || activeTab.textContent.trim();
+        console.log('📊 Drawing graphs for active tab:', plantName);
+        drawGraph(plantName);
+        drawWaterGraph(plantName);
+    } else if (profile.plants && profile.plants.length > 0) {
+        // Fallback to first plant if no active tab
+        const firstPlant = profile.plants[0].plant_name;
+        drawGraph(firstPlant);
+        drawWaterGraph(firstPlant);
+    }
+  });
 }
 
 /**
@@ -1205,6 +1291,8 @@ function initialisePlantManagement() {
         tabId,
         contentId
       });
+
+      window.location.reload();
 
       // Update share column content
       const shareContent = document.getElementById("share-content");
