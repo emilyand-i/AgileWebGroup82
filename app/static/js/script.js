@@ -885,12 +885,25 @@ function renderPlantTab ({
   if (addPlantTab) {
     plantTabs.insertBefore(newTab, addPlantTab);
     plantTabsContent.appendChild(newTabContent);
-  }
-
-  // Show the new plant tab safely
-  const newTabButton = document.getElementById(tabId);
-  if (newTabButton && !newTabButton.classList.contains('active')) {
-    setTimeout(() => new bootstrap.Tab(newTabButton).show(), 0);
+    
+    // Activate the new tab after DOM update
+    requestAnimationFrame(() => {
+      const newTabButton = document.getElementById(tabId);
+      if (newTabButton) {
+        // Deactivate all other tabs first
+        document.querySelectorAll('.nav-link.active').forEach(tab => {
+          tab.classList.remove('active');
+          const pane = document.querySelector(tab.dataset.bsTarget);
+          if (pane) pane.classList.remove('active', 'show');
+        });
+        
+        // Activate the new tab
+        newTabButton.classList.add('active');
+        newTabContent.classList.add('active', 'show');
+        const tab = new bootstrap.Tab(newTabButton);
+        tab.show();
+      }
+    });
   }
 }
 
