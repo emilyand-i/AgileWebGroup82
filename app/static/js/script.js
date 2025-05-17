@@ -805,11 +805,46 @@ function loadFriendsList() {
 
 // Add this function to handle sharing a friend's profile
 function shareFriendProfile(friendName) {
-  // You can customize this modal or implement your preferred sharing method
-  alert(`Share ${friendName}'s profile with others`);
-  
-  // For a more sophisticated approach, you could open a modal with sharing options
-  // or implement actual sharing functionality based on your application's requirements
+  const activeTab = document.querySelector('.tab-pane.active.show');
+
+  if (!activeTab) {
+    alert("❌ No active plant tab found.");
+    return;
+  }
+
+  // Get plant ID from within the active tab
+  const plantId = activeTab.dataset.plantId;
+
+  if (!plantId) {
+    alert("❌ Could not find plant ID in the active tab.");
+    return;
+  }
+
+  // Send the share request
+  fetch('/api/share_plant', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      plant_id: plantId,
+      shared_with: friendName  // backend supports username now
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.message) {
+      alert(`✅ ${data.message}`);
+      // Optionally reload notifications
+      if (typeof loadNotifications === 'function') {
+        loadNotifications();
+      }
+    } else {
+      alert(`❌ ${data.error || 'Unknown error'}`);
+    }
+  })
+  .catch(err => {
+    console.error("❌ Error sharing plant:", err);
+    alert("❌ Network error.");
+  });
 }
 
 //remove friend
