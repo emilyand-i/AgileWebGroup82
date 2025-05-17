@@ -567,7 +567,6 @@ function loadFriendsList() {
     return;
   }
 
-  // Show loading state
   friendsList.innerHTML = '';
   noFriendsMessage.textContent = 'Loading friends...';
 
@@ -581,7 +580,7 @@ function loadFriendsList() {
         return;
       }
 
-      noFriendsMessage.style.display = 'none'; // hide fallback message
+      noFriendsMessage.style.display = 'none';
 
       data.friends.forEach(friend => {
         const listItem = document.createElement('li');
@@ -589,7 +588,7 @@ function loadFriendsList() {
         listItem.innerHTML = `
           <div>
             <strong>${friend.friend_username}</strong><br>
-            <small class="text-muted">${friend.status}</small>
+            <small class="text-muted">${friend.status || ''}</small>
           </div>
           <button class="btn btn-sm btn-outline-light" onclick="sharePlant(${friend.friend_id})">Share</button>
         `;
@@ -1694,6 +1693,7 @@ function initialiseSettingsModal() {
         document.getElementById("accountModalContent").innerHTML = html;
         initialiseSettingsForm();
         initialiseFriendSearch();
+        loadFriendsList();
       })
       .catch(error => {
         document.getElementById("accountModalContent").innerHTML = `
@@ -1755,7 +1755,7 @@ function initialiseSettingsForm() {
       console.error("Settings update failed:", err);
     }
   });
-  loadFriendsList();
+  
 }
 
 // update daily streak
