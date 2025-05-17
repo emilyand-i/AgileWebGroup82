@@ -12,103 +12,114 @@ let waterChart = null;
 // Draw growth graph for selected plant
 
 function drawGraph(plantName) {
-    console.log('🎨 drawGraph called for:', plantName);
-    
-    const chartCanvas = document.getElementById('plantGrowthGraph');
-    if (!chartCanvas) {
-        console.error('❌ Canvas element not found');
-        return;
-    }
+  console.log('🎨 drawGraph called for:', plantName);
 
-    const data = globalPlants.growthData?.[plantName] || [];
-    console.log('📊 Growth data array:', data);
-    console.log('📊 Number of data points:', data.length);
-    console.log('📊 Raw data points:', JSON.stringify(data, null, 2));
+  // Debounce redraws to avoid rapid execution
+  if (window.drawGraphTimeout) {
+      clearTimeout(window.drawGraphTimeout);
+  }
 
-    // Destroy existing chart if it exists
-    if (growthChart) {
-        console.log('🗑️ Destroying existing chart');
-        growthChart.destroy();
-    }
+  window.drawGraphTimeout = setTimeout(() => {
+      const chartCanvas = document.getElementById('plantGrowthGraph');
+      if (!chartCanvas) {
+          console.error('❌ Canvas element not found');
+          return;
+      }
 
-    // If there's not enough data, show an empty message chart
-    if (!data || data.length < 2) {
-        console.log('⚠️ Insufficient data points, showing empty chart');
-        growthChart = new Chart(chartCanvas, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    data: [],
-                    label: 'Growth Progress'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Add At Least 2 Growth Points',
-                        color: 'white',
-                        font: {
-                            size: 16
-                        }
-                    }
-                }
-            }
-        });
-        return;
-    }
+      // Destroy existing chart and clear reference
+      if (window.growthChart) {
+          console.log('🗑️ Destroying existing chart');
+          window.growthChart.destroy();
+          window.growthChart = null;
+      }
 
-    // Prepare data for the chart
-    const dates = data.map(d => new Date(d.date).toLocaleDateString());
-    const heights = data.map(d => d.height);
-    
-    console.log('📅 Processed dates:', dates);
-    console.log('📏 Processed heights:', heights);
+      const data = globalPlants.growthData?.[plantName] || [];
+      console.log('📊 Growth data array:', data);
+      console.log('📊 Number of data points:', data.length);
+      console.log('📊 Raw data points:', JSON.stringify(data, null, 2));
 
-    // Create the growth chart
-    growthChart = new Chart(chartCanvas, {
-        type: 'line',
-        data: {
-            labels: dates,
-            datasets: [{
-                label: 'Plant Growth',
-                data: heights,
-                borderColor: '#28a745',
-                backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                tension: 0.3,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: `${plantName}'s Growth Journey`,
-                    color: 'white',
-                    font: {
-                        size: 16
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { color: 'white' },
-                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                },
-                x: {
-                    ticks: { color: 'white' },
-                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                }
-            }
-        }
-    });
+      requestAnimationFrame(() => {
+          if (!data || data.length < 2) {
+              console.log('⚠️ Insufficient data points, showing empty chart');
+              window.growthChart = new Chart(chartCanvas, {
+                  type: 'line',
+                  data: {
+                      labels: [],
+                      datasets: [{
+                          data: [],
+                          label: 'Growth Progress'
+                      }]
+                  },
+                  options: {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                          title: {
+                              display: true,
+                              text: 'Add At Least 2 Growth Points',
+                              color: 'white',
+                              font: {
+                                  size: 16
+                              }
+                          }
+                      }
+                  }
+              });
+              return;
+          }
+
+          // Process data for chart
+          const dates = data.map(d => new Date(d.date).toLocaleDateString());
+          const heights = data.map(d => d.height);
+
+          console.log('📅 Processed dates:', dates);
+          console.log('📏 Processed heights:', heights);
+
+          // Create new chart instance
+          window.growthChart = new Chart(chartCanvas, {
+              type: 'line',
+              data: {
+                  labels: dates,
+                  datasets: [{
+                      label: 'Plant Growth',
+                      data: heights,
+                      borderColor: '#28a745',
+                      backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                      tension: 0.3,
+                      fill: true
+                  }]
+              },
+              options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                      title: {
+                          display: true,
+                          text: `${plantName}'s Growth Journey`,
+                          color: 'white',
+                          font: {
+                              size: 16
+                          }
+                      }
+                  },
+                  scales: {
+                      y: {
+                          beginAtZero: true,
+                          ticks: { color: 'white' },
+                          grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                      },
+                      x: {
+                          ticks: { color: 'white' },
+                          grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                      }
+                  }
+              }
+          });
+      });
+
+  }, 100); // 100ms delay to debounce frequent redraws
 }
+
 
 function drawWaterGraph(namePlant) {
 
@@ -885,12 +896,25 @@ function renderPlantTab ({
   if (addPlantTab) {
     plantTabs.insertBefore(newTab, addPlantTab);
     plantTabsContent.appendChild(newTabContent);
-  }
-
-  // Show the new plant tab safely
-  const newTabButton = document.getElementById(tabId);
-  if (newTabButton && !newTabButton.classList.contains('active')) {
-    setTimeout(() => new bootstrap.Tab(newTabButton).show(), 0);
+    
+    // Activate the new tab after DOM update
+    requestAnimationFrame(() => {
+      const newTabButton = document.getElementById(tabId);
+      if (newTabButton) {
+        // Deactivate all other tabs first
+        document.querySelectorAll('.nav-link.active').forEach(tab => {
+          tab.classList.remove('active');
+          const pane = document.querySelector(tab.dataset.bsTarget);
+          if (pane) pane.classList.remove('active', 'show');
+        });
+        
+        // Activate the new tab
+        newTabButton.classList.add('active');
+        newTabContent.classList.add('active', 'show');
+        const tab = new bootstrap.Tab(newTabButton);
+        tab.show();
+      }
+    });
   }
 }
 
@@ -1127,9 +1151,8 @@ function initialisePlantManagement() {
 
   document.addEventListener('shown.bs.tab', function(event) { // Event Listener for Tab Switch
     const activeTab = event.target; // newly activated tab
-    const previousTab = event.relatedTarget; // previous active tab
     
-        // Only proceed if tab is not "Add Plant" and already active
+      // Only proceed if tab is not "Add Plant" and already active
       if (!activeTab || activeTab.id.includes('add-plant') || !activeTab.classList.contains('active')) return;
 
       const plantName = activeTab.getAttribute("data-plant-name") || activeTab.textContent.trim();
@@ -1153,23 +1176,16 @@ function initialisePlantManagement() {
         `;
       }
 
-      // Update graph
-      const canvas = document.getElementById('plantGrowthGraph');
-      const graphHeader = document.getElementById('graphHeader');
-      if (canvas && graphHeader) {
-        graphHeader.textContent = plantName;
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        const data = globalPlants.growthData?.[plantName] || [];
-        if (data.length > 0) {
-          drawGraph(plantName);
-        } else {
-          ctx.font = "16px sans-serif";
-          ctx.textAlign = "center";
-          ctx.fillText(`No growth data for ${plantName} yet.`, canvas.width / 2, canvas.height / 2);
-        }
+      // Ensure clean graph update
+      if (growthChart) {
+          growthChart.destroy();
+          growthChart = null;
       }
+
+    // Draw new graph
+    requestAnimationFrame(() => {
+        drawGraph(plantName);
+    });
 
       // Update photo display for the selected plant
       updatePhotoDisplay(plantName);
