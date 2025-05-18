@@ -185,15 +185,14 @@ function initialiseDimming() {
 
 // Toggle fullscreen mode
 function toggleFullscreen() {
-  console.log('toggleFullscreen called');
-
   const picsAndGraphs = document.getElementById('picsAndGraphs');
   const leftCol = document.querySelector('.left_col');
   const rightCol = document.querySelector('.right_col');
+  const picDiv = document.getElementById('picDiv');
   const currentPlant = getCurrentActivePlantName();
 
-  if (!leftCol || !rightCol || !picsAndGraphs) {
-    console.warn('One or more required elements not found, exiting function');
+  if (!leftCol || !rightCol || !picsAndGraphs || !picDiv) {
+    console.warn('Missing required elements');
     return;
   }
 
@@ -211,6 +210,8 @@ function toggleFullscreen() {
     leftCol.classList.remove('col-3');
     leftCol.classList.add('col-12', 'vh-100');
     rightCol.classList.add('d-none');
+
+    picDiv.classList.add('fullscreen');  // <-- Add class
   } else {
     // Exit fullscreen
     picsAndGraphs.classList.add('flex-column');
@@ -218,9 +219,10 @@ function toggleFullscreen() {
     leftCol.classList.remove('col-12', 'vh-100');
     leftCol.classList.add('col-3');
     rightCol.classList.remove('d-none');
+
+    picDiv.classList.remove('fullscreen');  // <-- Remove class
   }
 
-  // Always update photo display to refresh carousel in both views
   updatePhotoDisplay(currentPlant);
 }
 
@@ -898,7 +900,7 @@ function updatePhotoDisplay(currentPlant) {
   // Reverse the array so the latest photo appears first
   const carouselItems = photos.slice().reverse().map((photo, i) => `
     <div class="carousel-item ${i === 0 ? 'active' : ''}">
-      <div class="card photo-card mb-3 bg-dark text-white">
+      <div class="card photo-card mb-3 bg-light text-dark">
         <div class="card-body text-center">
           <p class="card-text"><small>${photo.date}</small></p>
           <img src="${photo.src}" class="card-img-top photo-img mb-2" alt="Plant photo ${photos.length - i}">
@@ -909,7 +911,6 @@ function updatePhotoDisplay(currentPlant) {
   `).join('');
 
   picDiv.innerHTML = `
-    <h3 class="plantheader">Photo Gallery</h3>
     <div id="photoCarousel" class="carousel slide" data-bs-ride="carousel">
       <div class="carousel-inner">
         ${carouselItems}

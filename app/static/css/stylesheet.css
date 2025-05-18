@@ -404,7 +404,17 @@ main.main-info {
   border: 2px solid rgb(80, 163, 71);
   padding: 5px;
   flex-direction: column;
+  max-width: 100%;
 }
+
+/* When fullscreen class is present on picDiv, adjust the photo cards */
+#picDiv.fullscreen .photo-card {
+  width: 50%;
+  max-width: 700px; /* optional */
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .photo-img {
   max-width: 100%;
   height: auto;
@@ -656,5 +666,15 @@ main.main-info {
 }
 
 .carousel-inner {
-  padding: 0 2rem; 
+  padding-left: 1rem;  /* smaller or equal padding on both sides */
+  padding-right: 1rem;
 }
+
+
+.carousel-control-next {
+  right: 1rem;
+}
+
+
+
+
