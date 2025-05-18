@@ -185,34 +185,111 @@ function initialiseDimming() {
 
 // Toggle fullscreen mode
 function toggleFullscreen() {
+  console.log('toggleFullscreen called');
+
   const picsAndGraphs = document.getElementById('picsAndGraphs');
   const leftCol = document.querySelector('.left_col');
   const rightCol = document.querySelector('.right_col');
   const picDiv = document.getElementById('picDiv');
-  
-  if (!leftCol || !rightCol) return;
+  const currentPlant = getCurrentActivePlantName();
+
+  console.log('Elements:', {
+    picsAndGraphs,
+    leftCol,
+    rightCol,
+    picDiv,
+  });
+  console.log('Current plant:', currentPlant);
+
+  if (!leftCol || !rightCol || !picDiv) {
+    console.warn('One or more required elements not found, exiting function');
+    return;
+  }
+  if (!currentPlant || !globalPlants[currentPlant]) {
+    console.warn('No current plant or plant data found, exiting function');
+    return;
+  }
 
   const isExpanded = leftCol.classList.contains('col-12');
+  console.log('Is expanded (leftCol has col-12):', isExpanded);
 
-  if (!isExpanded) { // if left column is not expanded
+  if (!isExpanded) {
+    console.log('Expanding left column and showing carousel');
+
+    // Expand left column
     picsAndGraphs.classList.remove('flex-column');
-    picsAndGraphs.classList.add('gap-5');
-    picsAndGraphs.classList.add('p-5');
+    picsAndGraphs.classList.add('gap-5', 'p-5');
+    console.log('picsAndGraphs classes:', picsAndGraphs.className);
 
     leftCol.classList.remove('col-3');
     leftCol.classList.add('col-12', 'vh-100');
-    rightCol.classList.add('d-none');
+    console.log('leftCol classes after expand:', leftCol.className);
 
-  } else { // if left column is expanded
+    rightCol.classList.add('d-none');
+    console.log('rightCol classes after hide:', rightCol.className);
+
+    // Show carousel
+    const photos = globalPlants[currentPlant].photos;
+    console.log('Photos array:', photos);
+
+    if (!photos || photos.length === 0) {
+      console.log('No photos available, updating picDiv accordingly');
+      picDiv.innerHTML = `<p class="text-white">No photos available.</p>`;
+      return;
+    }
+
+    const carouselItems = photos.map((photo, i) => `
+      <div class="carousel-item ${i === 0 ? 'active' : ''}">
+        <div class="card photo-card mb-3 bg-dark text-white">
+          <div class="card-body text-center">
+            <p class="card-text"><small>${photo.date}</small></p>
+            <img src="${photo.src}" class="card-img-top photo-img mb-2" alt="Plant photo ${i + 1}">
+            ${photo.comments ? `<p class="card-text"><strong>Comments:</strong> ${photo.comments}</p>` : ''}
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    console.log('Generated carousel items HTML');
+
+    picDiv.innerHTML = `
+      <h3 class="plantheader">Photo Gallery</h3>
+      <div id="photoCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          ${carouselItems}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#photoCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#photoCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        </button>
+      </div>
+    `;
+
+    console.log('Carousel injected into picDiv');
+  } else {
+    console.log('Collapsing fullscreen back to default');
+
+    // Collapse back to default layout
     picsAndGraphs.classList.add('flex-column');
-    picsAndGraphs.classList.remove('gap-5');
-    picsAndGraphs.classList.remove('p-5');
-    
+    picsAndGraphs.classList.remove('gap-5', 'p-5');
+    console.log('picsAndGraphs classes after collapse:', picsAndGraphs.className);
+
     leftCol.classList.remove('col-12', 'vh-100');
     leftCol.classList.add('col-3');
+    console.log('leftCol classes after collapse:', leftCol.className);
+
     rightCol.classList.remove('d-none');
+    console.log('rightCol classes after show:', rightCol.className);
+
+    // Restore latest photo view
+    updatePhotoDisplay(currentPlant);
+    console.log('Called updatePhotoDisplay to restore latest photo');
   }
 }
+
+
 
 
 /**
