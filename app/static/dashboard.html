@@ -282,9 +282,17 @@
         <div class="col-3 bckgrnd border-start border-success d-flex flex-column align-items-center justify-content-start right_col position-relative">
           <!-- Icons container top-left -->
           <div class="position-absolute top-0 start-0 m-4 d-flex gap-3">
-            <i class="bi bi-bell-fill share-icon" style="font-size: 1.5rem; color: white;"></i>
-            <i class="bi bi-people-fill share-icon" style="font-size: 1.5rem; color: white;"></i>
+            <!-- Notification Icon -->
+            <button type="button" class="btn p-0 border-0 bg-transparent" data-bs-toggle="modal" data-bs-target="#notificationsModal">
+              <i class="bi bi-bell-fill share-icon" style="font-size: 1.5rem; color: white;"></i>
+            </button>
+
+            <!-- Friends List Icon -->
+            <button type="button" class="btn p-0 border-0 bg-transparent" data-bs-toggle="modal" data-bs-target="#friendsModal">
+              <i class="bi bi-people-fill share-icon" style="font-size: 1.5rem; color: white;"></i>
+            </button>
           </div>
+
 
           <header class="about-info-dash px-2">
             <h1 class="display-6 column-title mt-3 mb-4">Share</h1>
@@ -392,6 +400,37 @@
       </div>
     </div>
 
-    
+    <!-- Notifications Modal -->
+    <div class="modal fade" id="notificationsModal" tabindex="-1" aria-labelledby="notificationsLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content bg-dark text-white modal-style">
+          <div class="modal-header">
+            <h5 class="modal-title" id="notificationsLabel">Notifications</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body modal-style">
+            <p>You have no new notifications.</p>
+            <!-- Add dynamic notification content here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Friends List Modal -->
+    <div class="modal fade" id="friendsModal" tabindex="-1" aria-labelledby="friendsLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content bg-dark text-white modal-style">
+          <div class="modal-header">
+            <h5 class="modal-title" id="friendsLabel">Friends List</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body modal-style">
+            <p>You have no friends added.</p>
+            <!-- Add dynamic friends list content here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
   </body>
 </html>
