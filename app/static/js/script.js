@@ -121,16 +121,6 @@ function getCurrentActivePlantName() {
   return activeTab.textContent.trim();
 }
 
-function onPlantSelected(plantName) {
-  const btn = document.getElementById('fullscreenBtn');
-  if (plantName && globalPlants[plantName]) {
-    btn.style.display = 'inline-block';
-  } else {
-    btn.style.display = 'none';
-  }
-}
-
-
 /**
  * Event Listeners
  */
@@ -215,30 +205,26 @@ function toggleFullscreen() {
     console.warn('One or more required elements not found, exiting function');
     return;
   }
-  if (!currentPlant || !globalPlants[currentPlant]) {
-    console.warn('No current plant or plant data found, exiting function');
-    return;
-  }
 
   const isExpanded = leftCol.classList.contains('col-12');
   console.log('Is expanded (leftCol has col-12):', isExpanded);
 
   if (!isExpanded) {
-    console.log('Expanding left column and showing carousel');
+    if (!currentPlant || !globalPlants[currentPlant]) {
+      console.warn('No current plant or plant data found, showing alert');
+      alert("Please select a plant before entering fullscreen mode.");
+      return;
+    }
 
-    // Expand left column
+    console.log('Expanding left column');
+
+    // Expand layout
     picsAndGraphs.classList.remove('flex-column');
     picsAndGraphs.classList.add('gap-5', 'p-5');
-    console.log('picsAndGraphs classes:', picsAndGraphs.className);
-
     leftCol.classList.remove('col-3');
     leftCol.classList.add('col-12', 'vh-100');
-    console.log('leftCol classes after expand:', leftCol.className);
-
     rightCol.classList.add('d-none');
-    console.log('rightCol classes after hide:', rightCol.className);
 
-    // Show carousel
     const photos = globalPlants[currentPlant].photos;
     console.log('Photos array:', photos);
 
@@ -278,24 +264,24 @@ function toggleFullscreen() {
     `;
 
     console.log('Carousel injected into picDiv');
+
   } else {
     console.log('Collapsing fullscreen back to default');
 
-    // Collapse back to default layout
+    // Collapse layout
     picsAndGraphs.classList.add('flex-column');
     picsAndGraphs.classList.remove('gap-5', 'p-5');
-    console.log('picsAndGraphs classes after collapse:', picsAndGraphs.className);
-
     leftCol.classList.remove('col-12', 'vh-100');
     leftCol.classList.add('col-3');
-    console.log('leftCol classes after collapse:', leftCol.className);
-
     rightCol.classList.remove('d-none');
-    console.log('rightCol classes after show:', rightCol.className);
 
-    // Restore latest photo view
-    updatePhotoDisplay(currentPlant);
-    console.log('Called updatePhotoDisplay to restore latest photo');
+    if (currentPlant && globalPlants[currentPlant]) {
+      updatePhotoDisplay(currentPlant);
+      console.log('Called updatePhotoDisplay to restore latest photo');
+    } else {
+      picDiv.innerHTML = `<p class="text-white">Select a plant to view its latest photo.</p>`;
+      console.warn('No current plant during collapse; cleared picDiv');
+    }
   }
 }
 
