@@ -279,15 +279,25 @@
         </div>
 
         <!-- Right Column -->
-        <div class="col-3 bckgrnd border-start border-success d-flex flex-column align-items-center justify-content-start right_col">
-            <header class="about-info-dash px-2">
-              <h1 class="display-6 column-title mt-3 mb-4">Share</h1>
-            </header>
-            <div id="share-content" class="text-center">
-              <h3 class="text-center text-white mt-5">Create A Plant First In Order To Share It!</h3>
-            </div>
-            <button onclick="logout()" class="btn mt-3 logout_button position-absolute bottom-0 mb-5">Logout</button>
+        <div class="col-3 bckgrnd border-start border-success d-flex flex-column align-items-center justify-content-start right_col position-relative">
+          <!-- Icons container top-left -->
+          <div class="position-absolute top-0 start-0 m-4 d-flex gap-3">
+            <i class="bi bi-bell-fill" style="font-size: 1.5rem; color: white;"></i>
+            <i class="bi bi-people-fill" style="font-size: 1.5rem; color: white;"></i>
           </div>
+
+          <header class="about-info-dash px-2">
+            <h1 class="display-6 column-title mt-3 mb-4">Share</h1>
+          </header>
+
+          <div id="share-content" class="text-center">
+            <h3 class="text-center text-white mt-5">Create A Plant First In Order To Share It!</h3>
+          </div>
+
+          <button onclick="logout()" class="btn mt-3 logout_button position-absolute bottom-0 mb-5">Logout</button>
+        </div>
+
+
           
 
           
