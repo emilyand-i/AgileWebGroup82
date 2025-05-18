@@ -158,34 +158,6 @@ function scrollToAbout() {
   }
 }
 
-// Show/hide growth graph
-function graph_show() {
-  const graph_section = document.getElementById('growth_graph');
-  const pic_diary = document.getElementById('user_diary');
-  const style = window.getComputedStyle(graph_section);
-
-  if (style.display == 'none') {
-    graph_section.style.display = 'block';
-    pic_diary.style.display = 'none';
-  } else {
-    graph_section.style.display = 'none';
-  }
-}
-
-// Show/hide picture diary
-function pic_show() {
-  const pic_diary = document.getElementById('user_diary');
-  const graph_section = document.getElementById('growth_graph');
-  const style = window.getComputedStyle(user_diary);
-
-  if (style.display == 'none') {
-    pic_diary.style.display = 'block';
-    graph_section.style.display = 'none';
-  } else {
-    pic_diary.style.display = 'none';
-  }
-}
-
 // Toggle options in settings modal
 function toggleOptions(id) {
   const el = document.getElementById(id);
@@ -230,8 +202,6 @@ function toggleFullscreen() {
     leftCol.classList.remove('col-3');
     leftCol.classList.add('col-12', 'vh-100');
     rightCol.classList.add('d-none');
-
-    // updatePicGrid();
 
   } else { // if left column is expanded
     picsAndGraphs.classList.add('flex-column');
@@ -931,35 +901,6 @@ function updatePhotoDisplay(plantName) {
       </div>
   `;
 }
-
-
-function updatePicGrid(showAll = false) {
-  console.log("updatePicGrid called");
-  const picDiv = document.getElementById('picDiv');
-  console.log("picDiv", picDiv);
-  if (!picDiv) return;
-  currentPlantName = getCurrentActivePlantName();
-  console.log("currentPlantName", currentPlantName);
-
-  console.log("currentPlantName", currentPlantName);
-  
-  
-  const photosToShow = globalPlants[currentPlantName].photos.reverse(); // Most recent first
-  
-  const grid = document.createElement('div');
-  grid.className = 'row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3';
-
-  photosToShow.forEach(card => {
-    const col = document.createElement('div');
-    col.className = 'col';
-    col.appendChild(card.cloneNode(true)); // Clone to avoid DOM reuse issues
-    grid.appendChild(col);
-  });
-
-  picDiv.appendChild(grid);
-
-}
-
 
 /**
  * PLANT GROWTH TRACKING
