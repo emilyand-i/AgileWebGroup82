@@ -10,6 +10,7 @@ with app.app_context():
 
     # Define 10 unique users
     users = [
+        {"username": "test", "email": "admin@plantly.com", "password": "admin"},
         {"username": "matthew", "email": "matthew@plantly.com", "password": "password1"},
         {"username": "andoni", "email": "andoni@plantly.com", "password": "password2"},
         {"username": "eli", "email": "eli@plantly.com", "password": "password3"},
