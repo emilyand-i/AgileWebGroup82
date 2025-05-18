@@ -919,7 +919,7 @@ function shareFriendProfile(friendName) {
   .catch(err => {
     console.error("❌ Error sharing plant:", err);
     alert("❌ Network error.");
-=======
+
   .then(res => {
     // Check for error responses first
     if (!res.ok) {
