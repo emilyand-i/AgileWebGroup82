@@ -882,7 +882,6 @@ function initialisePhotoUpload() {
     });
 }
 
-// Add this new function to update photo display
 function updatePhotoDisplay(currentPlant) {
   const picDiv = document.getElementById('picDiv');
   if (!currentPlant || !globalPlants[currentPlant]) {
@@ -896,12 +895,13 @@ function updatePhotoDisplay(currentPlant) {
     return;
   }
 
-  const carouselItems = photos.map((photo, i) => `
+  // Reverse the array so the latest photo appears first
+  const carouselItems = photos.slice().reverse().map((photo, i) => `
     <div class="carousel-item ${i === 0 ? 'active' : ''}">
       <div class="card photo-card mb-3 bg-dark text-white">
         <div class="card-body text-center">
           <p class="card-text"><small>${photo.date}</small></p>
-          <img src="${photo.src}" class="card-img-top photo-img mb-2" alt="Plant photo ${i + 1}">
+          <img src="${photo.src}" class="card-img-top photo-img mb-2" alt="Plant photo ${photos.length - i}">
           ${photo.comments ? `<p class="card-text"><strong>Comments:</strong> ${photo.comments}</p>` : ''}
         </div>
       </div>
