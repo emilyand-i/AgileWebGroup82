@@ -640,3 +640,21 @@ main.main-info {
   background-color: green;
   border-radius: 4px;
 }
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  background-size: 100% 100%;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5%; 
+}
+
+.carousel-inner {
+  padding: 0 2rem; 
+}
