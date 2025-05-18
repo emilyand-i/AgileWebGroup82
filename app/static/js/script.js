@@ -888,11 +888,8 @@ function shareFriendProfile(friendName) {
   // Send the share request
   fetch('/api/share_plant', {
     method: 'POST',
-
-    
     headers: { 
       'Content-Type': 'application/json',
-
       'X-CSRFToken': csrfToken // Add CSRF token
     },
     credentials: 'include', // Include cookies for authentication
@@ -919,85 +916,6 @@ function shareFriendProfile(friendName) {
   .catch(err => {
     console.error("❌ Error sharing plant:", err);
     alert("❌ Network error.");
-
-  .then(res => {
-    // Check for error responses first
-    if (!res.ok) {
-      console.error("❌ HTTP error:", res.status, res.statusText);
-      // Try to get the error message even if it's not valid JSON
-      return res.text().then(text => {
-        try {
-          // Try to parse it as JSON
-          return Promise.reject(JSON.parse(text));
-        } catch (e) {
-          // If it's not valid JSON (like HTML), provide a more helpful error
-          console.error("❌ Invalid response:", text.substring(0, 150) + "...");
-          return Promise.reject({ error: `Server error (${res.status}). Please try again later.` });
-        }
-      });
-    }
-    return res.json();
-  })
-  .then(data => {
-  if (data.message) {
-    console.log("✅ Share success:", data.message);
-    console.log("🔍 Response details:", JSON.stringify(data));
-    
-    // Show success toast
-    showShareToast(data.message, friendName);
-    
-    // Reload notifications immediately
-    loadNotifications();
-  } else {
-    alert(`❌ ${data.error || 'Unknown error'}`);
-  }
-})
-  .catch(err => {
-    console.error("❌ Error sharing plant:", err);
-    alert(`❌ ${err.error || 'Network error. Please try again.'}`);
-  });
-}
-// Add this function to show toast notifications
-function showShareToast(message, friendName) {
-  // Create toast container if it doesn't exist
-  let toastContainer = document.querySelector('.toast-container');
-  if (!toastContainer) {
-    toastContainer = document.createElement('div');
-    toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
-    toastContainer.style.zIndex = '1060';
-    document.body.appendChild(toastContainer);
-  }
-  
-  // Create unique ID for this toast
-  const toastId = `share-toast-${Date.now()}`;
-  
-  // Create the toast HTML
-  const toastHTML = `
-    <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="toast-header bg-success text-white">
-        <i class="bi bi-share me-2"></i>
-        <strong class="me-auto">Plant Shared</strong>
-        <small class="text-white">Just now</small>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-      <div class="toast-body">
-        ${message || `Your plant was successfully shared with ${friendName}!`}
-      </div>
-    </div>
-  `;
-  
-  // Add toast to container
-  toastContainer.insertAdjacentHTML('beforeend', toastHTML);
-  
-  // Initialize and show the toast
-  const toastElement = document.getElementById(toastId);
-  const toast = new bootstrap.Toast(toastElement, { delay: 5000 });
-  toast.show();
-  
-  // Remove the toast element after it's hidden
-  toastElement.addEventListener('hidden.bs.toast', () => {
-    toastElement.remove();
-
   });
 }
 
