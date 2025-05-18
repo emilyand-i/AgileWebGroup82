@@ -346,7 +346,7 @@ function toggleFullscreen() {
     }
 
     // Enter fullscreen
-    picsAndGraphs.classList.remove('flex-column');
+    // picsAndGraphs.classList.remove('flex-column');
     picsAndGraphs.classList.add('gap-5', 'p-5');
     leftCol.classList.remove('col-3');
     leftCol.classList.add('col-12', 'vh-100');

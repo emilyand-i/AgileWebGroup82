@@ -421,7 +421,7 @@ main.main-info {
 
 /* When fullscreen class is present on picDiv, adjust the photo cards */
 #picDiv.fullscreen .photo-card {
-  width: 50%;
+  width: 40%;
   max-width: 700px; /* optional */
   margin-left: auto;
   margin-right: auto;
