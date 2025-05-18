@@ -640,3 +640,9 @@ main.main-info {
   background-color: green;
   border-radius: 4px;
 }
+
+.share-icon:hover {
+  cursor: pointer;
+  transform: scale(1.2);
+  transition: transform 0.5s ease;
+}
