@@ -190,100 +190,40 @@ function toggleFullscreen() {
   const picsAndGraphs = document.getElementById('picsAndGraphs');
   const leftCol = document.querySelector('.left_col');
   const rightCol = document.querySelector('.right_col');
-  const picDiv = document.getElementById('picDiv');
   const currentPlant = getCurrentActivePlantName();
 
-  console.log('Elements:', {
-    picsAndGraphs,
-    leftCol,
-    rightCol,
-    picDiv,
-  });
-  console.log('Current plant:', currentPlant);
-
-  if (!leftCol || !rightCol || !picDiv) {
+  if (!leftCol || !rightCol || !picsAndGraphs) {
     console.warn('One or more required elements not found, exiting function');
     return;
   }
 
   const isExpanded = leftCol.classList.contains('col-12');
-  console.log('Is expanded (leftCol has col-12):', isExpanded);
 
   if (!isExpanded) {
     if (!currentPlant || !globalPlants[currentPlant]) {
-      console.warn('No current plant or plant data found, showing alert');
       alert("Please select a plant before entering fullscreen mode.");
       return;
     }
 
-    console.log('Expanding left column');
-
-    // Expand layout
+    // Enter fullscreen
     picsAndGraphs.classList.remove('flex-column');
     picsAndGraphs.classList.add('gap-5', 'p-5');
     leftCol.classList.remove('col-3');
     leftCol.classList.add('col-12', 'vh-100');
     rightCol.classList.add('d-none');
-
-    const photos = globalPlants[currentPlant].photos;
-    console.log('Photos array:', photos);
-
-    if (!photos || photos.length === 0) {
-      console.log('No photos available, updating picDiv accordingly');
-      picDiv.innerHTML = `<p class="text-white">No photos available.</p>`;
-      return;
-    }
-
-    const carouselItems = photos.map((photo, i) => `
-      <div class="carousel-item ${i === 0 ? 'active' : ''}">
-        <div class="card photo-card mb-3 bg-dark text-white">
-          <div class="card-body text-center">
-            <p class="card-text"><small>${photo.date}</small></p>
-            <img src="${photo.src}" class="card-img-top photo-img mb-2" alt="Plant photo ${i + 1}">
-            ${photo.comments ? `<p class="card-text"><strong>Comments:</strong> ${photo.comments}</p>` : ''}
-          </div>
-        </div>
-      </div>
-    `).join('');
-
-    console.log('Generated carousel items HTML');
-
-    picDiv.innerHTML = `
-      <h3 class="plantheader">Photo Gallery</h3>
-      <div id="photoCarousel" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-inner">
-          ${carouselItems}
-        </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#photoCarousel" data-bs-slide="prev">
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#photoCarousel" data-bs-slide="next">
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        </button>
-      </div>
-    `;
-
-    console.log('Carousel injected into picDiv');
-
   } else {
-    console.log('Collapsing fullscreen back to default');
-
-    // Collapse layout
+    // Exit fullscreen
     picsAndGraphs.classList.add('flex-column');
     picsAndGraphs.classList.remove('gap-5', 'p-5');
     leftCol.classList.remove('col-12', 'vh-100');
     leftCol.classList.add('col-3');
     rightCol.classList.remove('d-none');
-
-    if (currentPlant && globalPlants[currentPlant]) {
-      updatePhotoDisplay(currentPlant);
-      console.log('Called updatePhotoDisplay to restore latest photo');
-    } else {
-      picDiv.innerHTML = `<p class="text-white">Select a plant to view its latest photo.</p>`;
-      console.warn('No current plant during collapse; cleared picDiv');
-    }
   }
+
+  // Always update photo display to refresh carousel in both views
+  updatePhotoDisplay(currentPlant);
 }
+
 
 
 
@@ -943,37 +883,47 @@ function initialisePhotoUpload() {
 }
 
 // Add this new function to update photo display
-function updatePhotoDisplay(plantName) {
-  const display = document.getElementById('latestPhotoContainer');
-  const noPhotoMessage = document.getElementById('noPhotoMessage');
-  
-  if (!display) return;
-
-  const plant = globalPlants[plantName];
-  if (!plant || !plant.photos || plant.photos.length === 0) {
-      display.innerHTML = '';
-      if (noPhotoMessage) {
-          noPhotoMessage.style.display = 'block';
-      }
-      return;
+function updatePhotoDisplay(currentPlant) {
+  const picDiv = document.getElementById('picDiv');
+  if (!currentPlant || !globalPlants[currentPlant]) {
+    picDiv.innerHTML = `<p class="text-white">Select a plant to view its photos.</p>`;
+    return;
   }
 
-  if (noPhotoMessage) {
-      noPhotoMessage.style.display = 'none';
+  const photos = globalPlants[currentPlant].photos;
+  if (!photos || photos.length === 0) {
+    picDiv.innerHTML = `<p class="text-white">No photos available.</p>`;
+    return;
   }
 
-  const latestPhoto = plant.photos[plant.photos.length - 1];
-
-  display.innerHTML = `
-      <div class="card photo-card mb-3">
-          <div class="card-body">
-              <p class="card-text"><small>${latestPhoto.date}</small></p>
-              <img src="${latestPhoto.src}" class="card-img-top photo-img mb-2" alt="Plant photo">
-              ${latestPhoto.comments ? `<p class="card-text"><strong>Comments:</strong> ${latestPhoto.comments}</p>` : ''}
-          </div>
+  const carouselItems = photos.map((photo, i) => `
+    <div class="carousel-item ${i === 0 ? 'active' : ''}">
+      <div class="card photo-card mb-3 bg-dark text-white">
+        <div class="card-body text-center">
+          <p class="card-text"><small>${photo.date}</small></p>
+          <img src="${photo.src}" class="card-img-top photo-img mb-2" alt="Plant photo ${i + 1}">
+          ${photo.comments ? `<p class="card-text"><strong>Comments:</strong> ${photo.comments}</p>` : ''}
+        </div>
       </div>
+    </div>
+  `).join('');
+
+  picDiv.innerHTML = `
+    <h3 class="plantheader">Photo Gallery</h3>
+    <div id="photoCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        ${carouselItems}
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#photoCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#photoCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      </button>
+    </div>
   `;
 }
+
 
 /**
  * PLANT GROWTH TRACKING
