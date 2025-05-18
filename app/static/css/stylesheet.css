@@ -662,6 +662,7 @@ main.main-info {
   padding-right: 6px;
   scrollbar-width: thin;            /* Firefox */
   scrollbar-color: rgb(37, 67, 38) transparent; /* Firefox */
+  scroll-behavior: smooth;
 }
 
 /* Chrome, Edge, Safari */
@@ -834,4 +835,15 @@ main.main-info {
 }
 .form-check-label {
 
+}
+
+.bi-camera-fill:hover, .bi-graph-up:hover {
+    color: #198754 !important;
+    transition: color 0.3s ease;
+}
+
+/* Add smooth scrolling for icon navigation */
+a[href^="#"] {
+    scroll-behavior: smooth;
+    scroll-padding-top: 2rem;
 }
