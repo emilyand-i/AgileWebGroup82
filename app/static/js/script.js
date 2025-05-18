@@ -121,6 +121,16 @@ function getCurrentActivePlantName() {
   return activeTab.textContent.trim();
 }
 
+function onPlantSelected(plantName) {
+  const btn = document.getElementById('fullscreenBtn');
+  if (plantName && globalPlants[plantName]) {
+    btn.style.display = 'inline-block';
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+
 /**
  * Event Listeners
  */
