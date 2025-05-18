@@ -1,4 +1,3 @@
-
 /**
  * Global Constants & Utilities
  */
@@ -6,100 +5,111 @@
 // Structure: { plantName: { tabId, contentId, avatarSrc, streakCount, creationDate, etc. } }
 let globalPlants = {};
 
+// At the top of script.js after global constants
+let canvas = document.getElementById('plantGrowthGraph');
+let ctx;
+
+if (canvas) {
+    ctx = canvas.getContext('2d');
+}
+
 // Draw growth graph for selected plant
 
-let canvas;
-let ctx;
 function drawGraph(namePlant) {
-  console.log(`Drawing graph for ${namePlant}`);
-  const data = globalPlants.growthData[namePlant];
-  console.log("Retrieved data:", data);
-
-  if (!data || data.length < 2) {
-      console.log("Data is missing or too short:", data);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.font = "16px sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText(`Add at Least 2 Growth Points.`, canvas.width/2, canvas.height/2);
-      return;
-  }
-
-  try {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    console.log("Canvas cleared");
-  } catch (e) {
-    console.error("Error clearing canvas:", e);
-  }
-  
-  
-  const padding = 70;
-  const graphWidth = canvas.width - padding * 2;
-  const graphHeight = canvas.height - padding * 2;
-
-  const dates = data.map(d => new Date(d.date));
-  const heights = data.map(d => d.height);
-
-  const minDate = Math.min(...dates.map(d => d.getTime()));
-  const maxDate = Math.max(...dates.map(d => d.getTime()));
-  const minHeight = Math.min(...heights);
-  const maxHeight = Math.max(...heights);
-  console.log("minDate", minDate);
-
-  function getX(date) {
-    return padding + ((date.getTime() - minDate) / (maxDate - minDate)) * graphWidth;
-  }
-
-  function getY(height) {
-    return canvas.height - padding - ((height - minHeight) / (maxHeight - minHeight)) * graphHeight;
-  }
-
-  // Draw axes
-  ctx.beginPath();
-  ctx.moveTo(padding, padding);
-  ctx.lineTo(padding, canvas.height - padding);
-  ctx.lineTo(canvas.width - padding, canvas.height - padding);
-  ctx.stroke();
-  console.log("axes drawn");
-
-  // Plot points and connect them
-  ctx.beginPath();
-  ctx.strokeStyle = '#28a745';
-  ctx.lineWidth = 4;
-  data.forEach((point, index) => {
-    const x = getX(new Date(point.date));
-    const y = getY(point.height);
-
-    if (index === 0){
-      ctx.moveTo(x, y);
-    }
-    else {
-      ctx.lineTo(x, y);
+    if (!ctx || !canvas) {
+        console.error('Canvas or context not initialized');
+        return;
     }
 
-    ctx.arc(x, y, 5, 0, 2 * Math.PI);
-  });
-  ctx.stroke();
-  console.log("points plotted");
+    console.log(`Drawing graph for ${namePlant}`);
+    const data = globalPlants.growthData[namePlant];
+    console.log("Retrieved data:", data);
 
-  // Y-Axis label
-  ctx.save();
-  ctx.translate(20, canvas.height / 2);
-  ctx.rotate(-Math.PI / 2);
-  ctx.textAlign = "center";
-  ctx.font = "14px sans-serif";
-  ctx.fillText("Height Grown", 0, 0);
-  ctx.restore();
-  console.log("y-axis label drawn");
+    if (!data || data.length < 2) {
+        console.log("Data is missing or too short:", data);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = "16px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(`Add at Least 2 Growth Points.`, canvas.width/2, canvas.height/2);
+        return;
+    }
 
-  // X-Axis label
-  ctx.font = "14px sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText("Time Spent Growing", canvas.width / 2, canvas.height - 10);
-  console.log("x-axis label drawn");
+    try {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        console.log("Canvas cleared");
+    } catch (e) {
+        console.error("Error clearing canvas:", e);
+    }
+    
+    
+    const padding = 70;
+    const graphWidth = canvas.width - padding * 2;
+    const graphHeight = canvas.height - padding * 2;
 
-  // Graph title
-  ctx.font = "bold 18px sans-serif";
-  ctx.fillText(`${namePlant}'s Growth Journey`, canvas.width / 2, padding - 15);
+    const dates = data.map(d => new Date(d.date));
+    const heights = data.map(d => d.height);
+
+    const minDate = Math.min(...dates.map(d => d.getTime()));
+    const maxDate = Math.max(...dates.map(d => d.getTime()));
+    const minHeight = Math.min(...heights);
+    const maxHeight = Math.max(...heights);
+    console.log("minDate", minDate);
+
+    function getX(date) {
+        return padding + ((date.getTime() - minDate) / (maxDate - minDate)) * graphWidth;
+    }
+
+    function getY(height) {
+        return canvas.height - padding - ((height - minHeight) / (maxHeight - minHeight)) * graphHeight;
+    }
+
+    // Draw axes
+    ctx.beginPath();
+    ctx.moveTo(padding, padding);
+    ctx.lineTo(padding, canvas.height - padding);
+    ctx.lineTo(canvas.width - padding, canvas.height - padding);
+    ctx.stroke();
+    console.log("axes drawn");
+
+    // Plot points and connect them
+    ctx.beginPath();
+    ctx.strokeStyle = '#28a745';
+    ctx.lineWidth = 4;
+    data.forEach((point, index) => {
+        const x = getX(new Date(point.date));
+        const y = getY(point.height);
+
+        if (index === 0){
+            ctx.moveTo(x, y);
+        }
+        else {
+            ctx.lineTo(x, y);
+        }
+
+        ctx.arc(x, y, 5, 0, 2 * Math.PI);
+    });
+    ctx.stroke();
+    console.log("points plotted");
+
+    // Y-Axis label
+    ctx.save();
+    ctx.translate(20, canvas.height / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = "center";
+    ctx.font = "14px sans-serif";
+    ctx.fillText("Height Grown", 0, 0);
+    ctx.restore();
+    console.log("y-axis label drawn");
+
+    // X-Axis label
+    ctx.font = "14px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Time Spent Growing", canvas.width / 2, canvas.height - 10);
+    console.log("x-axis label drawn");
+
+    // Graph title
+    ctx.font = "bold 18px sans-serif";
+    ctx.fillText(`${namePlant}'s Growth Journey`, canvas.width / 2, padding - 15);
 }
 
 
@@ -1091,6 +1101,12 @@ function initialisePlantGrowthTracker() {
     e.preventDefault();
     e.stopPropagation();
 
+    // Check if canvas and context are available
+    if (!canvas || !ctx) {
+        console.error('Canvas or context not initialized');
+        return;
+    }
+
     const name = getCurrentActivePlantName();
     const date = document.getElementById('growthDate').value;
     const height = parseFloat(document.getElementById('growthHeight').value);
@@ -1335,6 +1351,12 @@ document.getElementById("plantCategory").addEventListener("change", function () 
  * Main initialisation
  */
 document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize canvas
+    canvas = document.getElementById('plantGrowthGraph');
+    if (canvas) {
+        ctx = canvas.getContext('2d');
+    }
+
     // Load dashboard - wait for initialisations to render first
     loadDashboard();
     
