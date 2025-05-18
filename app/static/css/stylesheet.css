@@ -820,9 +820,12 @@ main.main-info {
   transition: 100ms;
 }
 
-
-
-
+#waterTrackingGraph {
+  overflow: hidden;
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
 
 
 /* Checkboxes */
