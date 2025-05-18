@@ -184,7 +184,7 @@ function drawWaterGraph(namePlant) {
 
     // Prepare data
     const today = new Date();
-    const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+    const thirtyDaysAgo = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
     
     // Create array of last 30 days
     const dates = [];
@@ -219,7 +219,7 @@ function drawWaterGraph(namePlant) {
             plugins: {
                 title: {
                     display: true,
-                    text: `${namePlant}'s Watering Schedule`,
+                    text: ``,
                     color: 'white',
                     font: {
                         size: 10,
